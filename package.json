@@ -1,0 +1,28 @@
+{
+  "name": "raml-language-server",
+  "version": "0.0.1",
+  "description": "RAML Language Server based on the Language Server Protocol",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raml-org/raml-language-server.git"
+  },
+  "keywords": [
+    "raml"
+  ],
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/raml-org/raml-language-server/issues"
+  },
+  "homepage": "https://github.com/raml-org/raml-language-server#readme",
+  "dependencies": {
+    "raml-1-parser": "^0.2.25",
+    "vscode-jsonrpc": "^2.2.0",
+    "vscode-languageserver": "^2.2.1",
+    "vscode-languageserver-types": "^1.0.1"
+  }
+}
