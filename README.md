@@ -5,7 +5,7 @@ using the new [Language Server Protocol standard] (https://github.com/Microsoft/
 
 ## Architecture
 
-This project exposes not only the [RAML 1.0 JS parser](https://github.com/raml-org/raml-js-parser-2) but also functionality that is currenntly part of the [API Workbench](http://apiworkbench.com/) Atom Package
+This project exposes not only the [RAML 1.0 JS parser](https://github.com/raml-org/raml-js-parser-2) but also functionalities that are currently part of the [API Workbench](http://apiworkbench.com/) Atom Package
 as a [Language Server](https://github.com/Microsoft/language-server-protocol) using the [Node.js SDK](https://github.com/Microsoft/vscode-languageserver-node).
 
 ![Architecture diagram](https://github.com/raml-org/raml-language-server/blob/master/images/arch.png)
