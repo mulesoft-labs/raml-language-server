@@ -8,7 +8,7 @@ using the new [Language Server Protocol standard] (https://github.com/Microsoft/
 This project exposes the [RAML 1.0 JS parser](https://github.com/raml-org/raml-js-parser-2)
 as a [Language Server](https://github.com/Microsoft/language-server-protocol) using the [Node.js SDK](https://github.com/Microsoft/vscode-languageserver-node).
 
-![Architecture diagram](https://github.com/raml-org/raml-language-server/blob/documentation/images/arch.png)
+![Architecture diagram](https://github.com/raml-org/raml-language-server/blob/master/images/arch.png)
 
 ## Features
 

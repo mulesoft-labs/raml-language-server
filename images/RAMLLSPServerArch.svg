@@ -177,7 +177,7 @@
            y="43080.77" /></flowRegion><flowPara
          id="flowPara4869">Au</flowPara></flowRoot>    <g
        id="g4892"
-       transform="translate(-130.30969,-1167.156)"
+       transform="matrix(0.89972126,0,0,1.0000417,-137.88095,-1168.997)"
        style="stroke:#000000;stroke-opacity:1">
       <rect
          id="rect3483"
@@ -189,7 +189,7 @@
     </g>
     <g
        id="g4330"
-       transform="translate(-27.450747,38.155547)">
+       transform="translate(-29.471055,38.155729)">
       <text
          xml:space="preserve"
          style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
