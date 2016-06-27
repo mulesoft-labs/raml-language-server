@@ -33,5 +33,7 @@ Here is an initial list of overlapping features between the API Workbench and VS
 |Rename|Yes. We have full support for renaming symbols, declarations and documents|
 
 # FAQ
-Q: Should the scope of this project be extended to developing both a Language Server and a VSCode Extension that uses it?
+
+**Q: Should the scope of this project be extended to developing a full-blown VSCode Extension?**
+
 A: Most likely yes
