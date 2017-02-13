@@ -1,5 +1,6 @@
 import {
-    ILogger
+    ILogger,
+    MessageSeverity
 } from '../../common/typeInterfaces'
 
 export type MessageToClientType =
@@ -26,7 +27,8 @@ interface CallBackHandle<ResultType> {
     reject?: (error?: any) => void
 }
 
-export abstract class MessageDispatcher<MessageType extends MessageToClientType | MessageToServerType> implements ILogger {
+export abstract class MessageDispatcher<MessageType extends MessageToClientType | MessageToServerType>
+    implements ILogger {
     private callBacks : {[messageId : string] : CallBackHandle<any>} = {};
 
     /**
@@ -36,14 +38,67 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
     abstract sendMessage
         (message : ProtocolMessage<MessageType>) : void;
 
-    abstract log(message: string) : void;
+    /**
+     * Logs a message
+     * @param message - message text
+     * @param severity - message severity
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    abstract log(message:string, severity: MessageSeverity,
+        component?: string, subcomponent?: string) : void
+
+    /**
+     * Logs a DEBUG severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    abstract debug(message:string,
+          component?: string, subcomponent?: string) : void;
+
+    /**
+     * Logs a DEBUG_DETAIL severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    abstract debugDetail(message:string,
+                component?: string, subcomponent?: string) : void;
+
+    /**
+     * Logs a DEBUG_OVERVIEW severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    abstract debugOverview(message:string,
+                  component?: string, subcomponent?: string) : void;
+
+    /**
+     * Logs a WARNING severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    abstract warning(message:string,
+            component?: string, subcomponent?: string) : void;
+
+    /**
+     * Logs an ERROR severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    abstract error(message:string,
+          component?: string, subcomponent?: string) : void;
 
     /**
      * Sends message to the counterpart
      * @param message
      */
     public send(message : ProtocolMessage<MessageType>) : void {
-        this.log("MessageDispatcher:send Sending message of type: " + message.type);
+        this.debug("Sending message of type: " + message.type, "MessageDispatcher", "send");
         this.sendMessage(message);
     }
 
@@ -54,7 +109,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @return promise, which will contain the result returned by the counterpart
      */
     public sendWithResponse<ResultType>(message : ProtocolMessage<MessageType>) : Promise<ResultType> {
-        this.log("MessageDispatcher:sendWithResonse Sending message with response of type: " + message.type);
+        this.debug("Sending message with response of type: " + message.type, "MessageDispatcher", "sendWithResonse");
         return new Promise((resolve : (value?: ResultType) => void, reject: (error?: any) => void)=>{
 
             message.id = shortid.generate();
@@ -76,10 +131,12 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @param message
      */
     public handleRecievedMessage(message : ProtocolMessage<MessageType>) {
-        this.log("MessageDispatcher:handleRecievedMessage Recieved message of type: " + message.type + " and id: " + message.id);
+        this.debug("Recieved message of type: " + message.type + " and id: " + message.id,
+            "MessageDispatcher", "handleRecievedMessage");
 
         if (message.id && this.callBacks[message.id]) {
-            this.log("MessageDispatcher:handleRecievedMessage Message callback found");
+            this.debugDetail("MessageDispatcher:handleRecievedMessage Message callback found",
+                "MessageDispatcher", "handleRecievedMessage");
             //this is a response for a request sent earlier
             //lets find its resolve/error and call it
 
@@ -98,20 +155,24 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
                 delete this.callBacks[message.id];
             }
         } else {
-            this.log("MessageDispatcher:handleRecievedMessage Looking for method " + message.type)
+            this.debugDetail("Looking for method " + message.type,
+                "MessageDispatcher", "handleRecievedMessage")
             let method = this[<string>message.type];
             if (!method) {
-                this.log("MessageDispatcher:handleRecievedMessage Method NOT found: " + message.type)
+                this.debugDetail("Method NOT found: " + message.type,
+                    "MessageDispatcher", "handleRecievedMessage")
                 return;
             } else {
-                this.log("MessageDispatcher:handleRecievedMessage Method found: " + message.type)
+                this.debugDetail("Method found: " + message.type,
+                    "MessageDispatcher", "handleRecievedMessage")
             }
 
             if (typeof(method) != "function") return;
 
             //if this is not a response, just a direct message, lets call a handler
             var result = method.call(this,message.payload);
-            this.log("MessageDispatcher:handleRecievedMessage Called method " + message.type + " result is: " + result);
+            this.debugDetail("Called method " + message.type + " result is: " + result,
+                "MessageDispatcher", "handleRecievedMessage");
 
             //if we've got some result and message has ID, so the answer is expected
             if (result != null && message.id) {

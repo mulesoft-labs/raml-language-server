@@ -15,7 +15,11 @@ import {
     ProtocolMessage,
     MessageToServerType
 } from './protocol'
-import {IChangedDocument} from "../../common/typeInterfaces";
+
+import {
+    IChangedDocument,
+    MessageSeverity
+} from "../../common/typeInterfaces";
 
 
 let clientConnection = null;
@@ -47,15 +51,15 @@ class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
         });
 
         serverProcess.stdout.on('data', data => {
-            this.log("Validation process stdout: " + data.toString());
+            this.debug("Server process stdout:\n" + data.toString(), "NodeProcessClientConnection");
         });
 
         serverProcess.stderr.on('data', data => {
-            this.log("Validation process stderr: " + data.toString());
+            this.debug("Server process stderr:\n" + data.toString(), "NodeProcessClientConnection");
         });
 
         serverProcess.on('close', function (code) {
-            this.log('Validation process exited with code ' + code);
+            this.debug('Validation process exited with code ' + code, "NodeProcessClientConnection");
         });
     }
 
@@ -118,8 +122,88 @@ class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
         this.serverProcess.send(message);
     }
 
-    log(message : string) : void {
-        console.log(message);
+    /**
+     * Logs a message
+     * @param message - message text
+     * @param severity - message severity
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    log(message:string, severity: MessageSeverity,
+        component?: string, subcomponent?: string) : void {
+
+        let toLog = "";
+        if (severity != MessageSeverity.WARNING && severity != MessageSeverity.ERROR) {
+            MessageSeverity[severity];
+        }
+
+        if (component) toLog+= (component + ": ")
+        if (subcomponent) toLog+= (subcomponent + ": ")
+
+        toLog += message;
+
+        if (severity == MessageSeverity.WARNING) {
+            console.warn(toLog);
+        } else if (severity == MessageSeverity.ERROR) {
+            console.error(toLog);
+        } else {
+            console.log(toLog);
+        }
+    }
+
+    /**
+     * Logs a DEBUG severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    debug(message:string,
+          component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.DEBUG, component, subcomponent);
+    }
+
+    /**
+     * Logs a DEBUG_DETAIL severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    debugDetail(message:string,
+                component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.DEBUG_DETAIL, component, subcomponent);
+    }
+
+    /**
+     * Logs a DEBUG_OVERVIEW severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    debugOverview(message:string,
+                  component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.DEBUG_OVERVIEW, component, subcomponent);
+    }
+
+    /**
+     * Logs a WARNING severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    warning(message:string,
+            component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.WARNING, component, subcomponent);
+    }
+
+    /**
+     * Logs an ERROR severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    error(message:string,
+          component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.ERROR, component, subcomponent);
     }
 }
 

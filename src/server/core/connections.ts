@@ -6,7 +6,8 @@ import {
     IChangedDocument,
     StructureNodeJSON,
     Suggestion,
-    ILogger
+    ILogger,
+    MessageSeverity
 } from '../../common/typeInterfaces'
 
 export {
@@ -16,7 +17,9 @@ export {
     IOpenedDocument,
     IChangedDocument,
     StructureNodeJSON,
-    Suggestion
+    Suggestion,
+    ILogger,
+    MessageSeverity
 } from '../../common/typeInterfaces'
 
 export interface IServerConnection extends ILogger {

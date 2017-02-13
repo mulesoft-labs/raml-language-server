@@ -45,7 +45,8 @@ class Acceptor extends utils.PointOfViewValidationAcceptorImpl {
             return;
         }
 
-        this.logger.log("ValidationManager: accepting issue: " + issue.message)
+        this.logger.debugDetail("Accepting issue: " + issue.message,
+            "ValidationManager", "accept")
 
         this.transformIssue(issue);
 
@@ -124,7 +125,10 @@ class ValidationManager {
     }
 
     newASTAvailable(uri: string, ast: IHighLevelNode):void {
-        this.connection.log("ValidationManager: got new AST:\n" + (ast!=null?ast.printDetails():null))
+
+        this.connection.debug("Got new AST:\n" + (ast!=null?ast.printDetails():null),
+            "ValidationManager", "newASTAvailable")
+
         let errors = this.gatherValidationErrors(ast, uri);
         this.connection.validated({
             pointOfViewUri : uri,

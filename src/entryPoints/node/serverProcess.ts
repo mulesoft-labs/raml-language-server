@@ -7,7 +7,9 @@ import {
     IOpenedDocument,
     IChangedDocument,
     StructureNodeJSON,
-    Suggestion
+    Suggestion,
+    ILogger,
+    MessageSeverity
 } from '../../server/core/connections'
 
 import {
@@ -146,8 +148,88 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
         return result;
     }
 
-    log(message : string) {
-        console.log(message);
+    /**
+     * Logs a message
+     * @param message - message text
+     * @param severity - message severity
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    log(message:string, severity: MessageSeverity,
+        component?: string, subcomponent?: string) : void {
+
+        let toLog = "";
+        if (severity != MessageSeverity.WARNING && severity != MessageSeverity.ERROR) {
+            MessageSeverity[severity];
+        }
+
+        if (component) toLog+= (component + ": ")
+        if (subcomponent) toLog+= (subcomponent + ": ")
+
+        toLog += message;
+
+        if (severity == MessageSeverity.WARNING) {
+            console.warn(toLog);
+        } else if (severity == MessageSeverity.ERROR) {
+            console.error(toLog);
+        } else {
+            console.log(toLog);
+        }
+    }
+
+    /**
+     * Logs a DEBUG severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    debug(message:string,
+          component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.DEBUG, component, subcomponent);
+    }
+
+    /**
+     * Logs a DEBUG_DETAIL severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    debugDetail(message:string,
+                component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.DEBUG_DETAIL, component, subcomponent);
+    }
+
+    /**
+     * Logs a DEBUG_OVERVIEW severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    debugOverview(message:string,
+                  component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.DEBUG_OVERVIEW, component, subcomponent);
+    }
+
+    /**
+     * Logs a WARNING severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    warning(message:string,
+            component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.WARNING, component, subcomponent);
+    }
+
+    /**
+     * Logs an ERROR severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    error(message:string,
+          component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.ERROR, component, subcomponent);
     }
 }
 

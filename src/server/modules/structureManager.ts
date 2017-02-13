@@ -181,7 +181,10 @@ class StructureManager {
     }
 
     getStructure(uri : string): {[categoryName:string] : StructureNodeJSON} {
-        this.connection.log("StructureManager:getStructure called for uri: " + uri)
+
+        this.connection.debug("Called for uri: " + uri,
+            "StructureManager", "getStructure");
+
         ramlOutline.setASTProvider(new ASTProvider(uri, this.astManagerModule));
 
         return ramlOutline.getStructureForAllCategories();

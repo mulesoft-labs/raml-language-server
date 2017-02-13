@@ -10,7 +10,8 @@ import {
     IChangedDocument,
     StructureNodeJSON,
     StructureCategories,
-    Suggestion
+    Suggestion,
+    MessageSeverity
 } from '../../common/typeInterfaces'
 
 import {
@@ -47,7 +48,10 @@ export class ProxyServerConnection implements IServerConnection {
         // The content of a text document has changed. This event is emitted
         // when the text document first opened or when its content has changed.
         this.documents.onDidChangeContent((change) => {
-            this.log(`${change.document.uri} changed, change text is:\n ` + change.document.getText());
+
+            this.debug(`${change.document.uri} changed`, "ProxyServerConnection")
+            this.debugDetail(`Text is:\n ` + change.document.getText(), "ProxyServerConnection");
+
             for (let listener of this.changeDocumentListeners) {
                 listener({
                     uri: change.document.uri,
@@ -89,11 +93,11 @@ export class ProxyServerConnection implements IServerConnection {
 
         this.vsCodeConnection.onDidChangeWatchedFiles((change) => {
             // Monitored files have change in VSCode
-            this.log('We received an file change event');
+            this.debug('We received an file change event', "ProxyServerConnection");
         });
 
         this.vsCodeConnection.onDocumentSymbol((symbolParams : DocumentSymbolParams)=>{
-            this.log('We received get symbols request');
+            this.debug('We received get symbols request', "ProxyServerConnection");
             return this.getSymbols(symbolParams.textDocument.uri);
         })
 
@@ -164,8 +168,10 @@ export class ProxyServerConnection implements IServerConnection {
      * @param report
      */
     validated(report:IValidationReport) : void {
-        this.log("HERE WE HAVE FRESH NEW VALIDATION REPORT for uri: " + report.pointOfViewUri)
-        this.log("Number of issues: " + (report.issues!=null?report.issues.length:0))
+        this.debug("HERE WE HAVE FRESH NEW VALIDATION REPORT for uri: " + report.pointOfViewUri,
+            "ProxyServerConnection", "validated")
+        this.debugDetail("Number of issues: " + (report.issues!=null?report.issues.length:0),
+            "ProxyServerConnection", "validated")
 
         let diagnostics: Diagnostic[] = [];
 
@@ -186,8 +192,10 @@ export class ProxyServerConnection implements IServerConnection {
                 });
 
 
-                this.log("ISSUE: " + issue.text);
-                this.log("ISSUE, document found: " + (document!=null));
+                this.debugDetail("ISSUE: " + issue.text,
+                    "ProxyServerConnection", "validated");
+                this.debugDetail("ISSUE, document found: " + (document!=null),
+                    "ProxyServerConnection", "validated");
             }
         }
 
@@ -197,22 +205,23 @@ export class ProxyServerConnection implements IServerConnection {
         });
     }
 
-    log(message : string) {
-        this.vsCodeConnection.console.log(message);
-    }
-
     getSymbols(uri: string) : SymbolInformation[] {
-        this.log("ServerConnection:getSymbols called for uri: " + uri)
+        this.debug("ServerConnection:getSymbols called for uri: " + uri,
+            "ProxyServerConnection", "getSymbols")
 
         if (this.documentStructureListeners.length == 0) return [];
 
         //TODO handle many structure providers?
         let structure : {[categoryName:string] : StructureNodeJSON} = this.documentStructureListeners[0](uri);
-        this.log("ServerConnection:getSymbols got structure: " + (structure != null))
+
+        this.debugDetail("ServerConnection:getSymbols got structure: " + (structure != null),
+            "ProxyServerConnection", "getSymbols")
+
         if (!structure) return [];
 
         let document = this.documents.get(uri)
-        this.log("ServerConnection:getSymbols got document: " + (document != null))
+        this.debugDetail("ServerConnection:getSymbols got document: " + (document != null),
+            "ProxyServerConnection", "getSymbols")
         if (!document) return [];
 
         var result : SymbolInformation[] = [];
@@ -235,7 +244,8 @@ export class ProxyServerConnection implements IServerConnection {
                 result = result.concat(items.map(item=>{
                     let start = document.positionAt(item.start)
                     let end = document.positionAt(item.end)
-                    this.log("ServerConnection:getSymbols converting item " + item.text);
+                    this.debugDetail("ServerConnection:getSymbols converting item " + item.text,
+                        "ProxyServerConnection", "getSymbols");
 
                     let symbolInfo : SymbolInformation = {
                         name: item.text,
@@ -257,32 +267,38 @@ export class ProxyServerConnection implements IServerConnection {
     }
 
     getCompletion(uri: string, position : Position) : CompletionItem[] {
-        this.log("ServerConnection:getCompletion called for uri: " + uri)
+        this.debug("ServerConnection:getCompletion called for uri: " + uri,
+            "ProxyServerConnection", "getCompletion")
 
         if (this.documentCompletionListeners.length == 0) return [];
 
         let document = this.documents.get(uri)
-        this.log("ServerConnection:getCompletion got document: " + (document != null))
+        this.debugDetail("ServerConnection:getCompletion got document: " + (document != null),
+            "ProxyServerConnection", "getCompletion")
         if (!document) return [];
 
         let offset = document.offsetAt(position);
 
-        this.log("ServerConnection:getCompletion offset is: " + offset)
+        this.debugDetail("ServerConnection:getCompletion offset is: " + offset,
+            "ProxyServerConnection", "getCompletion")
 
         let result : CompletionItem[]  = [];
 
         for(let listener of this.documentCompletionListeners) {
 
-            this.log("ServerConnection:getCompletion Calling a listener")
+            this.debugDetail("ServerConnection:getCompletion Calling a listener",
+                "ProxyServerConnection", "getCompletion")
 
             let suggestions = listener(uri, offset);
 
-            this.log("ServerConnection:getCompletion Got suggestions: " + (suggestions?suggestions.length:0))
+            this.debugDetail("ServerConnection:getCompletion Got suggestions: " + (suggestions?suggestions.length:0),
+                "ProxyServerConnection", "getCompletion")
 
             for (let suggestion of suggestions) {
                 let text = suggestion.text || suggestion.displayText;
 
-                this.log("ServerConnection:getCompletion adding suggestion: " + text)
+                this.debugDetail("ServerConnection:getCompletion adding suggestion: " + text,
+                    "ProxyServerConnection", "getCompletion")
 
                 result.push({
                     label: text,
@@ -292,5 +308,89 @@ export class ProxyServerConnection implements IServerConnection {
         }
 
         return result;
+    }
+
+    /**
+     * Logs a message
+     * @param message - message text
+     * @param severity - message severity
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    log(message:string, severity: MessageSeverity,
+        component?: string, subcomponent?: string) : void {
+
+        let toLog = "";
+        if (severity != MessageSeverity.WARNING && severity != MessageSeverity.ERROR) {
+            MessageSeverity[severity];
+        }
+
+        if (component) toLog+= (component + ": ")
+        if (subcomponent) toLog+= (subcomponent + ": ")
+
+        toLog += message;
+
+        if (severity == MessageSeverity.WARNING) {
+            console.warn(toLog);
+        } else if (severity == MessageSeverity.ERROR) {
+            console.error(toLog);
+        } else {
+            console.log(toLog);
+        }
+    }
+
+    /**
+     * Logs a DEBUG severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    debug(message:string,
+          component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.DEBUG, component, subcomponent);
+    }
+
+    /**
+     * Logs a DEBUG_DETAIL severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    debugDetail(message:string,
+                component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.DEBUG_DETAIL, component, subcomponent);
+    }
+
+    /**
+     * Logs a DEBUG_OVERVIEW severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    debugOverview(message:string,
+                  component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.DEBUG_OVERVIEW, component, subcomponent);
+    }
+
+    /**
+     * Logs a WARNING severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    warning(message:string,
+            component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.WARNING, component, subcomponent);
+    }
+
+    /**
+     * Logs an ERROR severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    error(message:string,
+          component?: string, subcomponent?: string) : void {
+        this.log(message, MessageSeverity.ERROR, component, subcomponent);
     }
 }

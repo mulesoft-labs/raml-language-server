@@ -102,10 +102,68 @@ export enum TextStyles {
     SUCCESS = <any>"SUCCESS"
 }
 
+export enum MessageSeverity {
+    DEBUG_DETAIL,
+    DEBUG,
+    DEBUG_OVERVIEW,
+    WARNING,
+    ERROR
+}
+
 export interface ILogger {
     /**
      * Logs a message
-     * @param message
+     * @param message - message text
+     * @param severity - message severity
+     * @param component - component name
+     * @param subcomponent - sub-component name
      */
-    log(message:string) : void
+    log(message:string, severity: MessageSeverity,
+        component?: string, subcomponent?: string) : void
+
+    /**
+     * Logs a DEBUG severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    debug(message:string,
+        component?: string, subcomponent?: string) : void;
+
+    /**
+     * Logs a DEBUG_DETAIL severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    debugDetail(message:string,
+          component?: string, subcomponent?: string) : void;
+
+    /**
+     * Logs a DEBUG_OVERVIEW severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    debugOverview(message:string,
+                component?: string, subcomponent?: string) : void;
+
+    /**
+     * Logs a WARNING severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    warning(message:string,
+          component?: string, subcomponent?: string) : void;
+
+    /**
+     * Logs an ERROR severity message.
+     * @param message - message text
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    error(message:string,
+          component?: string, subcomponent?: string) : void;
+
 }
