@@ -5,7 +5,8 @@ import {
     IOpenedDocument,
     IChangedDocument,
     StructureNodeJSON,
-    Suggestion
+    Suggestion,
+    ILogger
 } from '../../common/typeInterfaces'
 
 export {
@@ -18,7 +19,7 @@ export {
     Suggestion
 } from '../../common/typeInterfaces'
 
-export interface IServerConnection {
+export interface IServerConnection extends ILogger {
     /**
      * Adds a listener to document open notification. Must notify listeners in order of registration.
      * @param listener
@@ -54,6 +55,4 @@ export interface IServerConnection {
      * @param report
      */
     validated(report:IValidationReport) : void;
-
-    log(message : string);
 }

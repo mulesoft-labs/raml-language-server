@@ -7,7 +7,8 @@ import {
 } from './astManager'
 
 import {
-    IValidationIssue
+    IValidationIssue,
+    ILogger
 } from '../../common/typeInterfaces'
 
 import parser = require("raml-1-parser");
@@ -28,7 +29,8 @@ export function createManager(connection : IServerConnection,
 class Acceptor extends utils.PointOfViewValidationAcceptorImpl {
     private foundIssues : IValidationIssue[] = [];
 
-    constructor(private ramlPath: string, primaryUnit : parser.hl.IParseResult) {
+    constructor(private ramlPath: string, primaryUnit : parser.hl.IParseResult,
+        private logger: ILogger) {
         super([], primaryUnit)
     }
 
@@ -43,7 +45,7 @@ class Acceptor extends utils.PointOfViewValidationAcceptorImpl {
             return;
         }
 
-        console.log("ValidationManager: accepting issue: " + issue.message)
+        this.logger.log("ValidationManager: accepting issue: " + issue.message)
 
         this.transformIssue(issue);
 
@@ -133,7 +135,7 @@ class ValidationManager {
     gatherValidationErrors(astNode: parser.IHighLevelNode, ramlPath: string) : IValidationIssue[] {
         if (!astNode) return;
 
-        let acceptor = new Acceptor(ramlPath, astNode.root());
+        let acceptor = new Acceptor(ramlPath, astNode.root(), this.connection);
 
         astNode.validate(acceptor);
 

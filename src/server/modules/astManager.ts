@@ -7,7 +7,8 @@ import {
 
 import {
     IOpenedDocument,
-    IChangedDocument
+    IChangedDocument,
+    ILogger
 } from '../../common/typeInterfaces'
 
 import {
@@ -206,7 +207,8 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
     private canceled = false;
 
     constructor(private uri : string,
-                private editorManager : IEditorManagerModule) {
+                private editorManager : IEditorManagerModule,
+                private logger: ILogger) {
         //TODO maybe also accept pure content
     }
 
@@ -228,20 +230,20 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
      */
     run() : Promise<IHighLevelNode> {
         //TODO think about sharing and storing the project
-        console.log("ParseDocumentRunnable:run Running the parsing");
+        this.logger.log("ParseDocumentRunnable:run Running the parsing");
 
         var dummyProject: any = parser.project.createProject(path.dirname(this.uri));
 
         let editor = this.editorManager.getEditor(this.uri);
 
-        console.log("ParseDocumentRunnable:run Got editor: " + (editor != null));
+        this.logger.log("ParseDocumentRunnable:run Got editor: " + (editor != null));
 
         var fsResolver = {
             content : function(path) {
-                console.log("Request for path " + path)
+                this.logger.log("Request for path " + path)
                 if (path.indexOf("file://") == 0) {
                     path = path.substring(7);
-                    console.log("Path cahnged to: " + path)
+                    this.logger.log("Path cahnged to: " + path)
                 }
                 if (typeof path!="string"){
                     path=""+path;
@@ -259,10 +261,10 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
             contentAsync : function(path){
 
                 return new Promise(function(resolve, reject) {
-                    console.log("Request for path " + path)
+                    this.logger.log("Request for path " + path)
                     if (path.indexOf("file://") == 0) {
                         path = path.substring(7);
-                        console.log("Path cahnged to: " + path)
+                        this.logger.log("Path cahnged to: " + path)
                     }
 
                     fs.readFile(path,function(err,data){
@@ -278,10 +280,10 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
         }
 
         let documentUri = this.uri;
-        console.log("ParseDocumentRunnable:run Parsing uri " + documentUri)
+        this.logger.log("ParseDocumentRunnable:run Parsing uri " + documentUri)
         if (documentUri.indexOf("file://") == 0) {
             documentUri = documentUri.substring(7);
-            console.log("ParseDocumentRunnable:run Parsing uri changed to: " + documentUri)
+            this.logger.log("ParseDocumentRunnable:run Parsing uri changed to: " + documentUri)
         }
 
         if (!editor) {
@@ -292,24 +294,24 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
                 httpResolver: dummyProject._httpResolver,
                 rejectOnErrors: false
             }).then((api: parser.hl.BasicNode) => {
-                console.log("ParseDocumentRunnable:run parsing finished, api: " + (api != null));
+                this.logger.log("ParseDocumentRunnable:run parsing finished, api: " + (api != null));
                 return api.highLevel();
             },error=>{
-                console.log("ParseDocumentRunnable:run parsing finished, ERROR: " + error);
+                this.logger.log("ParseDocumentRunnable:run parsing finished, ERROR: " + error);
             })
 
         } else {
-            console.log("ParseDocumentRunnable:run EDITOR text:\n" + editor.getText())
+            this.logger.log("ParseDocumentRunnable:run EDITOR text:\n" + editor.getText())
             return parser.parseRAML(editor.getText(), {
                 filePath: documentUri,
                 fsResolver: dummyProject.resolver,
                 httpResolver: dummyProject._httpResolver,
                 rejectOnErrors: false
             }).then((api: parser.hl.BasicNode) => {
-                console.log("ParseDocumentRunnable:run parsing finished, api: " + (api != null));
+                this.logger.log("ParseDocumentRunnable:run parsing finished, api: " + (api != null));
                 return api.highLevel();
             },error=>{
-                console.log("ParseDocumentRunnable:run parsing finished, ERROR: " + error);
+                this.logger.log("ParseDocumentRunnable:run parsing finished, ERROR: " + error);
             })
 
         }
@@ -385,14 +387,15 @@ class ASTManager implements IASTManagerModule {
     }
 
     private notifyASTChanged(uri: string, ast: IHighLevelNode, error? : Error){
-        console.log("ASTManager:notifyASTChanged Got new AST parser results, notifying the listeners")
+        this.connection.log("ASTManager:notifyASTChanged Got new AST parser results, notifying the listeners")
         for (let listener of this.astListeners) {
             listener(uri, ast);
         }
     }
 
     onOpenDocument(document: IOpenedDocument) : void {
-        this.reconciler.schedule(new ParseDocumentRunnable(document.uri, this.editorManager))
+        this.reconciler.schedule(new ParseDocumentRunnable(document.uri, this.editorManager,
+            this.connection))
             .then(
                 newAST=>this.registerNewAST(document.uri, newAST)
             ).catch(
@@ -401,15 +404,16 @@ class ASTManager implements IASTManagerModule {
     }
 
     onChangeDocument(document : IChangedDocument) : void {
-        console.log("ASTManager:onChangeDocument document is changed")
-        this.reconciler.schedule(new ParseDocumentRunnable(document.uri, this.editorManager))
+        this.connection.log("ASTManager:onChangeDocument document is changed")
+        this.reconciler.schedule(new ParseDocumentRunnable(document.uri, this.editorManager,
+            this.connection))
             .then(newAST=>{
-                    console.log("ASTManager:onChangeDocument On change document handler promise returned new ast")
+                this.connection.log("ASTManager:onChangeDocument On change document handler promise returned new ast")
                     this.registerNewAST(document.uri, newAST)
                 }
             ).catch(
                 error=>{
-                    console.log("ASTManager:onChangeDocument On change document handler promise returned new ast error")
+                    this.connection.log("ASTManager:onChangeDocument On change document handler promise returned new ast error")
                     this.registerASTParseError(document.uri, error)
                 }
             );

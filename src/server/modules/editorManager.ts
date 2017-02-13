@@ -240,7 +240,7 @@ class EditorManager implements IEditorManagerModule {
     }
 
     onChangeDocument(document : IChangedDocument) : void {
-        console.log("EditorManager:onChangeDocument document is changed")
+        this.connection.log("EditorManager:onChangeDocument document is changed")
         this.uriToEditor[document.uri] = new TextEditorInfo(document.uri, document.text)
     }
 

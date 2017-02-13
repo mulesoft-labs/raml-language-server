@@ -101,3 +101,11 @@ export enum TextStyles {
     WARNING = <any>"WARNING",
     SUCCESS = <any>"SUCCESS"
 }
+
+export interface ILogger {
+    /**
+     * Logs a message
+     * @param message
+     */
+    log(message:string) : void
+}

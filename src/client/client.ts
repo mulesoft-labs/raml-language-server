@@ -3,7 +3,7 @@ import {
     IOpenedDocument,
     IChangedDocument,
     StructureNodeJSON,
-    Suggestion
+    Suggestion, ILogger
 } from "../common/typeInterfaces";
 
 export {
@@ -11,10 +11,11 @@ export {
     IOpenedDocument,
     IChangedDocument,
     StructureNodeJSON,
-    Suggestion
+    Suggestion,
+    ILogger
 } from '../common/typeInterfaces'
 
-export interface IClientConnection {
+export interface IClientConnection extends ILogger {
 
     /**
      * Stops the server.

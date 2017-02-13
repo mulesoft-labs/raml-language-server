@@ -47,15 +47,15 @@ class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
         });
 
         serverProcess.stdout.on('data', data => {
-            console.log("Validation process stdout: " + data.toString());
+            this.log("Validation process stdout: " + data.toString());
         });
 
         serverProcess.stderr.on('data', data => {
-            console.log("Validation process stderr: " + data.toString());
+            this.log("Validation process stderr: " + data.toString());
         });
 
         serverProcess.on('close', function (code) {
-            console.log('Validation process exited with code ' + code);
+            this.log('Validation process exited with code ' + code);
         });
     }
 
@@ -116,6 +116,10 @@ class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
         (message : ProtocolMessage<MessageToServerType>) : void {
 
         this.serverProcess.send(message);
+    }
+
+    log(message : string) : void {
+        console.log(message);
     }
 }
 

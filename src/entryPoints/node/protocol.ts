@@ -1,3 +1,7 @@
+import {
+    ILogger
+} from '../../common/typeInterfaces'
+
 export type MessageToClientType =
     "VALIDATION_REPORT";
 
@@ -22,7 +26,7 @@ interface CallBackHandle<ResultType> {
     reject?: (error?: any) => void
 }
 
-export abstract class MessageDispatcher<MessageType extends MessageToClientType | MessageToServerType> {
+export abstract class MessageDispatcher<MessageType extends MessageToClientType | MessageToServerType> implements ILogger {
     private callBacks : {[messageId : string] : CallBackHandle<any>} = {};
 
     /**
@@ -32,13 +36,14 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
     abstract sendMessage
         (message : ProtocolMessage<MessageType>) : void;
 
+    abstract log(message: string) : void;
 
     /**
      * Sends message to the counterpart
      * @param message
      */
     public send(message : ProtocolMessage<MessageType>) : void {
-        console.log("MessageDispatcher:send Sending message of type: " + message.type);
+        this.log("MessageDispatcher:send Sending message of type: " + message.type);
         this.sendMessage(message);
     }
 
@@ -49,7 +54,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @return promise, which will contain the result returned by the counterpart
      */
     public sendWithResponse<ResultType>(message : ProtocolMessage<MessageType>) : Promise<ResultType> {
-        console.log("MessageDispatcher:sendWithResonse Sending message with response of type: " + message.type);
+        this.log("MessageDispatcher:sendWithResonse Sending message with response of type: " + message.type);
         return new Promise((resolve : (value?: ResultType) => void, reject: (error?: any) => void)=>{
 
             message.id = shortid.generate();
@@ -71,10 +76,10 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @param message
      */
     public handleRecievedMessage(message : ProtocolMessage<MessageType>) {
-        console.log("MessageDispatcher:handleRecievedMessage Recieved message of type: " + message.type + " and id: " + message.id);
+        this.log("MessageDispatcher:handleRecievedMessage Recieved message of type: " + message.type + " and id: " + message.id);
 
         if (message.id && this.callBacks[message.id]) {
-            console.log("MessageDispatcher:handleRecievedMessage Message callback found");
+            this.log("MessageDispatcher:handleRecievedMessage Message callback found");
             //this is a response for a request sent earlier
             //lets find its resolve/error and call it
 
@@ -93,20 +98,20 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
                 delete this.callBacks[message.id];
             }
         } else {
-            console.log("MessageDispatcher:handleRecievedMessage Looking for method " + message.type)
+            this.log("MessageDispatcher:handleRecievedMessage Looking for method " + message.type)
             let method = this[<string>message.type];
             if (!method) {
-                console.log("MessageDispatcher:handleRecievedMessage Method NOT found: " + message.type)
+                this.log("MessageDispatcher:handleRecievedMessage Method NOT found: " + message.type)
                 return;
             } else {
-                console.log("MessageDispatcher:handleRecievedMessage Method found: " + message.type)
+                this.log("MessageDispatcher:handleRecievedMessage Method found: " + message.type)
             }
 
             if (typeof(method) != "function") return;
 
             //if this is not a response, just a direct message, lets call a handler
             var result = method.call(this,message.payload);
-            console.log("MessageDispatcher:handleRecievedMessage Called method " + message.type + " result is: " + result);
+            this.log("MessageDispatcher:handleRecievedMessage Called method " + message.type + " result is: " + result);
 
             //if we've got some result and message has ID, so the answer is expected
             if (result != null && message.id) {
