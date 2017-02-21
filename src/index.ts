@@ -11,7 +11,8 @@ export {
     IOpenedDocument,
     IChangedDocument,
     StructureNodeJSON,
-    Suggestion
+    Suggestion,
+    StructureCategories
 } from './common/typeInterfaces'
 
 import {
