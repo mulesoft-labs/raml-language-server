@@ -118,6 +118,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
                 reject : reject
             }
 
+            this.sendMessage(message);
         })
     }
 
