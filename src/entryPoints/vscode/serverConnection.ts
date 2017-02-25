@@ -3,7 +3,7 @@ import {
 } from '../../server/core/connections'
 
 import {
-    IValidationIssueRange,
+    IRange,
     IValidationIssue,
     IValidationReport,
     IOpenedDocument,
@@ -11,8 +11,11 @@ import {
     StructureNodeJSON,
     StructureCategories,
     Suggestion,
-    MessageSeverity
+    MessageSeverity,
+    ILocation
 } from '../../common/typeInterfaces'
+
+import utils = require("../../common/utils")
 
 import {
     IPCMessageReader, IPCMessageWriter,
@@ -20,7 +23,7 @@ import {
     TextDocuments, TextDocument, Diagnostic, DiagnosticSeverity,
     InitializeParams, InitializeResult, TextDocumentPositionParams,
     CompletionItem, CompletionItemKind,DocumentSymbolParams, SymbolInformation,
-    SymbolKind, Position
+    SymbolKind, Position, Location
 } from 'vscode-languageserver';
 
 export class ProxyServerConnection implements IServerConnection {
@@ -30,6 +33,7 @@ export class ProxyServerConnection implements IServerConnection {
     private closeDocumentListeners : {(string):void}[] = [];
     private documentStructureListeners : {(uri : string):{[categoryName:string] : StructureNodeJSON}}[] = [];
     private documentCompletionListeners : {(uri : string, position: number):Suggestion[]}[] = [];
+    private openDeclarationListeners : {(uri : string, position: number):ILocation[]}[] = [];
     private documents: TextDocuments;
 
     constructor(private vsCodeConnection : IConnection){
@@ -121,6 +125,11 @@ export class ProxyServerConnection implements IServerConnection {
         //     }
         //     return item;
         // });
+
+        this.vsCodeConnection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location[] => {
+
+            return this.openDeclaration(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
+        });
     }
 
     /**
@@ -164,6 +173,14 @@ export class ProxyServerConnection implements IServerConnection {
     }
 
     /**
+     * Adds a listener to document open declaration request.  Must notify listeners in order of registration.
+     * @param listener
+     */
+    onOpenDeclaration(listener: (uri: string, position: number) => ILocation[]){
+        this.openDeclarationListeners.push(listener);
+    }
+
+    /**
      * Reports latest validation results
      * @param report
      */
@@ -177,12 +194,31 @@ export class ProxyServerConnection implements IServerConnection {
 
         if (report && report.issues) {
             for (let issue of report.issues) {
+                this.debugDetail("Issue text: " + issue.text,
+                    "ProxyServerConnection", "validated")
 
-                let document = this.documents.get(report.pointOfViewUri)
+
+                let originalIssueUri = issue.filePath;
+                if (!originalIssueUri) {
+                    originalIssueUri = report.pointOfViewUri;
+                }
+
+                this.debugDetail("Issue original uri: " + originalIssueUri,
+                    "ProxyServerConnection", "validated")
+
+                let issueUri = utils.transformUriToOriginalFormat(report.pointOfViewUri, originalIssueUri);
+                this.debugDetail("Issue uri: " + issueUri,
+                    "ProxyServerConnection", "validated")
+
+                let document = this.documents.get(issueUri)
+                this.debugDetail("Document found: " + (document!=null?"true":"false"),
+                    "ProxyServerConnection", "validated")
+
                 let start = document.positionAt(issue.range.start)
                 let end = document.positionAt(issue.range.end)
+
                 diagnostics.push({
-                    severity: DiagnosticSeverity.Error,
+                    severity: issue.type == "Error"?DiagnosticSeverity.Error:DiagnosticSeverity.Warning,
                     range: {
                         start: start,
                         end: end
@@ -267,43 +303,81 @@ export class ProxyServerConnection implements IServerConnection {
     }
 
     getCompletion(uri: string, position : Position) : CompletionItem[] {
-        this.debug("ServerConnection:getCompletion called for uri: " + uri,
+        this.debug("getCompletion called for uri: " + uri,
             "ProxyServerConnection", "getCompletion")
 
         if (this.documentCompletionListeners.length == 0) return [];
 
         let document = this.documents.get(uri)
-        this.debugDetail("ServerConnection:getCompletion got document: " + (document != null),
+        this.debugDetail("got document: " + (document != null),
             "ProxyServerConnection", "getCompletion")
         if (!document) return [];
 
         let offset = document.offsetAt(position);
 
-        this.debugDetail("ServerConnection:getCompletion offset is: " + offset,
+        this.debugDetail("offset is: " + offset,
             "ProxyServerConnection", "getCompletion")
 
         let result : CompletionItem[]  = [];
 
         for(let listener of this.documentCompletionListeners) {
 
-            this.debugDetail("ServerConnection:getCompletion Calling a listener",
+            this.debugDetail("Calling a listener",
                 "ProxyServerConnection", "getCompletion")
 
             let suggestions = listener(uri, offset);
 
-            this.debugDetail("ServerConnection:getCompletion Got suggestions: " + (suggestions?suggestions.length:0),
+            this.debugDetail("Got suggestions: " + (suggestions?suggestions.length:0),
                 "ProxyServerConnection", "getCompletion")
 
             for (let suggestion of suggestions) {
                 let text = suggestion.text || suggestion.displayText;
 
-                this.debugDetail("ServerConnection:getCompletion adding suggestion: " + text,
+                this.debugDetail("adding suggestion: " + text,
                     "ProxyServerConnection", "getCompletion")
 
                 result.push({
                     label: text,
                     kind: CompletionItemKind.Text
                 })
+            }
+        }
+
+        return result;
+    }
+
+    openDeclaration(uri: string, position : Position) : Location[] {
+        this.debug("openDeclaration called for uri: " + uri,
+            "ProxyServerConnection", "openDeclaration")
+
+        if (this.documentCompletionListeners.length == 0) return [];
+
+        let document = this.documents.get(uri)
+        this.debugDetail("got document: " + (document != null),
+            "ProxyServerConnection", "openDeclaration")
+        if (!document) return [];
+
+        let offset = document.offsetAt(position);
+
+        let result : Location[]  = [];
+
+        for(let listener of this.openDeclarationListeners) {
+            let locations = listener(uri, offset);
+            this.debugDetail("Got locations: " + (locations?locations.length:0),
+                "ProxyServerConnection", "openDeclaration")
+
+            if (locations) {
+                for (let location of locations) {
+                    let start = document.positionAt(location.range.start)
+                    let end = document.positionAt(location.range.end)
+                    result.push({
+                        uri: location.uri,
+                        range: {
+                            start: start,
+                            end: end
+                        }
+                    })
+                }
             }
         }
 

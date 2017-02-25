@@ -7,7 +7,8 @@ import {
     IValidationReport,
     IOpenedDocument,
     StructureNodeJSON,
-    Suggestion
+    Suggestion,
+    ILocation
 } from '../../client/client'
 
 import {
@@ -103,6 +104,22 @@ class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
     getSuggestions(uri: string, position: number) : Promise<Suggestion[]> {
         return this.sendWithResponse({
             type : "GET_SUGGESTIONS",
+            payload : {
+                uri : uri,
+                position: position
+            }
+        });
+    }
+
+    /**
+     * Requests server for the positions of the declaration of the element defined
+     * at the given document position.
+     * @param uri - document uri
+     * @param position - position in the document
+     */
+    openDeclaration(uri: string, position: number) : Promise<ILocation[]> {
+        return this.sendWithResponse({
+            type : "OPEN_DECLARATION",
             payload : {
                 uri : uri,
                 position: position

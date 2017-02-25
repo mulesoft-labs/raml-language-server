@@ -29,7 +29,8 @@
     "raml-actions" : "0.0.11",
     "shortid": "^2.2.6",
     "vscode-languageserver": "^3.0.4",
-    "promise-polyfill": "^5.1.0"
+    "promise-polyfill": "^5.1.0",
+    "urijs": "^1.18.7"
   },
   "devDependencies": {
     "@types/node": "^6.0.52",

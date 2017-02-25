@@ -11,8 +11,19 @@ export type StructureNodeJSON = outline.StructureNodeJSON;
  */
 export type Suggestion = suggestions.Suggestion;
 
-export interface IValidationIssueRange {
+/**
+ * Range in the document.
+ */
+export interface IRange {
+
+    /**
+     * Range start position, counting from 0
+     */
     start: number
+
+    /**
+     * Range end position, counting from 0
+     */
     end: number
 }
 
@@ -33,7 +44,7 @@ export interface IValidationIssue {
     filePath: string
 
     text: string
-    range: IValidationIssueRange
+    range: IRange
     trace: IValidationIssue[]
 }
 
@@ -166,4 +177,20 @@ export interface ILogger {
     error(message:string,
           component?: string, subcomponent?: string) : void;
 
+}
+
+/**
+ * Range in a particular document
+ */
+export interface ILocation {
+
+    /**
+     * Document uri
+     */
+    uri : string,
+
+    /**
+     * Range in the document.
+     */
+    range: IRange
 }

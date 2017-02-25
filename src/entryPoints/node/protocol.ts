@@ -11,7 +11,8 @@ export type MessageToServerType =
     "CHANGE_DOCUMENT" |
     "CLOSE_DOCUMENT" |
     "GET_STRUCTURE" |
-    "GET_SUGGESTIONS";
+    "GET_SUGGESTIONS" |
+    "OPEN_DECLARATION";
 
 export interface ProtocolMessage<MessageType extends MessageToClientType | MessageToServerType> {
     type : MessageType

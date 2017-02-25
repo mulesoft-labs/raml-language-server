@@ -12,6 +12,8 @@ import StructureManagerModule = require('../modules/structureManager')
 
 import CompletionManagerModule = require('../modules/completionManager')
 
+import FixedActionsManagerModule = require('../modules/fixedActionsManager')
+
 export class Server {
 
     private astManagerModule : ASTManagerModule.IASTManagerModule;
@@ -19,6 +21,7 @@ export class Server {
     private validationManagerModule : ValidationManagerModule.IValidationManagerModule;
     private structureManagerModule : StructureManagerModule.IStructureManagerModule;
     private completionManagerModule : CompletionManagerModule.ICompletionManagerModule;
+    private fixedActionsManagerModule : FixedActionsManagerModule.IFixedActionsManagerModule;
 
     constructor(private connection : IServerConnection){
 
@@ -35,6 +38,9 @@ export class Server {
 
         this.completionManagerModule = CompletionManagerModule.createManager(connection,
             this.astManagerModule, this.editorManagerModule);
+
+        this.fixedActionsManagerModule = FixedActionsManagerModule.createManager(connection,
+            this.astManagerModule, this.editorManagerModule);
     }
 
     listen() : void {
@@ -49,6 +55,8 @@ export class Server {
         this.structureManagerModule.listen();
 
         this.completionManagerModule.listen();
+
+        this.fixedActionsManagerModule.listen();
     }
 
     listenInternal() : void {

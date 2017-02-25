@@ -1,5 +1,5 @@
 import {
-    IValidationIssueRange,
+    IRange,
     IValidationIssue,
     IValidationReport,
     IOpenedDocument,
@@ -7,11 +7,12 @@ import {
     StructureNodeJSON,
     Suggestion,
     ILogger,
-    MessageSeverity
+    MessageSeverity,
+    ILocation
 } from '../../common/typeInterfaces'
 
 export {
-    IValidationIssueRange,
+    IRange,
     IValidationIssue,
     IValidationReport,
     IOpenedDocument,
@@ -19,7 +20,8 @@ export {
     StructureNodeJSON,
     Suggestion,
     ILogger,
-    MessageSeverity
+    MessageSeverity,
+    ILocation
 } from '../../common/typeInterfaces'
 
 export interface IServerConnection extends ILogger {
@@ -51,7 +53,17 @@ export interface IServerConnection extends ILogger {
      */
     onDocumentCompletion(listener: (uri : string, position: number)=>Suggestion[])
 
+    /**
+     * Adds a listener to document structure request. Must notify listeners in order of registration.
+     * @param listener
+     */
     onDocumentStructure(listener: (uri : string)=>{[categoryName:string] : StructureNodeJSON})
+
+    /**
+     * Adds a listener to document open declaration request.  Must notify listeners in order of registration.
+     * @param listener
+     */
+    onOpenDeclaration(listener: (uri: string, position: number) => ILocation[])
 
     /**
      * Reports latest validation results

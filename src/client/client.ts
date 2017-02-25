@@ -3,7 +3,9 @@ import {
     IOpenedDocument,
     IChangedDocument,
     StructureNodeJSON,
-    Suggestion, ILogger
+    Suggestion,
+    ILogger,
+    ILocation
 } from "../common/typeInterfaces";
 
 export {
@@ -12,7 +14,8 @@ export {
     IChangedDocument,
     StructureNodeJSON,
     Suggestion,
-    ILogger
+    ILogger,
+    ILocation
 } from '../common/typeInterfaces'
 
 export interface IClientConnection extends ILogger {
@@ -58,4 +61,12 @@ export interface IClientConnection extends ILogger {
      * @param position - offset in the document, starting from 0
      */
     getSuggestions(uri: string, position: number) : Promise<Suggestion[]>
+
+    /**
+     * Requests server for the positions of the declaration of the element defined
+     * at the given document position.
+     * @param uri - document uri
+     * @param position - position in the document
+     */
+    openDeclaration(uri: string, position: number) : Promise<ILocation[]>
 }

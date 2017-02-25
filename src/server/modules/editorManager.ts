@@ -36,7 +36,7 @@ class TextBufferInfo implements IEditorTextBuffer {
     characterIndexForPosition(position:IPoint):number {
         let lineStartOffset = 0;
 
-        for (let i = 0; i < position.row - 1; i++) {
+        for (let i = 0; i <= position.row - 1; i++) {
             lineStartOffset += this.lineLengths[i];
         }
 
@@ -189,7 +189,7 @@ class TextEditorInfo implements IAbstractTextEditor{
      * Gets text buffer for the editor.
      */
     getBuffer() : IEditorTextBuffer {
-        return this.getBuffer();
+        return this.buffer;
     }
 
     /**
