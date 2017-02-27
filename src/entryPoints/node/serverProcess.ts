@@ -30,7 +30,8 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
     private closeDocumentListeners : {(string):void}[] = [];
     private documentStructureListeners : {(uri : string):{[categoryName:string] : StructureNodeJSON}}[] = [];
     private documentCompletionListeners : {(uri : string, position: number):Suggestion[]}[] = [];
-    private openDeclarationListeners : {(uri : string, position: number):Suggestion[]}[] = [];
+    private openDeclarationListeners : {(uri : string, position: number):ILocation[]}[] = [];
+    private findReferencesListeners : {(uri : string, position: number):ILocation[]}[] = [];
 
     /**
      * Adds a listener to document open notification. Must notify listeners in order of registration.
@@ -78,6 +79,14 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
      */
     onOpenDeclaration(listener: (uri: string, position: number) => ILocation[]){
         this.openDeclarationListeners.push(listener);
+    }
+
+    /**
+     * Adds a listener to document find references request.  Must notify listeners in order of registration.
+     * @param listener
+     */
+    onFindReferences(listener: (uri: string, position: number) => ILocation[]){
+        this.findReferencesListeners.push(listener);
     }
 
     /**
@@ -170,6 +179,24 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
 
         let result = [];
         for (let listener of this.openDeclarationListeners) {
+            result = result.concat(listener(payload.uri, payload.position));
+        }
+
+        return result;
+    }
+
+    /**
+     * Handler of FIND_REFERENCES message.
+     * @param uri - document uri
+     * @param position - offset in the document starting from 0
+     * @constructor
+     */
+    FIND_REFERENCES(payload:{uri : string, position: number}) : ILocation[]{
+        if (this.findReferencesListeners.length == 0)
+            return [];
+
+        let result = [];
+        for (let listener of this.findReferencesListeners) {
             result = result.concat(listener(payload.uri, payload.position));
         }
 

@@ -23,7 +23,7 @@ import {
     TextDocuments, TextDocument, Diagnostic, DiagnosticSeverity,
     InitializeParams, InitializeResult, TextDocumentPositionParams,
     CompletionItem, CompletionItemKind,DocumentSymbolParams, SymbolInformation,
-    SymbolKind, Position, Location
+    SymbolKind, Position, Location, ReferenceParams
 } from 'vscode-languageserver';
 
 export class ProxyServerConnection implements IServerConnection {
@@ -34,6 +34,7 @@ export class ProxyServerConnection implements IServerConnection {
     private documentStructureListeners : {(uri : string):{[categoryName:string] : StructureNodeJSON}}[] = [];
     private documentCompletionListeners : {(uri : string, position: number):Suggestion[]}[] = [];
     private openDeclarationListeners : {(uri : string, position: number):ILocation[]}[] = [];
+    private findreferencesListeners : {(uri : string, position: number):ILocation[]}[] = [];
     private documents: TextDocuments;
 
     constructor(private vsCodeConnection : IConnection){
@@ -130,6 +131,11 @@ export class ProxyServerConnection implements IServerConnection {
 
             return this.openDeclaration(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
         });
+
+        this.vsCodeConnection.onReferences((textDocumentPosition: ReferenceParams): Location[] => {
+
+            return this.findReferences(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
+        });
     }
 
     /**
@@ -178,6 +184,14 @@ export class ProxyServerConnection implements IServerConnection {
      */
     onOpenDeclaration(listener: (uri: string, position: number) => ILocation[]){
         this.openDeclarationListeners.push(listener);
+    }
+
+    /**
+     * Adds a listener to document find references request.  Must notify listeners in order of registration.
+     * @param listener
+     */
+    onFindReferences(listener: (uri: string, position: number) => ILocation[]){
+        this.findreferencesListeners.push(listener);
     }
 
     /**
@@ -350,7 +364,7 @@ export class ProxyServerConnection implements IServerConnection {
         this.debug("openDeclaration called for uri: " + uri,
             "ProxyServerConnection", "openDeclaration")
 
-        if (this.documentCompletionListeners.length == 0) return [];
+        if (this.openDeclarationListeners.length == 0) return [];
 
         let document = this.documents.get(uri)
         this.debugDetail("got document: " + (document != null),
@@ -365,6 +379,44 @@ export class ProxyServerConnection implements IServerConnection {
             let locations = listener(uri, offset);
             this.debugDetail("Got locations: " + (locations?locations.length:0),
                 "ProxyServerConnection", "openDeclaration")
+
+            if (locations) {
+                for (let location of locations) {
+                    let start = document.positionAt(location.range.start)
+                    let end = document.positionAt(location.range.end)
+                    result.push({
+                        uri: location.uri,
+                        range: {
+                            start: start,
+                            end: end
+                        }
+                    })
+                }
+            }
+        }
+
+        return result;
+    }
+
+    findReferences(uri: string, position : Position) : Location[] {
+        this.debug("findReferences called for uri: " + uri,
+            "ProxyServerConnection", "findReferences")
+
+        if (this.findreferencesListeners.length == 0) return [];
+
+        let document = this.documents.get(uri)
+        this.debugDetail("got document: " + (document != null),
+            "ProxyServerConnection", "findReferences")
+        if (!document) return [];
+
+        let offset = document.offsetAt(position);
+
+        let result : Location[]  = [];
+
+        for(let listener of this.findreferencesListeners) {
+            let locations = listener(uri, offset);
+            this.debugDetail("Got locations: " + (locations?locations.length:0),
+                "ProxyServerConnection", "findReferences")
 
             if (locations) {
                 for (let location of locations) {

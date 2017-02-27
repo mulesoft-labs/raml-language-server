@@ -66,6 +66,12 @@ export interface IServerConnection extends ILogger {
     onOpenDeclaration(listener: (uri: string, position: number) => ILocation[])
 
     /**
+     * Adds a listener to document find references request.  Must notify listeners in order of registration.
+     * @param listener
+     */
+    onFindReferences(listener: (uri: string, position: number) => ILocation[])
+
+    /**
      * Reports latest validation results
      * @param report
      */

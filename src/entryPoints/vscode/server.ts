@@ -37,7 +37,8 @@ connection.onInitialize((params): InitializeResult => {
             completionProvider: {
                 resolveProvider: false
             },
-            definitionProvider : true
+            definitionProvider : true,
+            referencesProvider: true
         }
     }
 });
