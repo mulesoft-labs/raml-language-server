@@ -96,7 +96,7 @@ class FixedActionsManager {
     }
 
     private lowLevelNodeToLocation(originalUri: string, node:lowLevel.ILowLevelASTNode,
-        completeReference=false) : ILocation {
+        completeReference=true) : ILocation {
         this.connection.debugDetail("Converting low level node to location",
             "FixedActionsManager", "lowLevelNodeToLocation");
 

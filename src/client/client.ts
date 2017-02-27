@@ -69,4 +69,12 @@ export interface IClientConnection extends ILogger {
      * @param position - position in the document
      */
     openDeclaration(uri: string, position: number) : Promise<ILocation[]>
+
+    /**
+     * Requests server for the positions of the references of the element defined
+     * at the given document position.
+     * @param uri - document uri
+     * @param position - position in the document
+     */
+    findReferences(uri: string, position: number) : Promise<ILocation[]>
 }
