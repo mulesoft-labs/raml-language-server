@@ -463,7 +463,7 @@ class ASTManager implements IASTManagerModule {
 
     registerNewAST(uri: string, ast: IHighLevelNode) : void {
         //cleaning ASTs
-        this.currentASTs = {};
+        //this.currentASTs = {};
 
         this.connection.debug("Registering new AST for URI: " + uri,
             "ASTManager", "registerNewAST");

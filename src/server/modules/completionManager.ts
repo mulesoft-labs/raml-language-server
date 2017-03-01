@@ -182,12 +182,25 @@ class CompletionManagerModule implements ICompletionManagerModule {
     }
 
     getCompletion(uri: string, position: number) : Suggestion[] {
+        this.connection.debug("Called getCompletion for position " + position, "CompletionManagerModule", "getCompletion")
+
         let astProvider = new ASTProvider(uri, this.astManagerModule);
         let editorProvider = new EditorStateProvider(uri, position, this.editorManagerModule);
         let fsProvider = new FSProvider();
 
+        let currentAST = this.astManagerModule.getCurrentAST(uri);
+        this.connection.debugDetail("Current AST found: " + (currentAST?"true":"false"), "CompletionManagerModule", "getCompletion")
+
         suggestions.setDefaultASTProvider(astProvider);
 
-        return suggestions.suggest(editorProvider, fsProvider);
+        let result = suggestions.suggest(editorProvider, fsProvider);
+
+        for (let suggestion of result) {
+            this.connection.debug("Suggestion: text: " + suggestion.text, "CompletionManagerModule", "getCompletion")
+            this.connection.debug("Suggestion: displayText: " + suggestion.displayText, "CompletionManagerModule", "getCompletion")
+            this.connection.debug("Suggestion: prefix: " + suggestion.prefix, "CompletionManagerModule", "getCompletion")
+        }
+
+        return result;
     }
 }
