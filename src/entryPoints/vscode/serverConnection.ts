@@ -55,7 +55,6 @@ export class ProxyServerConnection implements IServerConnection {
         this.documents.onDidChangeContent((change) => {
 
             this.debug(`${change.document.uri} changed`, "ProxyServerConnection")
-            this.debugDetail(`Text is:\n ` + change.document.getText(), "ProxyServerConnection");
 
             for (let listener of this.changeDocumentListeners) {
                 listener({

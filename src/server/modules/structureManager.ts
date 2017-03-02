@@ -154,7 +154,7 @@ class ASTProvider implements ramlOutline.IASTProvider {
     }
 
     getASTRoot() {
-        return <any> this.astManagerModule.getCurrentAST(this.uri);
+        return <any> this.astManagerModule.forceGetCurrentAST(this.uri);
     }
 
     getSelectedNode() {

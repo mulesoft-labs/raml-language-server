@@ -17,6 +17,7 @@ import {
 export interface IEditorManagerModule {
     listen() : void;
     getEditor(uri : string) : IAbstractTextEditor;
+    onChangeDocument(listener: (document : IChangedDocument)=>void);
 }
 
 export function createManager(connection : IServerConnection) : IEditorManagerModule {
@@ -213,6 +214,7 @@ class TextEditorInfo implements IAbstractTextEditor{
 class EditorManager implements IEditorManagerModule {
 
     private uriToEditor : {[uri:string] : TextEditorInfo} = {};
+    private documentChangeListeners: {(document : IChangedDocument):void}[] = []
 
     constructor(private connection : IServerConnection){
     }
@@ -223,12 +225,16 @@ class EditorManager implements IEditorManagerModule {
         );
 
         this.connection.onChangeDocument(
-            (document : IChangedDocument)=>{this.onChangeDocument(document)}
+            (document : IChangedDocument)=>{this.documentWasChanged(document)}
         );
 
         this.connection.onCloseDocument(
             (uri : string)=>{this.onCloseDocument(uri)}
         );
+    }
+
+    onChangeDocument(listener: (document : IChangedDocument)=>void) {
+        this.documentChangeListeners.push(listener);
     }
 
     getEditor(uri : string) : IAbstractTextEditor {
@@ -239,12 +245,25 @@ class EditorManager implements IEditorManagerModule {
         this.uriToEditor[document.uri] = new TextEditorInfo(document.uri, document.text)
     }
 
-    onChangeDocument(document : IChangedDocument) : void {
+    documentWasChanged(document : IChangedDocument) : void {
 
         this.connection.debug("Document is changed",
             "EditorManager", "onChangeDocument");
+        this.connection.debugDetail(`Text is:\n ` + document.text, "EditorManager", "onChangeDocument");
+
+        let current = this.uriToEditor[document.uri];
+        if (current) {
+            let currentText = current.getText();
+            if (document.text == currentText) {
+                this.connection.debugDetail("No changes detected", "EditorManager", "onChangeDocument");
+                return;
+            }
+        }
 
         this.uriToEditor[document.uri] = new TextEditorInfo(document.uri, document.text)
+        for(let listener of this.documentChangeListeners) {
+            listener(document);
+        }
     }
 
     onCloseDocument(uri : string) : void {

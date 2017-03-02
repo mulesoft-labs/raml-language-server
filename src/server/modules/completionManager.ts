@@ -188,8 +188,21 @@ class CompletionManagerModule implements ICompletionManagerModule {
         let editorProvider = new EditorStateProvider(uri, position, this.editorManagerModule);
         let fsProvider = new FSProvider();
 
+        //TODO remove after leaving prototype phase, only needed for logging
+        let editorText = editorProvider.getText();
+        this.connection.debugDetail("Current text:\n" + editorText, "CompletionManagerModule", "getCompletion")
+        let cutStart = position-10>=0?position-10:0
+        let cutEnd = position+10<editorText.length?position+10:editorText.length-1;
+        let cutText = editorText.substring(cutStart, position+1) + "I" + editorText.substring(position+1, cutEnd)
+        this.connection.debugDetail("Completion position cutoff:" + cutText,
+            "CompletionManagerModule", "getCompletion")
+
         let currentAST = this.astManagerModule.getCurrentAST(uri);
         this.connection.debugDetail("Current AST found: " + (currentAST?"true":"false"), "CompletionManagerModule", "getCompletion")
+        if (currentAST) {
+            this.connection.debugDetail(currentAST.printDetails(), "CompletionManagerModule", "getCompletion");
+        }
+
 
         suggestions.setDefaultASTProvider(astProvider);
 

@@ -46,6 +46,12 @@ export interface IASTManagerModule {
     getCurrentAST(uri: string) : IHighLevelNode;
 
     /**
+     * Gets current AST if there is any. If not, performs immediate synchronous parsing and returns the results.
+     * @param uri
+     */
+    forceGetCurrentAST(uri: string) : IHighLevelNode;
+
+    /**
      * Adds listener for new ASTs being parsed.
      * @param listener
      */
@@ -69,6 +75,11 @@ interface Runnable<ResultType> {
      * Should resolve the promise when finished.
      */
     run() : Promise<ResultType>;
+
+    /**
+     * Performs the actual business logics synchronously.
+     */
+    runSynchronously() : IHighLevelNode;
 
     /**
      * Whether two runnable conflict with each other.
@@ -202,6 +213,35 @@ class Reconciler {
     }
 }
 
+/**
+ * Copy of Options interface as it cant be referenced directly
+ */
+interface Options {
+    /**
+     * Module used for operations with file system
+     **/
+    fsResolver?: any;
+    /**
+     * Module used for operations with web
+     **/
+    httpResolver?: any;
+    /**
+     * Whether to return Api which contains errors.
+     **/
+    rejectOnErrors?: boolean;
+    /**
+     * If true, attribute defaults will be returned if no actual vale is specified in RAML code.
+     * Affects only attributes.
+     */
+    attributeDefaults?: boolean;
+    /**
+     * Absolute path of the RAML file. May be used when content is provided directly on
+     * RAML parser method call instead of specifying file path and making the parser to
+     * load the file.
+     */
+    filePath?: string;
+}
+
 class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
 
     private canceled = false;
@@ -224,21 +264,14 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
         return ParseDocumentRunnable.TYPE_CONST;
     }
 
-    /**
-     * Performs the actual business logics.
-     * Should resolve the promise when finished.
-     */
-    run() : Promise<IHighLevelNode> {
+    private prepareParserOptions() : Options {
         //TODO think about sharing and storing the project
         this.logger.debug("Running the parsing",
-            "ParseDocumentRunnable", "run");
+            "ParseDocumentRunnable", "prepareParserOptions");
 
         var dummyProject: any = parser.project.createProject(path.dirname(this.uri));
 
-        let editor = this.editorManager.getEditor(this.uri);
 
-        this.logger.debugDetail("Got editor: " + (editor != null),
-            "ParseDocumentRunnable", "run");
 
         var fsResolver = {
             content : function(path) {
@@ -291,57 +324,99 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
 
         let documentUri = this.uri;
         this.logger.debugDetail("Parsing uri " + documentUri,
-            "ParseDocumentRunnable", "run")
+            "ParseDocumentRunnable", "prepareParserOptions")
 
         if (documentUri.indexOf("file://") == 0) {
             documentUri = documentUri.substring(7);
             this.logger.debugDetail("Parsing uri changed to: " + documentUri,
-                "ParseDocumentRunnable", "run")
+                "ParseDocumentRunnable", "prepareParserOptions")
         }
+
+        return {
+            filePath: documentUri,
+            fsResolver: dummyProject.resolver,
+            httpResolver: dummyProject._httpResolver,
+            rejectOnErrors: false
+        }
+    }
+
+    private parseAsynchronously(parserOptions: any) : Promise<IHighLevelNode> {
+        let editor = this.editorManager.getEditor(this.uri);
+
+        this.logger.debugDetail("Got editor: " + (editor != null),
+            "ParseDocumentRunnable", "parseAsynchronously");
 
         if (!editor) {
 
-            return parser.loadRAML(documentUri, [], {
-                filePath: documentUri,
-                fsResolver: dummyProject.resolver,
-                httpResolver: dummyProject._httpResolver,
-                rejectOnErrors: false
-            }).then((api: parser.hl.BasicNode) => {
+            return parser.loadRAML(parserOptions.filePath, [], parserOptions).then((api: parser.hl.BasicNode) => {
 
                 this.logger.debug("Parsing finished, api: " + (api != null),
-                    "ParseDocumentRunnable", "run");
+                    "ParseDocumentRunnable", "parseAsynchronously");
 
                 return api.highLevel();
             },error=>{
 
                 this.logger.debug("Parsing finished, ERROR: " + error,
-                    "ParseDocumentRunnable", "run");
+                    "ParseDocumentRunnable", "parseAsynchronously");
             })
 
         } else {
             this.logger.debugDetail("EDITOR text:\n" + editor.getText(),
-                "ParseDocumentRunnable", "run")
+                "ParseDocumentRunnable", "parseAsynchronously")
 
-            return parser.parseRAML(editor.getText(), {
-                filePath: documentUri,
-                fsResolver: dummyProject.resolver,
-                httpResolver: dummyProject._httpResolver,
-                rejectOnErrors: false
-            }).then((api: parser.hl.BasicNode) => {
+            return parser.parseRAML(editor.getText(), parserOptions).then((api: parser.hl.BasicNode) => {
 
                 this.logger.debug("Parsing finished, api: " + (api != null),
-                    "ParseDocumentRunnable", "run");
+                    "ParseDocumentRunnable", "parseAsynchronously");
 
                 return api.highLevel();
             },error=>{
 
                 this.logger.debug("Parsing finished, ERROR: " + error,
-                    "ParseDocumentRunnable", "run");
+                    "ParseDocumentRunnable", "parseAsynchronously");
             })
 
         }
+    }
 
+    parseSynchronously(parserOptions: any) : IHighLevelNode {
+        let editor = this.editorManager.getEditor(this.uri);
 
+        this.logger.debugDetail("Got editor: " + (editor != null),
+            "ParseDocumentRunnable", "parseSynchronously");
+
+        if (!editor) {
+
+            let api = parser.loadRAMLSync(parserOptions.filePath, [], parserOptions);
+            this.logger.debug("Parsing finished, api: " + (api != null),
+                "ParseDocumentRunnable", "parseSynchronously");
+
+            return api.highLevel();
+        } else {
+            this.logger.debugDetail("EDITOR text:\n" + editor.getText(),
+                "ParseDocumentRunnable", "parseSynchronously")
+
+            let api = parser.parseRAMLSync(editor.getText(), parserOptions);
+            this.logger.debug("Parsing finished, api: " + (api != null),
+                "ParseDocumentRunnable", "parseSynchronously");
+
+            return api.highLevel();
+        }
+    }
+
+    /**
+     * Performs the actual business logics.
+     * Should resolve the promise when finished.
+     */
+    run() : Promise<IHighLevelNode> {
+
+        let options = this.prepareParserOptions();
+        return this.parseAsynchronously(options);
+    }
+
+    public runSynchronously() : IHighLevelNode {
+        let options = this.prepareParserOptions();
+        return this.parseSynchronously(options);
     }
 
     /**
@@ -394,7 +469,7 @@ class ASTManager implements IASTManagerModule {
             (document: IOpenedDocument)=>{this.onOpenDocument(document)}
         );
 
-        this.connection.onChangeDocument(
+        this.editorManager.onChangeDocument(
             (document : IChangedDocument)=>{this.onChangeDocument(document)}
         );
 
@@ -405,6 +480,20 @@ class ASTManager implements IASTManagerModule {
 
     getCurrentAST(uri: string) : IHighLevelNode {
         return this.currentASTs[uri];
+    }
+
+    forceGetCurrentAST(uri: string) : IHighLevelNode {
+        let current = this.currentASTs[uri];
+        if (current) return current;
+
+        let runner = new ParseDocumentRunnable(uri, this.editorManager,
+            this.connection)
+
+        let newAST = runner.runSynchronously();
+
+        if (newAST) {
+            this.registerNewAST(uri, newAST)
+        }
     }
 
     onNewASTAvailable(listener: (uri: string, ast: IHighLevelNode, error? : Error)=>{}) {
