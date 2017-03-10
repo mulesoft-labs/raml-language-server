@@ -494,6 +494,8 @@ class ASTManager implements IASTManagerModule {
         if (newAST) {
             this.registerNewAST(uri, newAST)
         }
+
+        return newAST;
     }
 
     onNewASTAvailable(listener: (uri: string, ast: IHighLevelNode, error? : Error)=>{}) {
