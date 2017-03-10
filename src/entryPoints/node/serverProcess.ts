@@ -22,6 +22,7 @@ import {
     ProtocolMessage,
     MessageToServerType, MessageToClientType
 } from './protocol'
+import {IStructureReport} from "../../common/typeInterfaces";
 
 class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType> implements IServerConnection {
 
@@ -96,6 +97,18 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
     validated(report:IValidationReport) : void {
         this.send({
             type : "VALIDATION_REPORT",
+            payload : report
+        })
+    }
+
+    /**
+     * Reports new calculated structure when available.
+     * @param uri - document uri
+     * @param structure - structure for the document
+     */
+    structureAvailable(report:IStructureReport) {
+        this.send({
+            type : "STRUCTURE_REPORT",
             payload : report
         })
     }

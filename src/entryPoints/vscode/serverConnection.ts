@@ -6,6 +6,7 @@ import {
     IRange,
     IValidationIssue,
     IValidationReport,
+    IStructureReport,
     IOpenedDocument,
     IChangedDocument,
     StructureNodeJSON,
@@ -191,6 +192,14 @@ export class ProxyServerConnection implements IServerConnection {
      */
     onFindReferences(listener: (uri: string, position: number) => ILocation[]){
         this.findreferencesListeners.push(listener);
+    }
+
+    /**
+     * Reports new calculated structure when available.
+     * @param report - structure report.
+     */
+    structureAvailable(report: IStructureReport) {
+        //we dont need it
     }
 
     /**

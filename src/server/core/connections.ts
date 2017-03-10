@@ -2,6 +2,7 @@ import {
     IRange,
     IValidationIssue,
     IValidationReport,
+    IStructureReport,
     IOpenedDocument,
     IChangedDocument,
     StructureNodeJSON,
@@ -15,6 +16,7 @@ export {
     IRange,
     IValidationIssue,
     IValidationReport,
+    IStructureReport,
     IOpenedDocument,
     IChangedDocument,
     StructureNodeJSON,
@@ -76,4 +78,10 @@ export interface IServerConnection extends ILogger {
      * @param report
      */
     validated(report:IValidationReport) : void;
+
+    /**
+     * Reports new calculated structure when available.
+     * @param report - structure report.
+     */
+    structureAvailable(report: IStructureReport);
 }

@@ -4,7 +4,8 @@ import {
 } from '../../common/typeInterfaces'
 
 export type MessageToClientType =
-    "VALIDATION_REPORT";
+    "VALIDATION_REPORT" |
+    "STRUCTURE_REPORT";
 
 export type MessageToServerType =
     "OPEN_DOCUMENT" |

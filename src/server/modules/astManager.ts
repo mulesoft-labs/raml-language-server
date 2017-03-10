@@ -528,9 +528,9 @@ class ASTManager implements IASTManagerModule {
             this.connection))
             .then(newAST=>{
 
-                this.connection.debugDetail(
-                    "On change document handler promise returned new ast",
-                    "ASTManager", "onChangeDocument")
+                    this.connection.debugDetail(
+                        "On change document handler promise returned new ast",
+                        "ASTManager", "onChangeDocument")
 
                     this.registerNewAST(document.uri, newAST)
                 }

@@ -130,6 +130,10 @@ class ValidationManager {
             "ValidationManager", "newASTAvailable")
 
         let errors = this.gatherValidationErrors(ast, uri);
+
+        this.connection.debug("Number of errors is:\n" + (errors?errors.length:0),
+            "ValidationManager", "newASTAvailable")
+
         this.connection.validated({
             pointOfViewUri : uri,
             issues : errors

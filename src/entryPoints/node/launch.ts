@@ -5,6 +5,7 @@ import path = require("path");
 import {
     IClientConnection,
     IValidationReport,
+    IStructureReport,
     IOpenedDocument,
     StructureNodeJSON,
     Suggestion,
@@ -43,6 +44,7 @@ function launch() : IClientConnection {
 class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType> implements IClientConnection {
 
     private validationReportListeners : {(report:IValidationReport):void}[] = [];
+    private structureReportListeners : {(report:IStructureReport):void}[] = [];
 
     constructor(private serverProcess : childProcess.ChildProcess){
         super();
@@ -70,6 +72,10 @@ class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
 
     onValidationReport(listener : (report:IValidationReport)=>void) {
         this.validationReportListeners.push(listener);
+    }
+
+    onStructureReport(listener : (report:IStructureReport)=>void) {
+        this.structureReportListeners.push(listener);
     }
 
     documentOpened(document: IOpenedDocument) : void {
@@ -145,6 +151,12 @@ class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
 
     VALIDATION_REPORT(report : IValidationReport) : void {
         for (let listener of this.validationReportListeners) {
+            listener(report);
+        }
+    }
+
+    STRUCTURE_REPORT(report : IStructureReport) : void {
+        for (let listener of this.structureReportListeners) {
             listener(report);
         }
     }

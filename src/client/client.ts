@@ -1,5 +1,6 @@
 import {
     IValidationReport,
+    IStructureReport,
     IOpenedDocument,
     IChangedDocument,
     StructureNodeJSON,
@@ -10,6 +11,7 @@ import {
 
 export {
     IValidationReport,
+    IStructureReport,
     IOpenedDocument,
     IChangedDocument,
     StructureNodeJSON,
@@ -30,6 +32,13 @@ export interface IClientConnection extends ILogger {
      * @param listener
      */
     onValidationReport(listener : (report:IValidationReport)=>void);
+
+    /**
+     * Instead of calling getStructure to get immediate structure report for the document,
+     * this method allows to listen to the new structure reports when those are available.
+     * @param listener
+     */
+    onStructureReport(listener : (report:IStructureReport)=>void);
 
     /**
      * Notifies the server that document is opened.

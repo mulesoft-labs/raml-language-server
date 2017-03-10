@@ -163,6 +163,9 @@ class ASTProvider implements ramlOutline.IASTProvider {
 }
 
 class StructureManager {
+
+    private cachedStructures: {[uri:string] : {[categoryName:string] : StructureNodeJSON}} = {};
+
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule) {
     }
 
@@ -170,6 +173,18 @@ class StructureManager {
         this.connection.onDocumentStructure(uri=>{
             return this.getStructure(uri);
         })
+
+        this.astManagerModule.onNewASTAvailable((uri, ast)=>{
+            let structureForUri = this.calculateStructure(uri);
+            this.cachedStructures[uri] = structureForUri;
+
+            this.connection.structureAvailable({
+                uri: uri,
+                structure: structureForUri
+            })
+        })
+
+        this.connection.onCloseDocument(uri=>delete this.cachedStructures[uri]);
     }
 
     vsCodeUriToParserUri(vsCodeUri : string) : string {
@@ -181,12 +196,34 @@ class StructureManager {
     }
 
     getStructure(uri : string): {[categoryName:string] : StructureNodeJSON} {
+        let cached = this.cachedStructures[uri];
+        if (cached) return cached;
+
+        let calculated = this.calculateStructure(uri);
+        this.cachedStructures[uri] = calculated;
+
+        return calculated;
+    }
+
+    calculateStructure(uri : string): {[categoryName:string] : StructureNodeJSON} {
 
         this.connection.debug("Called for uri: " + uri,
             "StructureManager", "getStructure");
 
         ramlOutline.setASTProvider(new ASTProvider(uri, this.astManagerModule));
 
-        return ramlOutline.getStructureForAllCategories();
+        let result = ramlOutline.getStructureForAllCategories();
+
+        if (result) {
+            for (let categoryName in result) {
+                let categoryJSON = result[categoryName];
+                if (categoryJSON) {
+                    this.connection.debugDetail("Structure for category " + categoryName +"\n"
+                        + JSON.stringify(categoryJSON, null, 2))
+                }
+            }
+        }
+
+        return result;
     }
 }

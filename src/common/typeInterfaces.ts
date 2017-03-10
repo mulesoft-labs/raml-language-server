@@ -61,6 +61,18 @@ export interface IValidationReport {
     issues: IValidationIssue[]
 }
 
+export interface IStructureReport {
+    /**
+     * Document uri.
+     */
+    uri : string
+
+    /**
+     * Document structure.
+     */
+    structure: {[categoryName:string] : StructureNodeJSON}
+}
+
 export interface IOpenedDocument {
     /**
      * Document URI
