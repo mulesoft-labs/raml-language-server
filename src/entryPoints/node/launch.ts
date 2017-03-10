@@ -47,7 +47,7 @@ class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
     private structureReportListeners : {(report:IStructureReport):void}[] = [];
 
     constructor(private serverProcess : childProcess.ChildProcess){
-        super();
+        super("NodeProcessClientConnection");
 
         serverProcess.on('message', (serverMessage: ProtocolMessage<MessageToServerType>) => {
             this.handleRecievedMessage(serverMessage);

@@ -34,6 +34,10 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
     private openDeclarationListeners : {(uri : string, position: number):ILocation[]}[] = [];
     private findReferencesListeners : {(uri : string, position: number):ILocation[]}[] = [];
 
+    constructor() {
+        super("NodeProcessServerConnection")
+    }
+
     /**
      * Adds a listener to document open notification. Must notify listeners in order of registration.
      * @param listener

@@ -34,6 +34,8 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
     implements ILogger {
     private callBacks : {[messageId : string] : CallBackHandle<any>} = {};
 
+    constructor(private name: string) {}
+
     /**
      * Sends message to the counterpart.
      * @param message
@@ -101,7 +103,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @param message
      */
     public send(message : ProtocolMessage<MessageType>) : void {
-        this.debug("Sending message of type: " + message.type, "MessageDispatcher", "send");
+        this.debug("Sending message of type: " + message.type, "MessageDispatcher: " + this.name, "send");
         this.sendMessage(message);
     }
 
@@ -112,7 +114,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @return promise, which will contain the result returned by the counterpart
      */
     public sendWithResponse<ResultType>(message : ProtocolMessage<MessageType>) : Promise<ResultType> {
-        this.debug("Sending message with response of type: " + message.type, "MessageDispatcher", "sendWithResonse");
+        this.debug("Sending message with response of type: " + message.type, "MessageDispatcher: " + this.name, "sendWithResonse");
         return new Promise((resolve : (value?: ResultType) => void, reject: (error?: any) => void)=>{
 
             message.id = shortid.generate();
@@ -136,11 +138,11 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      */
     public handleRecievedMessage(message : ProtocolMessage<MessageType>) {
         this.debug("Recieved message of type: " + message.type + " and id: " + message.id,
-            "MessageDispatcher", "handleRecievedMessage");
+            "MessageDispatcher: " + this.name, "handleRecievedMessage");
 
         if (message.id && this.callBacks[message.id]) {
             this.debugDetail("MessageDispatcher:handleRecievedMessage Message callback found",
-                "MessageDispatcher", "handleRecievedMessage");
+                "MessageDispatcher:" + this.name, "handleRecievedMessage");
             //this is a response for a request sent earlier
             //lets find its resolve/error and call it
 
@@ -160,15 +162,15 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
             }
         } else {
             this.debugDetail("Looking for method " + message.type,
-                "MessageDispatcher", "handleRecievedMessage")
+                "MessageDispatcher:" + this.name, "handleRecievedMessage")
             let method = this[<string>message.type];
             if (!method) {
                 this.debugDetail("Method NOT found: " + message.type,
-                    "MessageDispatcher", "handleRecievedMessage")
+                    "MessageDispatcher+" + this.name, "handleRecievedMessage")
                 return;
             } else {
                 this.debugDetail("Method found: " + message.type,
-                    "MessageDispatcher", "handleRecievedMessage")
+                    "MessageDispatcher:" + this.name, "handleRecievedMessage")
             }
 
             if (typeof(method) != "function") return;
@@ -176,7 +178,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
             //if this is not a response, just a direct message, lets call a handler
             var result = method.call(this,message.payload);
             this.debugDetail("Called method " + message.type + " result is: " + result,
-                "MessageDispatcher", "handleRecievedMessage");
+                "MessageDispatcher:" + this.name, "handleRecievedMessage");
 
             //if we've got some result and message has ID, so the answer is expected
             if (result != null && message.id) {
