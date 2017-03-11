@@ -127,6 +127,19 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
         })
     }
 
+    protected handleCommunicationError(error : Error, originalMessage : ProtocolMessage<MessageType>) {
+        this.error("Error on message handler execution: " + Error);
+
+        if (originalMessage.id) {
+            this.send({
+                type: originalMessage.type,
+                payload: {},
+                id: originalMessage.id,
+                errorMessage: error.message
+            })
+        }
+    }
+
     /**
      * Finds a method in the current instance named as message type and calls it with
      * the message payload as an argument.
@@ -176,13 +189,21 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
             if (typeof(method) != "function") return;
 
             //if this is not a response, just a direct message, lets call a handler
-            var result = method.call(this,message.payload);
+            let result = null;
+
+            try {
+                result = method.call(this,message.payload);
+            } catch (error) {
+                this.handleCommunicationError(error, message)
+                return;
+            }
+
             this.debugDetail("Called method " + message.type + " result is: " + result,
                 "MessageDispatcher:" + this.name, "handleRecievedMessage");
 
             //if we've got some result and message has ID, so the answer is expected
-            if (result != null && message.id) {
-                if ((<any>result).then && (<any>result).catch) {
+            if (result && message.id) {
+                if (result && (<any>result).then && (<any>result).catch) {
                     //TODO more precise instanceof
 
                     //looks like a promise, lets send the answer when its ready

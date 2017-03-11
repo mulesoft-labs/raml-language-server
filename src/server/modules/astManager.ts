@@ -358,6 +358,8 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
 
                 this.logger.debug("Parsing finished, ERROR: " + error,
                     "ParseDocumentRunnable", "parseAsynchronously");
+
+                throw error;
             })
 
         } else {
@@ -374,6 +376,7 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
 
                 this.logger.debug("Parsing finished, ERROR: " + error,
                     "ParseDocumentRunnable", "parseAsynchronously");
+                throw error;
             })
 
         }
@@ -516,10 +519,10 @@ class ASTManager implements IASTManagerModule {
         this.reconciler.schedule(new ParseDocumentRunnable(document.uri, this.editorManager,
             this.connection))
             .then(
-                newAST=>this.registerNewAST(document.uri, newAST)
-            ).catch(
+                newAST=>this.registerNewAST(document.uri, newAST),
                 error=>this.registerASTParseError(document.uri, error)
-            );
+            )
+
     }
 
     onChangeDocument(document : IChangedDocument) : void {
@@ -535,8 +538,7 @@ class ASTManager implements IASTManagerModule {
                         "ASTManager", "onChangeDocument")
 
                     this.registerNewAST(document.uri, newAST)
-                }
-            ).catch(
+                },
                 error=>{
 
                     this.connection.debugDetail(
