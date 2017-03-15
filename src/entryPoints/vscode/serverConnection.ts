@@ -16,6 +16,10 @@ import {
     ILocation
 } from '../../common/typeInterfaces'
 
+import {
+    AbstractServerConnection
+} from "../../server/core/connectionsImpl"
+
 import utils = require("../../common/utils")
 
 import {
@@ -24,21 +28,16 @@ import {
     TextDocuments, TextDocument, Diagnostic, DiagnosticSeverity,
     InitializeParams, InitializeResult, TextDocumentPositionParams,
     CompletionItem, CompletionItemKind,DocumentSymbolParams, SymbolInformation,
-    SymbolKind, Position, Location, ReferenceParams
+    SymbolKind, Position, Location, ReferenceParams, Range, DocumentHighlight
 } from 'vscode-languageserver';
 
-export class ProxyServerConnection implements IServerConnection {
+export class ProxyServerConnection extends AbstractServerConnection implements IServerConnection {
 
-    private openDocumentListeners : {(document: IOpenedDocument):void}[] = [];
-    private changeDocumentListeners : {(document: IChangedDocument):void}[] = [];
-    private closeDocumentListeners : {(string):void}[] = [];
-    private documentStructureListeners : {(uri : string):{[categoryName:string] : StructureNodeJSON}}[] = [];
-    private documentCompletionListeners : {(uri : string, position: number):Suggestion[]}[] = [];
-    private openDeclarationListeners : {(uri : string, position: number):ILocation[]}[] = [];
-    private findreferencesListeners : {(uri : string, position: number):ILocation[]}[] = [];
+
     private documents: TextDocuments;
 
     constructor(private vsCodeConnection : IConnection){
+        super()
     }
 
     public listen() : void {
@@ -136,70 +135,11 @@ export class ProxyServerConnection implements IServerConnection {
 
             return this.findReferences(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
         });
-    }
 
-    /**
-     * Adds a listener to document open notification. Must notify listeners in order of registration.
-     * @param listener
-     */
-    onOpenDocument(listener: (document: IOpenedDocument)=>void) {
-        this.openDocumentListeners.push(listener);
-    }
+        this.vsCodeConnection.onDocumentHighlight((textDocumentPosition: ReferenceParams): DocumentHighlight[] => {
 
-    /**
-     * Adds a listener to document change notification. Must notify listeners in order of registration.
-     * @param listener
-     */
-    onChangeDocument(listener: (document : IChangedDocument)=>void) {
-        this.changeDocumentListeners.push(listener);
-    }
-
-    /**
-     * Adds a listener to document close notification. Must notify listeners in order of registration.
-     * @param listener
-     */
-    onCloseDocument(listener: (uri : string)=>void) {
-        this.closeDocumentListeners.push(listener);
-    }
-
-    /**
-     * Adds a listener to document structure request. Must notify listeners in order of registration.
-     * @param listener
-     */
-    onDocumentStructure(listener: (uri : string)=>{[categoryName:string] : StructureNodeJSON}) {
-        this.documentStructureListeners.push(listener);
-    }
-
-    /**
-     * Adds a listener to document completion request. Must notify listeners in order of registration.
-     * @param listener
-     */
-    onDocumentCompletion(listener: (uri : string, position: number)=>Suggestion[]) {
-        this.documentCompletionListeners.push(listener);
-    }
-
-    /**
-     * Adds a listener to document open declaration request.  Must notify listeners in order of registration.
-     * @param listener
-     */
-    onOpenDeclaration(listener: (uri: string, position: number) => ILocation[]){
-        this.openDeclarationListeners.push(listener);
-    }
-
-    /**
-     * Adds a listener to document find references request.  Must notify listeners in order of registration.
-     * @param listener
-     */
-    onFindReferences(listener: (uri: string, position: number) => ILocation[]){
-        this.findreferencesListeners.push(listener);
-    }
-
-    /**
-     * Reports new calculated structure when available.
-     * @param report - structure report.
-     */
-    structureAvailable(report: IStructureReport) {
-        //we dont need it
+            return this.documentHighlight(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
+        });
     }
 
     /**
@@ -527,4 +467,43 @@ export class ProxyServerConnection implements IServerConnection {
           component?: string, subcomponent?: string) : void {
         this.log(message, MessageSeverity.ERROR, component, subcomponent);
     }
+
+    documentHighlight(uri: string, position : Position) : DocumentHighlight[] {
+        this.debug("documentHighlight called for uri: " + uri,
+            "ProxyServerConnection", "documentHighlight")
+
+        if (this.markOccurrencesListeners.length == 0) return [];
+
+        let document = this.documents.get(uri)
+        this.debugDetail("got document: " + (document != null),
+            "ProxyServerConnection", "findReferences")
+        if (!document) return [];
+
+        let offset = document.offsetAt(position);
+
+        let result : DocumentHighlight[]  = [];
+
+        for(let listener of this.markOccurrencesListeners) {
+            let locations = listener(uri, offset);
+            this.debugDetail("Got locations: " + (locations?locations.length:0),
+                "ProxyServerConnection", "documentHighlight")
+
+            if (locations) {
+                for (let location of locations) {
+                    let start = document.positionAt(location.start)
+                    let end = document.positionAt(location.end)
+                    result.push({
+                        kind: 1,
+                        range: {
+                            start: start,
+                            end: end
+                        }
+                    })
+                }
+            }
+        }
+
+        return result;
+    }
+
 }

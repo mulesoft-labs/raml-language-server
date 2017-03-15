@@ -14,7 +14,8 @@ export type MessageToServerType =
     "GET_STRUCTURE" |
     "GET_SUGGESTIONS" |
     "OPEN_DECLARATION" |
-    "FIND_REFERENCES";
+    "FIND_REFERENCES" |
+    "MARK_OCCURRENCES";
 
 export interface ProtocolMessage<MessageType extends MessageToClientType | MessageToServerType> {
     type : MessageType

@@ -33,6 +33,7 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
     private documentCompletionListeners : {(uri : string, position: number):Suggestion[]}[] = [];
     private openDeclarationListeners : {(uri : string, position: number):ILocation[]}[] = [];
     private findReferencesListeners : {(uri : string, position: number):ILocation[]}[] = [];
+    private markOccurrencesListeners : {(uri : string, position: number):IRange[]}[] = [];
 
     constructor() {
         super("NodeProcessServerConnection")
@@ -115,6 +116,14 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
             type : "STRUCTURE_REPORT",
             payload : report
         })
+    }
+
+    /**
+     * Marks occurrences of a symbol under the cursor in the current document.
+     * @param listener
+     */
+    onMarkOccurrences(listener: (uri: string, position: number) => IRange[]) {
+        this.markOccurrencesListeners.push(listener);
     }
 
     sendMessage (message : ProtocolMessage<MessageToClientType>) : void {
@@ -214,6 +223,24 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
 
         let result = [];
         for (let listener of this.findReferencesListeners) {
+            result = result.concat(listener(payload.uri, payload.position));
+        }
+
+        return result;
+    }
+
+    /**
+     * Handler of MARK_OCCURRENCES message.
+     * @param uri - document uri
+     * @param position - offset in the document starting from 0
+     * @constructor
+     */
+    MARK_OCCURRENCES(payload:{uri : string, position: number}) : IRange[]{
+        if (this.markOccurrencesListeners.length == 0)
+            return [];
+
+        let result = [];
+        for (let listener of this.markOccurrencesListeners) {
             result = result.concat(listener(payload.uri, payload.position));
         }
 

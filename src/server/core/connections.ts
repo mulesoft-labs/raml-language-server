@@ -84,4 +84,10 @@ export interface IServerConnection extends ILogger {
      * @param report - structure report.
      */
     structureAvailable(report: IStructureReport);
+
+    /**
+     * Marks occurrences of a symbol under the cursor in the current document.
+     * @param listener
+     */
+    onMarkOccurrences(listener: (uri: string, position: number) => IRange[])
 }

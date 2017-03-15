@@ -6,7 +6,8 @@ import {
     StructureNodeJSON,
     Suggestion,
     ILogger,
-    ILocation
+    ILocation,
+    IRange
 } from "../common/typeInterfaces";
 
 export {
@@ -17,7 +18,8 @@ export {
     StructureNodeJSON,
     Suggestion,
     ILogger,
-    ILocation
+    ILocation,
+    IRange
 } from '../common/typeInterfaces'
 
 export interface IClientConnection extends ILogger {
@@ -86,4 +88,12 @@ export interface IClientConnection extends ILogger {
      * @param position - position in the document
      */
     findReferences(uri: string, position: number) : Promise<ILocation[]>
+
+    /**
+     * Requests server for the positions of the references of the element defined
+     * at the given document position.
+     * @param uri - document uri
+     * @param position - position in the document
+     */
+    markOccurrencesReferences(uri: string, position: number) : Promise<IRange[]>
 }

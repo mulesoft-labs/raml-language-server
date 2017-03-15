@@ -9,7 +9,8 @@ import {
     IOpenedDocument,
     StructureNodeJSON,
     Suggestion,
-    ILocation
+    ILocation,
+    IRange
 } from '../../client/client'
 
 import {
@@ -142,6 +143,22 @@ class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
     findReferences(uri: string, position: number) : Promise<ILocation[]> {
         return this.sendWithResponse({
             type : "FIND_REFERENCES",
+            payload : {
+                uri : uri,
+                position: position
+            }
+        });
+    }
+
+    /**
+     * Requests server for the positions of the references of the element defined
+     * at the given document position.
+     * @param uri - document uri
+     * @param position - position in the document
+     */
+    markOccurrencesReferences(uri: string, position: number) : Promise<IRange[]> {
+        return this.sendWithResponse({
+            type : "MARK_OCCURRENCES",
             payload : {
                 uri : uri,
                 position: position
