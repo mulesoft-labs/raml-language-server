@@ -38,7 +38,8 @@ connection.onInitialize((params): InitializeResult => {
                 resolveProvider: false
             },
             definitionProvider : true,
-            referencesProvider: true
+            referencesProvider: true,
+            documentHighlightProvider: true
         }
     }
 });
