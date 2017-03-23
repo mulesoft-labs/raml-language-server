@@ -28,6 +28,10 @@ export function extName(uri : string) {
     return path.extname(pathFromURI(uri));
 }
 
+export function resolve(path1 : string, path2: string) : string {
+    return path.resolve(path1, path2);
+}
+
 /**
  * If original format is well-formed FILE uri, and toTransform is simple path,
  * transforms toTransform to well-formed file uri

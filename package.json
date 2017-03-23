@@ -5,8 +5,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "rimraf dist && tsc",
-    "compile": "installServerIntoExtension ../api-workbench-vscode/client ./package.json ./tsconfig.json && tsc -p .",
-    "watch": "installServerIntoExtension ../api-workbench-vscode/client ./package.json ./tsconfig.json && tsc --watch -p ."
+    "test" : "mocha ./dist/test/suggestions/suggestionsTests.js"
   },
   "repository": {
     "type": "git",
@@ -34,10 +33,24 @@
   },
   "devDependencies": {
     "@types/node": "^6.0.52",
-    "typings": "^0.5.1",
+    "@types/mocha": "*",
+    "@types/chai": "*",
+    "@types/es6-promise": "*",
     "typescript": "^2.1.5",
     "dev-env-installer": "0.0.5",
-    "rimraf": "*"
+    "rimraf": "*",
+    "chai": "^2.2.0",
+    "chai-as-promised": "^5.2.0",
+    "mocha": "^2.2.1",
+    "istanbul": "^0.4.2",
+    "gulp-istanbul" : "*",
+    "gulp": "^3.8.11",
+    "gulp-compass": "^2.0.4",
+    "gulp-connect": "^2.2.0",
+    "gulp-mocha": "^2.0.1",
+    "gulp-rename": "^1.2.2",
+    "gulp-sourcemaps": "^1.5.2",
+    "gulp-typescript": "^2.11.0"
   },
   "engines": {
     "node": "*",
