@@ -1,3 +1,5 @@
+//This module reports RAML warnings and errors
+
 import {
     IServerConnection
 } from '../core/connections'

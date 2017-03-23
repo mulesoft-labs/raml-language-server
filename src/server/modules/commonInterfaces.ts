@@ -1,3 +1,5 @@
+//This file provides common interfaces for server modules.
+
 import parser = require("raml-1-parser");
 
 export type IHighLevelNode = parser.hl.IHighLevelNode;

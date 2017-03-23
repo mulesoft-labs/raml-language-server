@@ -1,3 +1,5 @@
+//This module provides a fixed action for finding references/usages of RAML node
+
 import {
     IServerConnection
 } from '../../core/connections'
@@ -31,9 +33,6 @@ export function createManager(connection : IServerConnection,
     return new FindReferencesActionModule(connection, astManagerModule, editorManagerModule);
 }
 
-/**
- * Handles "open declaration" action.
- */
 class FindReferencesActionModule implements fixedActionCommon.IFixedActionsManagerSubModule {
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {

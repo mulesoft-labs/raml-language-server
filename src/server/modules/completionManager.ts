@@ -1,3 +1,5 @@
+//This module provides completion proposals
+
 import {
     IServerConnection
 } from '../core/connections'

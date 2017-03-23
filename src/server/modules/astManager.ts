@@ -1,3 +1,6 @@
+//This module maintains AST for RAML units and provides AST contents and
+// notifications to other server modules
+
 import parser = require("raml-1-parser");
 import path = require("path");
 import fs = require('fs');

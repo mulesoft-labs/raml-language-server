@@ -1,3 +1,5 @@
+//This module provides a fixed action for finding occurrences of RAML node
+
 import {
     IServerConnection
 } from '../../core/connections'
@@ -32,9 +34,6 @@ export function createManager(connection : IServerConnection,
     return new MarkOccurrencesActionModule(connection, astManagerModule, editorManagerModule);
 }
 
-/**
- * Handles "open declaration" action.
- */
 class MarkOccurrencesActionModule implements fixedActionCommon.IFixedActionsManagerSubModule {
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {

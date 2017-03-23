@@ -1,3 +1,5 @@
+//This module provides RAML module structure
+
 import {
     IServerConnection
 } from '../core/connections'

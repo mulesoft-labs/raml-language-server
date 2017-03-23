@@ -1,3 +1,6 @@
+//This manager handles fixed actions as opposed to dynamic context-depended actions
+
+
 import {
     IServerConnection
 } from '../core/connections'

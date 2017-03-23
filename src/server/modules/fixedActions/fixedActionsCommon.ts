@@ -1,3 +1,5 @@
+// Common interfaces and methods for fixed actions submodules
+
 import {
     ILocation,
     ILogger

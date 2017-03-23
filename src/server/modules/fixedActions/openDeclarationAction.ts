@@ -1,3 +1,5 @@
+//This module provides a fixed action for finding declaration of RAML node
+
 import {
     IServerConnection
 } from '../../core/connections'
@@ -23,9 +25,6 @@ import hl=rp.hl;
 import utils = require("../../../common/utils")
 import fixedActionCommon = require("./fixedActionsCommon")
 
-/**
- * Handles "open declaration" action.
- */
 export interface IOpenDeclarationActionModule extends fixedActionCommon.IFixedActionsManagerSubModule {
     openDeclaration(uri:string,position:number): ILocation[];
 }
