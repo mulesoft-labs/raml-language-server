@@ -11,10 +11,11 @@ import {
     IAbstractTextEditor,
     IEditorTextBuffer,
     IPoint,
-    IRange
+    IRange,
+    IListeningModule
 } from './commonInterfaces'
 
-export interface IEditorManagerModule {
+export interface IEditorManagerModule extends IListeningModule {
     listen() : void;
     getEditor(uri : string) : IAbstractTextEditor;
     onChangeDocument(listener: (document : IChangedDocument)=>void);

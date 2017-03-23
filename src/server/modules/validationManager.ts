@@ -11,17 +11,17 @@ import {
     ILogger
 } from '../../common/typeInterfaces'
 
+import {
+    IListeningModule
+} from './commonInterfaces'
+
 import parser = require("raml-1-parser");
 import utils = parser.utils;
 
 type IHighLevelNode = parser.hl.IHighLevelNode;
 
-export interface IValidationManagerModule {
-    listen() : void;
-}
-
 export function createManager(connection : IServerConnection,
-    astManagerModule : IASTManagerModule) : IValidationManagerModule {
+    astManagerModule : IASTManagerModule) : IListeningModule {
 
     return new ValidationManager(connection, astManagerModule);
 }

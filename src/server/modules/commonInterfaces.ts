@@ -154,3 +154,10 @@ export interface IEditorProvider {
      */
     getCurrentEditor() : IAbstractTextEditor
 }
+
+/**
+ * Listens to whatever connections and events this module subscribes to.
+ */
+export interface IListeningModule {
+    listen() : void;
+}

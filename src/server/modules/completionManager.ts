@@ -11,7 +11,8 @@ import {
 } from './editorManager'
 
 import {
-    IAbstractTextEditor
+    IAbstractTextEditor,
+    IListeningModule
 } from './commonInterfaces'
 
 import {
@@ -36,13 +37,9 @@ import pathModule = require("path")
 //other ways to report existing files
 import fs = require("fs")
 
-export interface ICompletionManagerModule {
-    listen() : void;
-}
-
 export function createManager(connection : IServerConnection,
                               astManagerModule : IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule) : ICompletionManagerModule {
+                              editorManagerModule: IEditorManagerModule) : IListeningModule {
 
     return new CompletionManagerModule(connection, astManagerModule, editorManagerModule);
 }
@@ -170,7 +167,7 @@ class FSProvider implements suggestions.IFSProvider {
     }
 }
 
-class CompletionManagerModule implements ICompletionManagerModule {
+class CompletionManagerModule implements IListeningModule {
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {
     }

@@ -15,6 +15,9 @@ import {
     IEditorManagerModule
 } from './editorManager'
 
+import {
+    IListeningModule
+} from './commonInterfaces'
 
 export type IHighLevelNode = parser.hl.IHighLevelNode;
 
@@ -32,7 +35,7 @@ export interface IASTListener {
 /**
  * Manager of AST states.
  */
-export interface IASTManagerModule {
+export interface IASTManagerModule extends IListeningModule {
 
     /**
      * Start listening to the connection.

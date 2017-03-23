@@ -2,6 +2,10 @@ import {
     IServerConnection
 } from './connections'
 
+import {
+    IListeningModule
+} from '../modules/commonInterfaces'
+
 import EditorManagerModule = require("../modules/editorManager")
 
 import ASTManagerModule = require('../modules/astManager')
@@ -16,47 +20,34 @@ import FixedActionsManagerModule = require('../modules/fixedActionsManager')
 
 export class Server {
 
-    private astManagerModule : ASTManagerModule.IASTManagerModule;
-    private editorManagerModule : EditorManagerModule.IEditorManagerModule;
-    private validationManagerModule : ValidationManagerModule.IValidationManagerModule;
-    private structureManagerModule : StructureManagerModule.IStructureManagerModule;
-    private completionManagerModule : CompletionManagerModule.ICompletionManagerModule;
-    private fixedActionsManagerModule : FixedActionsManagerModule.IFixedActionsManagerModule;
+    private modules : IListeningModule[] = [];
 
     constructor(private connection : IServerConnection){
 
-        this.editorManagerModule = EditorManagerModule.createManager(connection);
+        let editorManagerModule = EditorManagerModule.createManager(connection);
+        this.modules.push(editorManagerModule)
 
-        this.astManagerModule = ASTManagerModule.createManager(connection,
-            this.editorManagerModule);
+        let astManagerModule = ASTManagerModule.createManager(connection,
+            editorManagerModule);
+        this.modules.push(astManagerModule)
 
-        this.validationManagerModule = ValidationManagerModule.createManager(connection,
-            this.astManagerModule);
+        this.modules.push(ValidationManagerModule.createManager(connection,
+            astManagerModule));
 
-        this.structureManagerModule = StructureManagerModule.createManager(connection,
-            this.astManagerModule);
+        this.modules.push(StructureManagerModule.createManager(connection,
+            astManagerModule));
 
-        this.completionManagerModule = CompletionManagerModule.createManager(connection,
-            this.astManagerModule, this.editorManagerModule);
+        this.modules.push(CompletionManagerModule.createManager(connection,
+            astManagerModule, editorManagerModule));
 
-        this.fixedActionsManagerModule = FixedActionsManagerModule.createManager(connection,
-            this.astManagerModule, this.editorManagerModule);
+        this.modules.push(FixedActionsManagerModule.createManager(connection,
+            astManagerModule, editorManagerModule));
     }
 
     listen() : void {
         this.listenInternal();
 
-        this.editorManagerModule.listen();
-
-        this.astManagerModule.listen();
-
-        this.validationManagerModule.listen();
-
-        this.structureManagerModule.listen();
-
-        this.completionManagerModule.listen();
-
-        this.fixedActionsManagerModule.listen();
+        this.modules.forEach(module=>module.listen())
     }
 
     listenInternal() : void {

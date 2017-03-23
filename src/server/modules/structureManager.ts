@@ -15,6 +15,10 @@ import {
     ILogger
 } from '../../common/typeInterfaces'
 
+import {
+    IListeningModule
+} from './commonInterfaces'
+
 import rp=require("raml-1-parser")
 import lowLevel=rp.ll;
 import hl=rp.hl;
@@ -22,16 +26,8 @@ import utils = rp.utils;
 import ramlOutline =require('raml-outline')
 let universes=rp.universes;
 
-
-
-
-
-export interface IStructureManagerModule {
-    listen() : void;
-}
-
 export function createManager(connection : IServerConnection,
-                              astManagerModule : IASTManagerModule) : IStructureManagerModule {
+                              astManagerModule : IASTManagerModule) : IListeningModule {
 
     return new StructureManager(connection, astManagerModule);
 }
