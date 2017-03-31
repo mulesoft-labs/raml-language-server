@@ -2,7 +2,7 @@ import testSuiteUtil = require("./testSuiteUtils")
 
 describe('Async outline test set',function(){
 
-    describe('',function(){
+    describe('blah',function(){
 
         it("test001/api.raml", function (done) {
             this.timeout(15000);
@@ -161,5 +161,9 @@ describe('Async outline test set',function(){
 
     });
 
+});
+
+after(function() {
+    testSuiteUtil.stopConnection();
 });
 

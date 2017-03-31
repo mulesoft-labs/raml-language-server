@@ -149,11 +149,21 @@ ${label1}: ${strValue1}`
     }
 }
 
-function getOutlineJSONAsync(apiPath:string, callback: (result: Object) => void): void{
+var connection;
+
+export function stopConnection() {
+    if(connection) {
+        connection.stop();
+    }
+}
+
+function getOutlineJSONAsync(apiPath:string, callback: (result: Object, error: any) => void): void{
     apiPath = resolve(apiPath);
     let content = fs.readFileSync(apiPath).toString();
 
-    let connection = index.getNodeClientConnection();
+    connection = index.getNodeClientConnection();
+
+    (<any>connection).loggingEnabled = false;
 
     connection.documentOpened({
         uri: apiPath,
@@ -162,8 +172,10 @@ function getOutlineJSONAsync(apiPath:string, callback: (result: Object) => void)
 
     connection.getStructure(apiPath).then(result=>{
         connection.documentClosed(apiPath);
-        callback(result);
-    }, ee=>{console.log(ee)});
+        callback(result, null);
+    }, ee => {
+        callback(null, ee);
+    });
 }
 
 function resolve(testPath: string): string {
@@ -176,7 +188,13 @@ export function testOutline (
     regenerateJSON:boolean=false,
     callTests:boolean=true):void{
 
-    getOutlineJSONAsync(apiPath, result=>{
+    getOutlineJSONAsync(apiPath, (result, error) => {
+        if(error) {
+            done(error);
+            
+            return;
+        }
+        
         try{
             assert(testOutlineStructure(apiPath, result, extensions, outlineJsonPath, regenerateJSON, callTests));
             done();
