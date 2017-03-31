@@ -34,6 +34,7 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
     private openDeclarationListeners : {(uri : string, position: number):ILocation[]}[] = [];
     private findReferencesListeners : {(uri : string, position: number):ILocation[]}[] = [];
     private markOccurrencesListeners : {(uri : string, position: number):IRange[]}[] = [];
+    private renameListeners : {(uri : string, position: number, newName: string):IChangedDocument[]}[] = [];
 
     constructor() {
         super("NodeProcessServerConnection")
@@ -93,6 +94,14 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
      */
     onFindReferences(listener: (uri: string, position: number) => ILocation[]){
         this.findReferencesListeners.push(listener);
+    }
+
+    /**
+     * Finds the set of document (and non-document files) edits to perform the requested rename.
+     * @param listener
+     */
+    onRename(listener: (uri: string, position: number, newName: string) => IChangedDocument[]) {
+        this.renameListeners.push(listener)
     }
 
     /**
@@ -242,6 +251,25 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
         let result = [];
         for (let listener of this.markOccurrencesListeners) {
             result = result.concat(listener(payload.uri, payload.position));
+        }
+
+        return result;
+    }
+
+    /**
+     * Handler of RENAME message.
+     * @param uri - document uri
+     * @param position - offset in the document starting from 0
+     * @param newName - new name
+     * @constructor
+     */
+    RENAME(payload:{uri : string, position: number, newName: string}) : IChangedDocument[]{
+        if (this.renameListeners.length == 0)
+            return [];
+
+        let result = [];
+        for (let listener of this.renameListeners) {
+            result = result.concat(listener(payload.uri, payload.position, payload.newName));
         }
 
         return result;

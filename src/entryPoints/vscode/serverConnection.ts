@@ -13,7 +13,7 @@ import {
     StructureCategories,
     Suggestion,
     MessageSeverity,
-    ILocation
+    ILocation, ITextEdit
 } from '../../common/typeInterfaces'
 
 import {
@@ -27,8 +27,9 @@ import {
     createConnection, IConnection, TextDocumentSyncKind,
     TextDocuments, TextDocument, Diagnostic, DiagnosticSeverity,
     InitializeParams, InitializeResult, TextDocumentPositionParams,
-    CompletionItem, CompletionItemKind,DocumentSymbolParams, SymbolInformation,
-    SymbolKind, Position, Location, ReferenceParams, Range, DocumentHighlight
+    CompletionItem, CompletionItemKind, DocumentSymbolParams, SymbolInformation,
+    SymbolKind, Position, Location, ReferenceParams, Range, DocumentHighlight, RenameParams,
+    WorkspaceEdit, TextDocumentEdit, TextEdit
 } from 'vscode-languageserver';
 
 export class ProxyServerConnection extends AbstractServerConnection implements IServerConnection {
@@ -64,81 +65,36 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
             }
         });
 
-        // this.vsCodeConnection.onDidOpenTextDocument((params) => {
-        //     // A text document got opened in VSCode.
-        //     // params.textDocument.uri uniquely identifies the document. For documents store on disk this is a file URI.
-        //     // params.textDocument.text the initial full content of the document.
-        //     this.log(`${params.textDocument.uri} opened, document text is:\n` + params.textDocument.text);
-        //
-        //     for (let listener of this.openDocumentListeners) {
-        //         listener({
-        //             uri: params.textDocument.uri,
-        //             text: params.textDocument.text
-        //         });
-        //     }
-        // });
-
-        // this.vsCodeConnection.onDidChangeTextDocument((params) => {
-        //     // The content of a text document did change in VSCode.
-        //     // params.textDocument.uri uniquely identifies the document.
-        //     // params.contentChanges describe the content changes to the document.
-        //     this.vsCodeConnection.console.log(`${params.textDocument.uri} changed: ${JSON.stringify(params.contentChanges)}`);
-        // });
-
-        // this.vsCodeConnection.onDidCloseTextDocument((params) => {
-        //     // A text document got closed in VSCode.
-        //     // params.textDocument.uri uniquely identifies the document.
-        //     this.log(`${params.textDocument.uri} closed.`);
-        //
-        //     for (let listener of this.closeDocumentListeners) {
-        //         listener(params.textDocument.uri);
-        //     }
-        // });
-
-        this.vsCodeConnection.onDidChangeWatchedFiles((change) => {
-            // Monitored files have change in VSCode
-            this.debug('We received an file change event', "ProxyServerConnection");
-        });
-
         this.vsCodeConnection.onDocumentSymbol((symbolParams : DocumentSymbolParams)=>{
-            this.debug('We received get symbols request', "ProxyServerConnection");
+
             return this.getSymbols(symbolParams.textDocument.uri);
         })
 
         // This handler provides the initial list of the completion items.
         this.vsCodeConnection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
-            // The pass parameter contains the position of the text document in
-            // which code complete got requested. For the example we ignore this
-            // info and always provide the same completion items.
+
             return this.getCompletion(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
         });
-        //
-        // // This handler resolve additional information for the item selected in
-        // // the completion list.
-        // this.vsCodeConnection.onCompletionResolve((item: CompletionItem): CompletionItem => {
-        //     if (item.data === 1) {
-        //         item.detail = 'TypeScript details',
-        //             item.documentation = 'TypeScript documentation'
-        //     } else if (item.data === 2) {
-        //         item.detail = 'JavaScript details',
-        //             item.documentation = 'JavaScript documentation'
-        //     }
-        //     return item;
-        // });
 
         this.vsCodeConnection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location[] => {
 
             return this.openDeclaration(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
         });
 
-        this.vsCodeConnection.onReferences((textDocumentPosition: ReferenceParams): Location[] => {
+        this.vsCodeConnection.onReferences((referenceParams: ReferenceParams): Location[] => {
 
-            return this.findReferences(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
+            return this.findReferences(referenceParams.textDocument.uri, referenceParams.position);
         });
 
-        this.vsCodeConnection.onDocumentHighlight((textDocumentPosition: ReferenceParams): DocumentHighlight[] => {
+        this.vsCodeConnection.onDocumentHighlight((textDocumentPosition: TextDocumentPositionParams): DocumentHighlight[] => {
 
             return this.documentHighlight(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
+        });
+
+        this.vsCodeConnection.onRenameRequest((renameParams: RenameParams): WorkspaceEdit => {
+
+            return this.rename(renameParams.textDocument.uri,
+                renameParams.position, renameParams.newName);
         });
     }
 
@@ -476,7 +432,7 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
 
         let document = this.documents.get(uri)
         this.debugDetail("got document: " + (document != null),
-            "ProxyServerConnection", "findReferences")
+            "ProxyServerConnection", "documentHighlight")
         if (!document) return [];
 
         let offset = document.offsetAt(position);
@@ -501,6 +457,60 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
                     })
                 }
             }
+        }
+
+        return result;
+    }
+
+    rename(uri: string, position : Position, newName: string) : WorkspaceEdit {
+        this.debug("rename called for uri: " + uri + " and name " + newName,
+            "ProxyServerConnection", "rename")
+
+        if (this.renameListeners.length == 0) return [];
+
+        let document = this.documents.get(uri)
+        this.debugDetail("got document: " + (document != null),
+            "ProxyServerConnection", "rename")
+        if (!document) return [];
+
+        let offset = document.offsetAt(position);
+
+        let uriToChanges : {[uri:string] : ITextEdit[]} = {}
+        //TODO same for document versions when they are introduced
+
+        for(let listener of this.renameListeners) {
+
+            let changedDocuments = listener(uri, offset, newName);
+
+            this.debugDetail("Got changed documents: " +
+                (changedDocuments?changedDocuments.length:0),
+                "ProxyServerConnection", "rename")
+
+            if (changedDocuments) {
+                for (let changedDocument of changedDocuments) {
+                    var existingChanges = uriToChanges[changedDocument.uri];
+                    if (!existingChanges) {
+                        existingChanges = [];
+                    }
+
+                    let newChanges = existingChanges.concat(changedDocument.textEdits)
+                    uriToChanges[changedDocument.uri] = newChanges;
+                }
+            }
+        }
+
+        let vsCodeUriToChanges : {[uri:string] : TextEdit[]} = {}
+        for (let uri in uriToChanges) {
+            let vsCodeEdits = uriToChanges[uri].map(edit=>{
+                return {
+                    range : edit.range,
+                    newText: edit.text
+                }
+            })
+        }
+
+        let result: WorkspaceEdit = {
+            changes: vsCodeUriToChanges
         }
 
         return result;

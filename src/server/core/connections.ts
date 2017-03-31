@@ -90,4 +90,10 @@ export interface IServerConnection extends ILogger {
      * @param listener
      */
     onMarkOccurrences(listener: (uri: string, position: number) => IRange[])
+
+    /**
+     * Finds the set of document (and non-document files) edits to perform the requested rename.
+     * @param listener
+     */
+    onRename(listener: (uri: string, position: number, newName: string) => IChangedDocument[])
 }

@@ -32,6 +32,14 @@ export function resolve(path1 : string, path2: string) : string {
     return path.resolve(path1, path2);
 }
 
+export function basename(path1: string) {
+    return path.basename(path1);
+}
+
+export function dirname(path1: string) {
+    return path.dirname(path1);
+}
+
 /**
  * If original format is well-formed FILE uri, and toTransform is simple path,
  * transforms toTransform to well-formed file uri

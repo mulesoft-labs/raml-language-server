@@ -156,12 +156,29 @@ class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
      * @param uri - document uri
      * @param position - position in the document
      */
-    markOccurrencesReferences(uri: string, position: number) : Promise<IRange[]> {
+    markOccurrences(uri: string, position: number) : Promise<IRange[]> {
         return this.sendWithResponse({
             type : "MARK_OCCURRENCES",
             payload : {
                 uri : uri,
                 position: position
+            }
+        });
+    }
+
+    /**
+     * Requests server for rename of the element
+     * at the given document position.
+     * @param uri - document uri
+     * @param position - position in the document
+     */
+    rename(uri: string, position: number, newName: string) : Promise<IChangedDocument[]>{
+        return this.sendWithResponse({
+            type : "RENAME",
+            payload : {
+                uri : uri,
+                position: position,
+                newName: newName
             }
         });
     }

@@ -14,13 +14,17 @@ import {
 
 import {
     ILocation,
-    IRange
+    IRange,
+    IChangedDocument
 } from '../../../common/typeInterfaces'
 
-import rp=require("raml-1-parser")
-import search = rp.search;
-import lowLevel=rp.ll;
-import hl=rp.hl;
+import parserApi=require("raml-1-parser")
+import search = parserApi.search;
+import lowLevel=parserApi.ll;
+import hl=parserApi.hl;
+import universes=parserApi.universes;
+import def=parserApi.ds;
+import stubs=parserApi.stubs;
 
 import utils = require("../../../common/utils")
 import fixedActionCommon = require("./fixedActionsCommon")
@@ -39,150 +43,205 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
     }
 
     listen() {
-        // this.connection.onRename((uri: string, position: number) => {
-        //     return this.rename(uri, position);
-        // })
+        this.connection.onRename((uri: string, position: number, newName: string) => {
+            return this.rename(uri, position, newName);
+        })
     }
 
-    // private renameRAMLElement() {
-    //     var ed = getActiveEditor();
-    //     var quickFixes:QuickFix[] = [];
-    //     if (ed) {
-    //         if (path.extname(ed.getPath()) == '.raml') {
-    //             var request = {editor: ed, bufferPosition: ed.getCursorBufferPosition()};
-    //             var node = provider.getAstNode(request, false);
-    //             if (!node) {
-    //                 return;
-    //             }
-    //             var offset = request.editor.getBuffer().characterIndexForPosition(request.bufferPosition);
-    //             var kind = search.determineCompletionKind(ed.getBuffer().getText(), offset);
-    //             if (kind == search.LocationKind.VALUE_COMPLETION) {
-    //                 var hlnode = <hl.IHighLevelNode>node;
-    //
-    //                 var attr = _.find(hlnode.attrs(), x=>x.lowLevel().start() < offset && x.lowLevel().end() >= offset && !x.property().getAdapter(services.RAMLPropertyService).isKey());
-    //                 if (attr) {
-    //                     if (attr.value()) {
-    //                         var p:hl.IProperty = attr.property();
-    //                         //FIXME INFRASTRUCTURE NEEDED
-    //                         var v = attr.value();
-    //                         var targets = search.referenceTargets(p,hlnode);
-    //                         var t:hl.IHighLevelNode = _.find(targets, x=>x.name() == attr.value())
-    //                         if (t) {
-    //                             UI.prompt("New name for " + attr.value(), newVal=> {
-    //                                 findUsagesImpl((n, r)=> {
-    //                                     //todo update nodes
-    //                                     r.reverse().forEach(x=> {
-    //                                         var ua = x;
-    //                                         ua.asAttr().setValue(newVal)
-    //                                     })
-    //                                     n.attr(n.definition().getAdapter(services.RAMLService).getKeyProp().nameId()).setValue(newVal);
-    //                                     var ed = getActiveEditor();
-    //                                     ed.getBuffer().setText(n.lowLevel().unit().contents());
-    //
-    //                                 })
-    //                             }, attr.value());
-    //                         }
-    //                     }
-    //                     //console.log(attr.value());
-    //                 }
-    //             }
-    //             if (kind == search.LocationKind.KEY_COMPLETION || kind == search.LocationKind.SEQUENCE_KEY_COPLETION) {
-    //                 var hlnode = <hl.IHighLevelNode>node;
-    //
-    //                         UI.prompt("New name for " + hlnode.name(), newVal=> {
-    //                             findUsagesImpl((n, r)=> {
-    //                                 var oldValue = n.attrValue(n.definition().getAdapter(services.RAMLService).getKeyProp().nameId())
-    //
-    //                                 //todo update nodes
-    //                                 r.reverse().forEach(x=> {
-    //                                     var ua = x;
-    //
-    //                                     renameInProperty(ua.asAttr(), oldValue, newVal)
-    //                                 })
-    //                                 n.attr(n.definition().getAdapter(services.RAMLService).getKeyProp().nameId()).setValue(newVal);
-    //                                 var ed = getActiveEditor();
-    //                                 ed.getBuffer().setText(n.lowLevel().unit().contents());
-    //
-    //                             })
-    //                         }, hlnode.name());
-    //             }
-    //         }
-    //     }
-    // }
-    //
-    // private renameInProperty(property : hl.IAttribute, contentToReplace : string, replaceWith : string) {
-    //     var oldPropertyValue = property.value();
-    //     if (typeof oldPropertyValue == 'string') {
-    //
-    //         var oldPropertyStringValue = <string> oldPropertyValue;
-    //
-    //         var newPropertyStringValue = oldPropertyStringValue.replace(contentToReplace, replaceWith)
-    //         property.setValue(newPropertyStringValue)
-    //         if (oldPropertyStringValue.indexOf(contentToReplace) == -1) {
-    //             if (property.name().indexOf(contentToReplace)!=-1){
-    //                 var newValue = (<string>property.name()).replace(contentToReplace, replaceWith);
-    //                 property.setKey(newValue);
-    //             }
-    //         }
-    //         return;
-    //     } else if (oldPropertyValue && (typeof oldPropertyValue ==="object")) {
-    //         var structuredValue = <hl.IStructuredValue> oldPropertyValue;
-    //
-    //         var oldPropertyStringValue = structuredValue.valueName();
-    //         if (oldPropertyStringValue.indexOf(contentToReplace) != -1) {
-    //             var convertedHighLevel = structuredValue.toHighLevel();
-    //
-    //             if(convertedHighLevel) {
-    //                 var found=false;
-    //                 if (convertedHighLevel.definition().isAnnotationType()){
-    //                     var prop=this.getKey((<def.AnnotationType>convertedHighLevel.definition()),structuredValue.lowLevel())
-    //                     prop.setValue("("+replaceWith+")");
-    //                     return;
-    //                 }
-    //                 convertedHighLevel.attrs().forEach(attribute => {
-    //                     if(attribute.property().getAdapter(services.RAMLPropertyService).isKey()) {
-    //                         var oldValue = attribute.value();
-    //                         if (typeof oldValue == 'string') {
-    //                             found=true;
-    //                             var newValue = (<string>oldValue).replace(contentToReplace, replaceWith);
-    //                             attribute.setValue(newValue);
-    //                         }
-    //                     }
-    //                 })
-    //
-    //                 return;
-    //             }
-    //             //var lowLevelNode = structuredValue.lowLevel();
-    //             //if ((<any>lowLevelNode).yamlNode) {
-    //             //    var yamlNode : yaml.YAMLNode = (<any>lowLevelNode).yamlNode();
-    //             //    if(yamlNode.kind == yaml.Kind.MAPPING) {
-    //             //        var key = (<yaml.YAMLMapping>yamlNode).key
-    //             //        if (key && key.value && key.value.indexOf(contentToReplace) != -1){
-    //             //            oldPropertyStringValue = key.value
-    //             //            var newStringValue = oldPropertyStringValue.replace(contentToReplace, replaceWith);
-    //             //            key.value = newStringValue;
-    //             //            return;
-    //             //        }
-    //             //    }
-    //             //}
-    //
-    //
-    //         }
-    //     }
-    //
-    //     //default case
-    //     property.setValue(replaceWith)
-    // }
-    //
-    // private getKey(t: def.AnnotationType,n:lowLevel.ILowLevelASTNode){
-    //     var up=new def.UserDefinedProp("name", null);
-    //     //up.withDomain(this);
-    //     up.withRange(this.universe().type(universes.Universe10.StringType.name));
-    //     up.withFromParentKey(true);
-    //     var node=t.getAdapter(services.RAMLService).getDeclaringNode();
-    //     //node:ll.ILowLevelASTNode, parent:hl.IHighLevelNode, private _def:hl.IValueTypeDefinition, private _prop:hl.IProperty, private fromKey:boolean = false
-    //     return stubs.createASTPropImpl(n,node,up.range(),up,true);
-    //     //rs.push(up);
-    // }
+    private rename(uri: string, position: number, newName: string) : IChangedDocument[] {
+        var editor = this.editorManagerModule.getEditor(uri);
+        if (!editor) return [];
+
+        var node = this.getAstNode(uri, editor.getText(), position, false);
+        if (!node) {
+            return;
+        }
+
+        var kind = search.determineCompletionKind(editor.getText(), position);
+        if (kind == search.LocationKind.VALUE_COMPLETION) {
+            var hlnode = <hl.IHighLevelNode>node;
+
+            var attr = null;
+            for (let attribute of hlnode.attrs()) {
+                if (attribute=>attribute.lowLevel().start() < position
+                    && attribute.lowLevel().end() >= position
+                    && !attribute.property().getAdapter(def.RAMLPropertyService).isKey()) {
+
+                    attr = attribute;
+                    break;
+                }
+            }
+
+            if (attr) {
+                if (attr.value()) {
+                    var p:hl.IProperty = attr.property();
+
+                    var v = attr.value();
+                    var targets = search.referenceTargets(p,hlnode);
+                    var t:hl.IHighLevelNode = null;
+                    for (let target of targets) {
+                        if (target=>target.name() == attr.value()) {
+                            t = target;
+                            break;
+                        }
+                    }
+
+                    if (t) {
+                        let findUsagesResult = search.findUsages(node.lowLevel().unit(), position);
+                        if (findUsagesResult) {
+                            let usages = findUsagesResult.results;
+
+                            usages.reverse().forEach(x=> {
+                                var ua = x;
+                                ua.asAttr().setValue(newName)
+                            })
+
+                            hlnode.attr(
+                                hlnode.definition().getAdapter(def.RAMLService).getKeyProp().nameId()
+                            ).setValue(newName);
+
+                            return [{
+                                uri: uri,
+                                text: hlnode.lowLevel().unit().contents()
+                            }];
+                        }
+                    }
+                }
+                //console.log(attr.value());
+            }
+        }
+        if (kind == search.LocationKind.KEY_COMPLETION || kind == search.LocationKind.SEQUENCE_KEY_COPLETION) {
+            var hlnode = <hl.IHighLevelNode>node;
+
+            let findUsagesResult = search.findUsages(node.lowLevel().unit(), position);
+            if (findUsagesResult) {
+                var oldValue = hlnode.attrValue(
+                    hlnode.definition().getAdapter(def.RAMLService).getKeyProp().nameId())
+
+                //todo update nodes
+                findUsagesResult.results.reverse().forEach(x=> {
+                    var ua = x;
+
+                    this.renameInProperty(ua.asAttr(), oldValue, newName)
+                })
+                hlnode.attr(
+                    hlnode.definition().getAdapter(def.RAMLService).getKeyProp().nameId()
+                ).setValue(newName);
+
+                return [{
+                    uri: uri,
+                    text: hlnode.lowLevel().unit().contents()
+                }];
+            }
+        }
+    }
+
+    private renameInProperty(property : hl.IAttribute, contentToReplace : string, replaceWith : string) {
+        var oldPropertyValue = property.value();
+        if (typeof oldPropertyValue == 'string') {
+
+            var oldPropertyStringValue = <string> oldPropertyValue;
+
+            var newPropertyStringValue = oldPropertyStringValue.replace(contentToReplace, replaceWith)
+            property.setValue(newPropertyStringValue)
+            if (oldPropertyStringValue.indexOf(contentToReplace) == -1) {
+                if (property.name().indexOf(contentToReplace)!=-1){
+                    var newValue = (<string>property.name()).replace(contentToReplace, replaceWith);
+                    property.setKey(newValue);
+                }
+            }
+            return;
+        } else if (oldPropertyValue && (typeof oldPropertyValue ==="object")) {
+            var structuredValue = <hl.IStructuredValue> oldPropertyValue;
+
+            var oldPropertyStringValue = structuredValue.valueName();
+            if (oldPropertyStringValue.indexOf(contentToReplace) != -1) {
+                var convertedHighLevel = structuredValue.toHighLevel();
+
+                if(convertedHighLevel) {
+                    var found=false;
+                    if (convertedHighLevel.definition().isAnnotationType()){
+                        var prop=this.getKey((<def.AnnotationType>convertedHighLevel.definition()),structuredValue.lowLevel())
+                        prop.setValue("("+replaceWith+")");
+                        return;
+                    }
+                    convertedHighLevel.attrs().forEach(attribute => {
+                        if(attribute.property().getAdapter(def.RAMLPropertyService).isKey()) {
+                            var oldValue = attribute.value();
+                            if (typeof oldValue == 'string') {
+                                found=true;
+                                var newValue = (<string>oldValue).replace(contentToReplace, replaceWith);
+                                attribute.setValue(newValue);
+                            }
+                        }
+                    })
+
+                    return;
+                }
+
+            }
+        }
+
+        //default case
+        property.setValue(replaceWith)
+    }
+
+    private getAstNode(uri: string, text : string, offset: number,
+                       clearLastChar: boolean = true): parserApi.hl.IParseResult {
+
+        let unitPath = utils.pathFromURI(uri);
+        var newProjectId: string = utils.dirname(unitPath);
+
+        var project = parserApi.project.createProject(newProjectId);
+
+        var kind = search.determineCompletionKind(text, offset);
+
+        if(kind === parserApi.search.LocationKind.KEY_COMPLETION && clearLastChar){
+            text = text.substring(0, offset) + "k:" + text.substring(offset);
+        }
+
+        var unit = project.setCachedUnitContent(unitPath, text);
+
+        var ast = <parserApi.hl.IHighLevelNode>unit.highLevel();
+
+        var actualOffset = offset;
+
+        for(var currentOffset = offset - 1; currentOffset >= 0; currentOffset--){
+            var symbol = text[currentOffset];
+
+            if(symbol === ' ' || symbol === '\t') {
+                actualOffset = currentOffset - 1;
+
+                continue;
+            }
+
+            break;
+        }
+
+        var astNode=ast.findElementAtOffset(actualOffset);
+
+        if(astNode && search.isExampleNode(astNode)) {
+            var exampleEnd = astNode.lowLevel().end();
+
+            if(exampleEnd === actualOffset && text[exampleEnd] === '\n') {
+                astNode = astNode.parent();
+            }
+        }
+
+        return astNode;
+    }
+
+    private getKey(t: def.AnnotationType,n:lowLevel.ILowLevelASTNode){
+        var up=new def.UserDefinedProp("name", null);
+
+        let ramlService : def.RAMLService = t.getAdapter(def.RAMLService)
+
+        up.withRange(ramlService.universe().type(universes.Universe10.StringType.name));
+        up.withFromParentKey(true);
+        var node=ramlService.getDeclaringNode();
+        //node:ll.ILowLevelASTNode, parent:hl.IHighLevelNode, private _def:hl.IValueTypeDefinition, private _prop:hl.IProperty, private fromKey:boolean = false
+        return stubs.createASTPropImpl(n,node,up.range(),up,true);
+        //rs.push(up);
+    }
 
 }

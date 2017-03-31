@@ -90,10 +90,18 @@ export interface IClientConnection extends ILogger {
     findReferences(uri: string, position: number) : Promise<ILocation[]>
 
     /**
-     * Requests server for the positions of the references of the element defined
+     * Requests server for the occurrences of the element defined
      * at the given document position.
      * @param uri - document uri
      * @param position - position in the document
      */
-    markOccurrencesReferences(uri: string, position: number) : Promise<IRange[]>
+    markOccurrences(uri: string, position: number) : Promise<IRange[]>
+
+    /**
+     * Requests server for rename of the element
+     * at the given document position.
+     * @param uri - document uri
+     * @param position - position in the document
+     */
+    rename(uri: string, position: number, newName: string) : Promise<IChangedDocument[]>
 }

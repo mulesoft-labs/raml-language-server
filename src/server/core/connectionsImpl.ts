@@ -28,6 +28,7 @@ export abstract class AbstractServerConnection {
     protected openDeclarationListeners : {(uri : string, position: number):ILocation[]}[] = [];
     protected findreferencesListeners : {(uri : string, position: number):ILocation[]}[] = [];
     protected markOccurrencesListeners : {(uri : string, position: number):IRange[]}[] = [];
+    protected renameListeners : {(uri : string, position: number, newName: string):IChangedDocument[]}[] = [];
 
     /**
      * Adds a listener to document open notification. Must notify listeners in order of registration.
@@ -99,5 +100,13 @@ export abstract class AbstractServerConnection {
      */
     onMarkOccurrences(listener: (uri: string, position: number) => IRange[]) {
         this.markOccurrencesListeners.push(listener);
+    }
+
+    /**
+     * Finds the set of document (and non-document files) edits to perform the requested rename.
+     * @param listener
+     */
+    onRename(listener: (uri: string, position: number, newName: string) => IChangedDocument[]) {
+        this.renameListeners.push(listener);
     }
 }
