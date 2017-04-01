@@ -475,12 +475,12 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
 
         let offset = document.offsetAt(position);
 
-        let uriToChanges : {[uri:string] : ITextEdit[]} = {}
+        let uriToChanges : {[uri:string] : TextEdit[]} = {}
         //TODO same for document versions when they are introduced
 
         for(let listener of this.renameListeners) {
 
-            let changedDocuments = listener(uri, offset, newName);
+            let changedDocuments : IChangedDocument[] = listener(uri, offset, newName);
 
             this.debugDetail("Got changed documents: " +
                 (changedDocuments?changedDocuments.length:0),
@@ -488,32 +488,136 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
 
             if (changedDocuments) {
                 for (let changedDocument of changedDocuments) {
+
+                    this.debugDetail("Converting changes in a document: " +
+                        changedDocument.uri,
+                        "ProxyServerConnection", "rename")
+
+                    let existingDocument = this.documents.get(changedDocument.uri);
+                    if (!existingDocument) {
+
+                        this.error("Can not apply a full-content change of document " +
+                            changedDocument.uri + " because its previous version is not found " +
+                            "in the list of documents")
+                        continue;
+                    }
+
+                    this.debugDetail("Found existing document: " +
+                        (existingDocument?"true":"false"),
+                        "ProxyServerConnection", "rename")
+
                     var existingChanges = uriToChanges[changedDocument.uri];
+                    this.debugDetail("Found existing changes: " +
+                        (existingChanges?"true":"false"),
+                        "ProxyServerConnection", "rename")
+
                     if (!existingChanges) {
                         existingChanges = [];
                     }
 
-                    let newChanges = existingChanges.concat(changedDocument.textEdits)
+                    let editsToApply : TextEdit[] = [];
+
+                    if (changedDocument.text) {
+                        this.debugDetail("Changed document has text set.",
+                            "ProxyServerConnection", "rename")
+
+                        let previousText = existingDocument.getText();
+                        this.debugDetail("Old text:\n" + previousText,
+                            "ProxyServerConnection", "rename")
+
+                        let previousTextLength = previousText.length;
+
+                        let startPosition = existingDocument.positionAt(0);
+                        let endPosition = previousTextLength==0?
+                            existingDocument.positionAt(0):
+                            existingDocument.positionAt(previousTextLength-1);
+
+
+                        this.debugDetail("Edit start position: [" + startPosition.line +
+                            " ," + startPosition.character+"]",
+                            "ProxyServerConnection", "rename")
+                        this.debugDetail("Edit end position: [" + endPosition.line +
+                            " ," + endPosition.character+"]",
+                            "ProxyServerConnection", "rename")
+                        this.debugDetail("Edit text:\n" + changedDocument.text,
+                            "ProxyServerConnection", "rename")
+
+                        editsToApply.push({
+                            range: {
+                                start: startPosition,
+                                end: endPosition
+                            },
+                            newText: changedDocument.text
+                        })
+
+                    } else if (changedDocument.textEdits) {
+                        this.debugDetail("Changed document has edits set.",
+                            "ProxyServerConnection", "rename")
+
+                        editsToApply = changedDocument.textEdits.map(currentEdit=>{
+                            let startPosition = existingDocument.positionAt(currentEdit.range.start);
+                            let endPosition = existingDocument.positionAt(currentEdit.range.end);
+
+                            return {
+                                range: {
+                                    start: startPosition,
+                                    end: endPosition
+                                },
+                                newText: currentEdit.text
+                            }
+                        });
+                    }
+
+
+                    let newChanges = existingChanges.concat(editsToApply)
                     uriToChanges[changedDocument.uri] = newChanges;
+                    this.debugDetail("Saving changes for uri " + changedDocument.uri + ": " +
+                        uriToChanges[changedDocument.uri].length,
+                        "ProxyServerConnection", "rename")
                 }
             }
         }
 
-        let vsCodeUriToChanges : {[uri:string] : TextEdit[]} = {}
+        let uriChanges: TextDocumentEdit[] = [];
         for (let uri in uriToChanges) {
-            let vsCodeEdits = uriToChanges[uri].map(edit=>{
-                return {
-                    range : edit.range,
-                    newText: edit.text
-                }
+            uriChanges.push({
+                textDocument: {
+                    uri: uri,
+                    version: 0
+                },
+                edits: uriToChanges[uri]
             })
+
         }
 
-        let result: WorkspaceEdit = {
-            changes: vsCodeUriToChanges
+        // TODO as opposed to what is described here
+        // https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#workspaceedit
+        // and a declaration of WorkspaceEdit in d.ts, in practise current version of Visual Studio Code
+        // wants TextDocumentEdit[] as "changes" field inside WorkspaceEdit.
+        // It took a lot of time to find this out, only debugging of VS Code itself did help.
+        // Respective source code of the client is in a comment in the bottom: asWorkspaceEdit() method.
+        // To be compatible with other potential protocol clients, we should wait until thi is resolved
+        // and put in the correct field name.
+
+        let result: WorkspaceEdit = <any>{
+            changes: uriChanges
+            //documentChanges: uriChanges
         }
 
+        this.debugDetail("Returning",
+            "ProxyServerConnection", "rename")
         return result;
     }
 
 }
+
+// function asWorkspaceEdit(item) {
+//     if (!item) {
+//         return undefined;
+//     }
+//     let result = new code.WorkspaceEdit();
+//     item.changes.forEach(change => {
+//         result.set(_uriConverter(change.textDocument.uri), asTextEdits(change.edits));
+//     });
+//     return result;
+// }

@@ -49,15 +49,30 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
     }
 
     private rename(uri: string, position: number, newName: string) : IChangedDocument[] {
+        this.connection.debug("Called for uri: " + uri,
+            "RenameActionModule", "rename");
+
+
         var editor = this.editorManagerModule.getEditor(uri);
+        this.connection.debugDetail("Got editor: " + (editor?"true":"false"),
+            "RenameActionModule", "rename");
+
         if (!editor) return [];
 
         var node = this.getAstNode(uri, editor.getText(), position, false);
+
+        this.connection.debugDetail("Got node: " + (node?"true":"false"),
+            "RenameActionModule", "rename");
+
         if (!node) {
-            return;
+            return [];
         }
 
         var kind = search.determineCompletionKind(editor.getText(), position);
+
+        this.connection.debugDetail("Determined completion kind: " + kind,
+            "RenameActionModule", "rename");
+
         if (kind == search.LocationKind.VALUE_COMPLETION) {
             var hlnode = <hl.IHighLevelNode>node;
 
@@ -72,7 +87,16 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
                 }
             }
 
+            this.connection.debugDetail("Found attribute: " + (attr?"true":"false"),
+                "RenameActionModule", "rename");
+
             if (attr) {
+                this.connection.debugDetail("Current attribute name is: " + attr.name(),
+                    "RenameActionModule", "rename");
+
+                this.connection.debugDetail("Current attribute value is: " + attr.value(),
+                    "RenameActionModule", "rename");
+
                 if (attr.value()) {
                     var p:hl.IProperty = attr.property();
 
@@ -134,6 +158,8 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
                 }];
             }
         }
+
+        return [];
     }
 
     private renameInProperty(property : hl.IAttribute, contentToReplace : string, replaceWith : string) {

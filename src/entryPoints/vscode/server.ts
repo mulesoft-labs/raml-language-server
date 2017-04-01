@@ -39,7 +39,8 @@ connection.onInitialize((params): InitializeResult => {
             },
             definitionProvider : true,
             referencesProvider: true,
-            documentHighlightProvider: true
+            documentHighlightProvider: true,
+            renameProvider: true
         }
     }
 });
