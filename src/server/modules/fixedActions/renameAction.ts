@@ -78,10 +78,13 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
 
             var attr = null;
             for (let attribute of hlnode.attrs()) {
-                if (attribute=>attribute.lowLevel().start() < position
+                if (attribute.lowLevel().start() < position
                     && attribute.lowLevel().end() >= position
                     && !attribute.property().getAdapter(def.RAMLPropertyService).isKey()) {
 
+                    this.connection.debugDetail("Found attribute: " + attribute.name() +
+                        " its key property is: " + attribute.property().getAdapter(def.RAMLPropertyService).isKey(),
+                        "RenameActionModule", "rename");
                     attr = attribute;
                     break;
                 }
@@ -104,23 +107,31 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
                     var targets = search.referenceTargets(p,hlnode);
                     var t:hl.IHighLevelNode = null;
                     for (let target of targets) {
-                        if (target=>target.name() == attr.value()) {
+                        if (target.name() == attr.value()) {
                             t = target;
                             break;
                         }
                     }
 
                     if (t) {
+                        this.connection.debugDetail("Found target: " + t.printDetails(),
+                            "RenameActionModule", "rename");
+
                         let findUsagesResult = search.findUsages(node.lowLevel().unit(), position);
                         if (findUsagesResult) {
                             let usages = findUsagesResult.results;
 
-                            usages.reverse().forEach(x=> {
-                                var ua = x;
-                                ua.asAttr().setValue(newName)
+                            usages.reverse().forEach(usageAttribute=> {
+
+                                this.connection.debugDetail("Renaming usage attribute: "
+                                    + usageAttribute.name() + " of node:\n"
+                                    + usageAttribute.parent().printDetails(),
+                                    "RenameActionModule", "rename");
+
+                                usageAttribute.asAttr().setValue(newName)
                             })
 
-                            hlnode.attr(
+                            t.attr(
                                 hlnode.definition().getAdapter(def.RAMLService).getKeyProp().nameId()
                             ).setValue(newName);
 
@@ -131,7 +142,6 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
                         }
                     }
                 }
-                //console.log(attr.value());
             }
         }
         if (kind == search.LocationKind.KEY_COMPLETION || kind == search.LocationKind.SEQUENCE_KEY_COPLETION) {
@@ -214,7 +224,6 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
 
     private getAstNode(uri: string, text : string, offset: number,
                        clearLastChar: boolean = true): parserApi.hl.IParseResult {
-
         let unitPath = utils.pathFromURI(uri);
         var newProjectId: string = utils.dirname(unitPath);
 
@@ -255,6 +264,73 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
         }
 
         return astNode;
+
+        // let unitPath = utils.pathFromURI(uri);
+        // var newProjectId: string = utils.dirname(unitPath);
+        //
+        // var project = parserApi.project.createProject(newProjectId);
+        //
+        // var kind = search.determineCompletionKind(text, offset);
+        //
+        // if(kind==search.LocationKind.KEY_COMPLETION&&clearLastChar){
+        //     var pos=offset>0?offset-1:offset;
+        //     for (var i=pos;i>0;i--){
+        //         var c=text[i];
+        //         if (c=='\r'||c=='\n'){
+        //             break;
+        //         }
+        //         else{
+        //             if (c==' '||c=='\t'){
+        //                 ilevel++;
+        //             }
+        //         }
+        //     }
+        //     var oldOfffset=offset;
+        //
+        //     text=text.substring(0,oldOfffset)+"k:"+text.substring(oldOfffset);
+        // }
+        //
+        // var ilevel=0;
+        //
+        // var unit = project.setCachedUnitContent(unitPath, text);
+        //
+        // var ast=unit.highLevel();
+        // var cm=offset;
+        // for (var pm=offset-1;pm>=0;pm--){
+        //     var c=text[pm];
+        //     if (c==' '||c=='\t'){
+        //         cm=pm-1;
+        //         continue;
+        //     }
+        //     break;
+        // }
+        // var astNode=ast.findElementAtOffset(cm);
+        // this.connection.debugDetail("Found current ast node: " + astNode.printDetails(),
+        //     "RenameActionModule", "getAstNode");
+        //
+        // if (astNode&&astNode.parent()==null){
+        //     if (ilevel>0&&kind==search.LocationKind.KEY_COMPLETION) {
+        //
+        //         var attr=null;
+        //         for (let currentAttribute of astNode.attrs()){
+        //
+        //             var at=<any>attr;
+        //             if (at.lowLevel().start()<offset&&at.lowLevel().end()>=offset&&
+        //                 !at.property().isKey()) {
+        //
+        //                 attr = currentAttribute;
+        //                 break;
+        //             }
+        //         }
+        //
+        //         if (!attr) {
+        //             return null;
+        //         }
+        //     }
+        //     //check if we are on correct indentation level
+        // }
+        //
+        // return astNode;
     }
 
     private getKey(t: def.AnnotationType,n:lowLevel.ILowLevelASTNode){
