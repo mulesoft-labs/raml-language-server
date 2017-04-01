@@ -254,6 +254,8 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
                 this.debugDetail("adding suggestion: " + text,
                     "ProxyServerConnection", "getCompletion")
 
+                text = this.removeCompletionPreviousLineIndentation(text);
+
                 result.push({
                     label: text,
                     kind: CompletionItemKind.Text
@@ -262,6 +264,16 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         }
 
         return result;
+    }
+
+    private removeCompletionPreviousLineIndentation(originalText: string) {
+        let lastNewLineIndex = originalText.lastIndexOf("\n");
+        if (lastNewLineIndex == -1 || lastNewLineIndex == originalText.length-1) return originalText;
+
+        let textAfterLastNewLine = originalText.substring(lastNewLineIndex + 1);
+        if (textAfterLastNewLine.trim() != "") return originalText;
+
+        return originalText.substring(0, lastNewLineIndex+1) + "  ";
     }
 
     openDeclaration(uri: string, position : Position) : Location[] {
