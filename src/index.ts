@@ -12,7 +12,8 @@ export {
     IChangedDocument,
     StructureNodeJSON,
     Suggestion,
-    StructureCategories
+    StructureCategories,
+    ITextEdit
 } from './common/typeInterfaces'
 
 import {
