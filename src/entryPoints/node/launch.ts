@@ -46,6 +46,8 @@ class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
 
     private validationReportListeners : {(report:IValidationReport):void}[] = [];
     private structureReportListeners : {(report:IStructureReport):void}[] = [];
+    
+    loggingEnabled: boolean = true;
 
     constructor(private serverProcess : childProcess.ChildProcess){
         super("NodeProcessClientConnection");
@@ -208,8 +210,10 @@ class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
      * @param component - component name
      * @param subcomponent - sub-component name
      */
-    log(message:string, severity: MessageSeverity,
-        component?: string, subcomponent?: string) : void {
+    log(message:string, severity: MessageSeverity, component?: string, subcomponent?: string) : void {
+        if(!this.loggingEnabled) {
+            return;
+        }
 
         let toLog = "";
         if (severity != MessageSeverity.WARNING && severity != MessageSeverity.ERROR) {

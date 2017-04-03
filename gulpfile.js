@@ -7,7 +7,10 @@ var istanbul = require('gulp-istanbul');
 
 
 var testFiles = [
-    'dist/test/suggestions/suggestionsTests.js'
+    "dist/test/suggestions/suggestionsTests.js",
+    "dist/test/parsertests/parserTests.js",
+    "dist/test/structure/structureTests.js",
+    "dist/test/parsertests/parserTests2.js"
 ]
 
 // gulp.task('pre-test', function () {
