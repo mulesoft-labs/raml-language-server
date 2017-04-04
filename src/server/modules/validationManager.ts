@@ -121,12 +121,12 @@ class ValidationManager {
     }
 
     listen() {
-        this.astManagerModule.onNewASTAvailable((uri: string, ast: IHighLevelNode)=>{
-            this.newASTAvailable(uri, ast);
+        this.astManagerModule.onNewASTAvailable((uri: string, version: number, ast: IHighLevelNode)=>{
+            this.newASTAvailable(uri, version, ast);
         })
     }
 
-    newASTAvailable(uri: string, ast: IHighLevelNode):void {
+    newASTAvailable(uri: string, version: number, ast: IHighLevelNode):void {
 
         this.connection.debug("Got new AST:\n" + (ast!=null?ast.printDetails():null),
             "ValidationManager", "newASTAvailable")
@@ -138,6 +138,7 @@ class ValidationManager {
 
         this.connection.validated({
             pointOfViewUri : uri,
+            version: version,
             issues : errors
         })
     }

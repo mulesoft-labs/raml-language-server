@@ -177,7 +177,7 @@ class TextEditorInfo implements IAbstractTextEditor{
 
     private buffer : TextBufferInfo;
 
-    constructor(private uri : string, text : string) {
+    constructor(private uri : string, private version : number, text : string) {
         this.buffer = new TextBufferInfo();
         this.buffer.setText(text);
     }
@@ -211,7 +211,12 @@ class TextEditorInfo implements IAbstractTextEditor{
         this.buffer.setText(text)
     }
 
-
+    /**
+     * Returns document version, if any.
+     */
+    getVersion() : number {
+        return this.version;
+    }
 }
 
 class EditorManager implements IEditorManagerModule {
@@ -245,7 +250,7 @@ class EditorManager implements IEditorManagerModule {
     }
 
     onOpenDocument(document: IOpenedDocument) : void {
-        this.uriToEditor[document.uri] = new TextEditorInfo(document.uri, document.text)
+        this.uriToEditor[document.uri] = new TextEditorInfo(document.uri, document.version, document.text)
     }
 
     documentWasChanged(document : IChangedDocument) : void {
@@ -256,6 +261,14 @@ class EditorManager implements IEditorManagerModule {
 
         let current = this.uriToEditor[document.uri];
         if (current) {
+
+            let currentVersion = current.getVersion();
+            if (currentVersion && document.version && currentVersion == document.version) {
+                this.connection.debugDetail("Version of the reported change is equal to the previous one",
+                    "EditorManager", "onChangeDocument");
+                return;
+            }
+
             let currentText = current.getText();
             if (document.text == currentText) {
                 this.connection.debugDetail("No changes detected", "EditorManager", "onChangeDocument");
@@ -263,7 +276,7 @@ class EditorManager implements IEditorManagerModule {
             }
         }
 
-        this.uriToEditor[document.uri] = new TextEditorInfo(document.uri, document.text)
+        this.uriToEditor[document.uri] = new TextEditorInfo(document.uri, document.version, document.text)
         for(let listener of this.documentChangeListeners) {
             listener(document);
         }

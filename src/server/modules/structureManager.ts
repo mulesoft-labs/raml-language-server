@@ -181,7 +181,7 @@ class StructureManager {
             return this.getStructure(uri);
         })
 
-        this.astManagerModule.onNewASTAvailable((uri, ast)=>{
+        this.astManagerModule.onNewASTAvailable((uri: string, version:number, ast: hl.IHighLevelNode)=>{
 
             //we do not want reporting while performing the calculation
             if (this.calculatingStructureOnDirectRequest) return;
@@ -199,6 +199,7 @@ class StructureManager {
 
                 this.connection.structureAvailable({
                     uri: uri,
+                    version: version,
                     structure: structureForUri
                 })
             }

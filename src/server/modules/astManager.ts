@@ -32,7 +32,7 @@ if(typeof Promise === 'undefined' && typeof window !== 'undefined') {
 }
 
 export interface IASTListener {
-    (uri: string, ast: IHighLevelNode):void;
+    (uri: string, version:number, ast: IHighLevelNode):void;
 }
 
 /**
@@ -501,23 +501,28 @@ class ASTManager implements IASTManagerModule {
         let newAST = runner.runSynchronously();
 
         if (newAST) {
-            this.registerNewAST(uri, newAST)
+            let version = null;
+            let editor = this.editorManager.getEditor(uri);
+            if (editor) version = editor.getVersion();
+
+            this.registerNewAST(uri, version, newAST)
         }
 
         return newAST;
     }
 
-    onNewASTAvailable(listener: (uri: string, ast: IHighLevelNode, error? : Error)=>{}) {
+    onNewASTAvailable(listener: (uri: string, version: number,
+                                 ast: IHighLevelNode, error? : Error)=>{}) {
         this.astListeners.push(listener);
     }
 
-    private notifyASTChanged(uri: string, ast: IHighLevelNode, error? : Error){
+    private notifyASTChanged(uri: string, version: number, ast: IHighLevelNode, error? : Error){
 
         this.connection.debug("Got new AST parser results, notifying the listeners",
             "ASTManager", "notifyASTChanged")
 
         for (let listener of this.astListeners) {
-            listener(uri, ast);
+            listener(uri, version, ast);
         }
     }
 
@@ -525,7 +530,7 @@ class ASTManager implements IASTManagerModule {
         this.reconciler.schedule(new ParseDocumentRunnable(document.uri, this.editorManager,
             this.connection))
             .then(
-                newAST=>this.registerNewAST(document.uri, newAST),
+                newAST=>this.registerNewAST(document.uri, document.version, newAST),
                 error=>this.registerASTParseError(document.uri, error)
             )
 
@@ -543,7 +548,7 @@ class ASTManager implements IASTManagerModule {
                         "On change document handler promise returned new ast",
                         "ASTManager", "onChangeDocument")
 
-                    this.registerNewAST(document.uri, newAST)
+                    this.registerNewAST(document.uri, document.version, newAST)
                 },
                 error=>{
 
@@ -560,7 +565,7 @@ class ASTManager implements IASTManagerModule {
         delete this.currentASTs[uri]
     }
 
-    registerNewAST(uri: string, ast: IHighLevelNode) : void {
+    registerNewAST(uri: string, version: number, ast: IHighLevelNode) : void {
         //cleaning ASTs
         //this.currentASTs = {};
 
@@ -569,7 +574,7 @@ class ASTManager implements IASTManagerModule {
 
         this.currentASTs[uri] = ast;
 
-        this.notifyASTChanged(uri, ast)
+        this.notifyASTChanged(uri, version, ast)
     }
 
     registerASTParseError(uri : string, error : any) {

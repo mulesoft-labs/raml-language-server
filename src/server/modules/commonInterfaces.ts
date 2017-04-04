@@ -133,6 +133,11 @@ export interface IAbstractTextEditor {
      * @param text
      */
     setText(text:string);
+
+    /**
+     * Returns document version, if any.
+     */
+    getVersion() : number;
 }
 
 /**

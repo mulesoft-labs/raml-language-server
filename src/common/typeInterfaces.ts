@@ -53,24 +53,34 @@ export interface IValidationReport {
      * This is the "point of view" uri, actual reported unit paths are located
      * in the particular issues.
      */
-    pointOfViewUri : string
+    pointOfViewUri : string;
+
+    /**
+     * Optional document version of the point of view.
+     */
+    version?: number;
 
     /**
      * Validation issues.
      */
-    issues: IValidationIssue[]
+    issues: IValidationIssue[];
 }
 
 export interface IStructureReport {
     /**
      * Document uri.
      */
-    uri : string
+    uri : string;
+
+    /**
+     * Optional document version.
+     */
+    version?: number;
 
     /**
      * Document structure.
      */
-    structure: {[categoryName:string] : StructureNodeJSON}
+    structure: {[categoryName:string] : StructureNodeJSON};
 }
 
 export interface IOpenedDocument {
@@ -78,6 +88,11 @@ export interface IOpenedDocument {
      * Document URI
      */
     uri: string;
+
+    /**
+     * Optional document version.
+     */
+    version?: number;
 
     /**
      * Document content
@@ -105,6 +120,11 @@ export interface IChangedDocument {
     uri: string;
 
     /**
+     * Optional document version.
+     */
+    version?: number;
+
+    /**
      * Document content
      */
     text?: string;
@@ -113,7 +133,7 @@ export interface IChangedDocument {
      * Optional set of text edits instead of complete text replacement.
      * Is only taken into account if text is null.
      */
-    textEdits? : ITextEdit[]
+    textEdits? : ITextEdit[];
 }
 
 export enum StructureCategories {
@@ -216,7 +236,12 @@ export interface ILocation {
     /**
      * Document uri
      */
-    uri : string,
+    uri : string;
+
+    /**
+     * Optional document version.
+     */
+    version?: number;
 
     /**
      * Range in the document.
