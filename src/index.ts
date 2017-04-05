@@ -27,3 +27,5 @@ import {
 export function getNodeClientConnection() : IClientConnection {
     return getConnection();
 }
+
+export import textEditProcessor = require("./common/textEditProcessor")
