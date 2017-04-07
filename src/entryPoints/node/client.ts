@@ -23,10 +23,12 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
 
     private validationReportListeners : {(report:clientInterfaces.IValidationReport):void}[] = [];
     private structureReportListeners : {(report:clientInterfaces.IStructureReport):void}[] = [];
-    private versionManager : VersionedDocumentManager = new VersionedDocumentManager();
+    private versionManager : VersionedDocumentManager;
 
     constructor(private serverProcess : childProcess.ChildProcess){
         super("NodeProcessClientConnection");
+
+        this.versionManager = new VersionedDocumentManager(this);
 
         serverProcess.on('message', (serverMessage: ProtocolMessage<MessageToServerType>) => {
             this.handleRecievedMessage(serverMessage);
@@ -59,13 +61,13 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
 
     documentOpened(document: clientInterfaces.IOpenedDocument) : void {
 
-        // let commonOpenedDocument = this.versionManager.registerOpenedDocument(document);
-        // if (!commonOpenedDocument) return;
-        //
-        // this.send({
-        //     type : "OPEN_DOCUMENT",
-        //     payload : commonOpenedDocument
-        // })
+        let commonOpenedDocument = this.versionManager.registerOpenedDocument(document);
+        if (!commonOpenedDocument) return;
+
+        this.send({
+            type : "OPEN_DOCUMENT",
+            payload : commonOpenedDocument
+        })
 
         this.send({
             type : "OPEN_DOCUMENT",
@@ -75,13 +77,13 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
 
     documentChanged(document: IChangedDocument) : void {
 
-        // let commonChangedDocument = this.versionManager.registerChangedDocument(document);
-        // if (!commonChangedDocument) return;
-        //
-        // this.send({
-        //     type : "CHANGE_DOCUMENT",
-        //     payload : commonChangedDocument
-        // })
+        let commonChangedDocument = this.versionManager.registerChangedDocument(document);
+        if (!commonChangedDocument) return;
+
+        this.send({
+            type : "CHANGE_DOCUMENT",
+            payload : commonChangedDocument
+        })
 
         this.send({
             type : "CHANGE_DOCUMENT",
@@ -192,6 +194,16 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
         for (let listener of this.structureReportListeners) {
             listener(report);
         }
+    }
+
+    /**
+     * Gets latest document version.
+     * @param uri
+     */
+    getLatestVersion(uri: string) : Promise<number> {
+        let version = this.versionManager.getLatestDocumentVersion(uri);
+
+        return Promise.resolve(version);
     }
 
     sendMessage

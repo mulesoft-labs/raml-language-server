@@ -42,7 +42,7 @@ export class VersionedDocumentManager {
      */
     private documents : {[uri:string] : VersionedDocument[]} = {};
 
-    constructor(private maxStoredVersions=1){
+    constructor(private logger:commonTypeInterfaces.ILogger, private maxStoredVersions=1){
     }
 
     /**
@@ -102,27 +102,48 @@ export class VersionedDocumentManager {
      */
     public registerChangedDocument(proposal : clientTypeInterfaces.IChangedDocument) :
         commonTypeInterfaces.IChangedDocument {
+
+        this.logger.debug("Change document called for uri " + proposal.uri,
+            "VersionedDocumentManager", "registerChangedDocument")
+
+        this.logger.debugDetail("New text is:\n" + proposal.text,
+            "VersionedDocumentManager", "registerChangedDocument")
+
         let versionedDocuments = this.documents[proposal.uri];
+
+        this.logger.debugDetail("Versioned documents for this uri found: " +
+            (versionedDocuments?"true":"false"),
+            "VersionedDocumentManager", "registerChangedDocument")
 
         if (versionedDocuments) {
 
-            if (proposal.text == null) return {
-                uri: proposal.uri,
-                text: proposal.text,
-                version: 0
-            };
-
             let latestDocument = versionedDocuments[0];
+
+            this.logger.debugDetail("Latest document version is " + latestDocument.getVersion(),
+                "VersionedDocumentManager", "registerChangedDocument")
+
             let latestText = latestDocument.getText();
+
+            this.logger.debugDetail("Latest document text is " +latestText,
+                "VersionedDocumentManager", "registerChangedDocument")
 
             let newText = proposal.text;
             if (newText == null && proposal.textEdits && latestText !== null) {
                 newText = applyDocumentEdits(latestText, proposal.textEdits)
             }
 
+            this.logger.debugDetail("Calculated new text is: " +newText,
+                "VersionedDocumentManager", "registerChangedDocument")
+
             if (newText == null) return null;
 
-            if (newText == latestText) return null;
+            if (newText == latestText) {
+
+                this.logger.debugDetail("No changes of text found",
+                    "VersionedDocumentManager", "registerChangedDocument")
+
+                return null;
+            }
 
             let newDocument = new VersionedDocument(proposal.uri,
                 latestDocument.getVersion() + 1, newText);
@@ -138,6 +159,9 @@ export class VersionedDocumentManager {
 
             let newDocument = new VersionedDocument(proposal.uri, 0, proposal.text);
             this.documents[proposal.uri] = [newDocument];
+
+            this.logger.debugDetail("Registered new document, returning acceptance",
+                "VersionedDocumentManager", "registerChangedDocument")
 
             return {
                 uri: proposal.uri,

@@ -104,4 +104,10 @@ export interface IClientConnection extends ILogger {
      * @param position - position in the document
      */
     rename(uri: string, position: number, newName: string) : Promise<IChangedDocument[]>
+
+    /**
+     * Gets latest document version.
+     * @param uri
+     */
+    getLatestVersion(uri: string) : Promise<number>;
 }
