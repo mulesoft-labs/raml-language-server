@@ -29,7 +29,7 @@ import {
     InitializeParams, InitializeResult, TextDocumentPositionParams,
     CompletionItem, CompletionItemKind, DocumentSymbolParams, SymbolInformation,
     SymbolKind, Position, Location, ReferenceParams, Range, DocumentHighlight, RenameParams,
-    WorkspaceEdit, TextDocumentEdit, TextEdit
+    WorkspaceEdit, TextDocumentEdit, TextEdit, CompletionList
 } from 'vscode-languageserver';
 
 export class ProxyServerConnection extends AbstractServerConnection implements IServerConnection {
@@ -71,7 +71,7 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         })
 
         // This handler provides the initial list of the completion items.
-        this.vsCodeConnection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionItem[] => {
+        this.vsCodeConnection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionList => {
 
             return this.getCompletion(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
         });
@@ -220,16 +220,22 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         return result;
     }
 
-    getCompletion(uri: string, position : Position) : CompletionItem[] {
+    getCompletion(uri: string, position : Position) : CompletionList {
         this.debug("getCompletion called for uri: " + uri,
             "ProxyServerConnection", "getCompletion")
 
-        if (this.documentCompletionListeners.length == 0) return [];
+        if (this.documentCompletionListeners.length == 0) return {
+            isIncomplete: true,
+            items: []
+        };
 
         let document = this.documents.get(uri)
         this.debugDetail("got document: " + (document != null),
             "ProxyServerConnection", "getCompletion")
-        if (!document) return [];
+        if (!document) return {
+            isIncomplete: true,
+            items: []
+        };
 
         let offset = document.offsetAt(position);
 
@@ -263,7 +269,10 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
             }
         }
 
-        return result;
+        return {
+            isIncomplete: true,
+            items: result
+        };
     }
 
     private removeCompletionPreviousLineIndentation(originalText: string) {
