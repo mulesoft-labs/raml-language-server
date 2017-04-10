@@ -8,7 +8,7 @@ import {
     ILogger,
     ILocation,
     IRange
-} from "../common/typeInterfaces";
+} from "./typeInterfaces";
 
 export {
     IValidationReport,
