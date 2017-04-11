@@ -68,11 +68,6 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
             type : "OPEN_DOCUMENT",
             payload : commonOpenedDocument
         })
-
-        this.send({
-            type : "OPEN_DOCUMENT",
-            payload : document
-        })
     }
 
     documentChanged(document: IChangedDocument) : void {
@@ -83,11 +78,6 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
         this.send({
             type : "CHANGE_DOCUMENT",
             payload : commonChangedDocument
-        })
-
-        this.send({
-            type : "CHANGE_DOCUMENT",
-            payload : document
         })
     }
 

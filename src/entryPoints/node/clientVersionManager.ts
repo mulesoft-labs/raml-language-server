@@ -73,7 +73,17 @@ export class VersionedDocumentManager {
     public registerOpenedDocument(proposal : clientTypeInterfaces.IOpenedDocument) :
         commonTypeInterfaces.IOpenedDocument {
 
+        this.logger.debug("Open document called for uri " + proposal.uri,
+            "VersionedDocumentManager", "registerOpenedDocument")
+
+        this.logger.debugDetail("New text is:\n" + proposal.text,
+            "VersionedDocumentManager", "registerOpenedDocument")
+
         let versionedDocuments = this.documents[proposal.uri];
+
+        this.logger.debugDetail("Versioned documents for this uri found: " +
+            (versionedDocuments?"true":"false"),
+            "VersionedDocumentManager", "registerOpenedDocument")
 
         if (versionedDocuments) {
 
