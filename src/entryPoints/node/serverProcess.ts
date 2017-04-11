@@ -286,6 +286,11 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
         component?: string, subcomponent?: string) : void {
 
         let toLog = "";
+
+        let currentDate = new Date();
+        toLog += currentDate.getHours() + ":" + currentDate.getMinutes() + ":" +
+            currentDate.getSeconds() + ":" + currentDate.getMilliseconds() + " ";
+
         if (severity != MessageSeverity.WARNING && severity != MessageSeverity.ERROR) {
             MessageSeverity[severity];
         }

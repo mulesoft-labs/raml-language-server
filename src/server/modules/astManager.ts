@@ -389,6 +389,7 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
     }
 
     parseSynchronously(parserOptions: any) : IHighLevelNode {
+
         let editor = this.editorManager.getEditor(this.uri);
 
         this.logger.debugDetail("Got editor: " + (editor != null),
