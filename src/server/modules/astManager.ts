@@ -111,7 +111,7 @@ class Reconciler {
     private waitingList : Runnable<any>[] = [];
     private runningList : Runnable<any>[] = [];
 
-    constructor(private timeout : number) {
+    constructor(private logger: ILogger, private timeout : number) {
     }
 
     public schedule<ResultType>(runnable: Runnable<ResultType>) : Promise<ResultType> {
@@ -121,7 +121,13 @@ class Reconciler {
 
             setTimeout(()=>{
 
+                this.logger.debugDetail("Time came to execute " + runnable.toString(),
+                    "Reconciler","schedule");
+
                 if (runnable.isCanceled()) {
+                    this.logger.debugDetail("Runnable " + runnable.toString() + " is cancelled, doing nothing",
+                        "Reconciler","schedule");
+
                     this.removeFromWaitingList(runnable)
                     return;
                 }
@@ -131,12 +137,20 @@ class Reconciler {
                     //TODO add an additional short timeout parameter to launch the reschedule
                     //at the finish of the currently running task for a short time after it.
 
+                    this.logger.debugDetail("Conflicting to " + runnable.toString()
+                        + " is found in the running list: " + currentlyRunning.toString()
+                        + " rescheduling current one.",
+                        "Reconciler","schedule");
+
                     this.schedule(runnable)
                     return;
                 }
 
                 this.removeFromWaitingList(runnable)
                 this.addToRunningList(runnable)
+
+                this.logger.debugDetail("Executing " + runnable.toString(),
+                    "Reconciler","schedule");
 
                 this.run(runnable).then(
                     (result)=>{ resolve(result); },
@@ -170,13 +184,27 @@ class Reconciler {
      * @param runnable
      */
     private addToWaitingList<ResultType>(runnable: Runnable<ResultType>) {
+        this.logger.debugDetail("Adding runnable " + runnable.toString() + " to waiting list",
+            "Reconciler", "addToWaitingList");
+
         this.waitingList = this.waitingList.filter(current=>{
 
+            this.logger.debugDetail("Comparing existing runnable " + current.toString() +
+                " to the new " + runnable.toString(),
+                "Reconciler", "addToWaitingList");
+
             let conflicts = runnable.conflicts(current);
-            if (conflicts) current.cancel();
+            if (conflicts) {
+                this.logger.debugDetail("Runnables are conflicting, canceling existing one",
+                    "Reconciler", "addToWaitingList");
+
+                current.cancel();
+            }
 
             return !conflicts;
         })
+
+        this.waitingList.push(runnable);
     }
 
     /**
@@ -184,6 +212,10 @@ class Reconciler {
      * @param runnable
      */
     private removeFromWaitingList<ResultType>(runnable: Runnable<ResultType>) {
+        this.logger.debugDetail("Removing " + runnable.toString()
+            + " from waiting list",
+            "Reconciler","removeFromWaitingList");
+
         var index = this.waitingList.indexOf(runnable);
         if (index != -1) this.waitingList.splice(index, 1);
     }
@@ -193,6 +225,10 @@ class Reconciler {
      * @param runnable
      */
     private addToRunningList<ResultType>(runnable: Runnable<ResultType>) {
+        this.logger.debugDetail("Adding " + runnable.toString()
+            + " to running list",
+            "Reconciler","removeFromWaitingList");
+
         this.runningList.push(runnable);
     }
 
@@ -201,6 +237,10 @@ class Reconciler {
      * @param runnable
      */
     private removeFromRunningList<ResultType>(runnable: Runnable<ResultType>) {
+        this.logger.debugDetail("Removing " + runnable.toString()
+            + " from running list",
+            "Reconciler","removeFromWaitingList");
+
         var index = this.runningList.indexOf(runnable);
         if (index != -1) this.runningList.splice(index, 1);
     }
@@ -253,6 +293,7 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
     private canceled = false;
 
     constructor(private uri : string,
+                private version: number,
                 private editorManager : IEditorManagerModule,
                 private logger: ILogger) {
         //TODO maybe also accept pure content
@@ -268,6 +309,10 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
 
     public getTypeConst() : string {
         return ParseDocumentRunnable.TYPE_CONST;
+    }
+
+    public toString() : string {
+        return "[Runnable " + this.uri + ":" + this.version + "]";
     }
 
     private prepareParserOptions() : Options {
@@ -436,7 +481,7 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
      */
     conflicts(other : Runnable<any>) : boolean {
         if (ParseDocumentRunnable.isInstance(other)) {
-            return other.getURI() != this.getURI();
+            return other.getURI() == this.getURI();
         }
 
         return false;
@@ -468,10 +513,12 @@ class ASTManager implements IASTManagerModule {
 
     private currentASTs : {[uri:string] : IHighLevelNode} = {};
 
-    private reconciler : Reconciler = new Reconciler(200);
+    private reconciler : Reconciler;
 
     constructor(private connection : IServerConnection,
                 private editorManager : IEditorManagerModule) {
+
+        this.reconciler = new Reconciler(connection, 250);
     }
 
     listen() : void {
@@ -496,7 +543,7 @@ class ASTManager implements IASTManagerModule {
         let current = this.currentASTs[uri];
         if (current) return current;
 
-        let runner = new ParseDocumentRunnable(uri, this.editorManager,
+        let runner = new ParseDocumentRunnable(uri, null, this.editorManager,
             this.connection)
 
         let newAST = runner.runSynchronously();
@@ -528,7 +575,7 @@ class ASTManager implements IASTManagerModule {
     }
 
     onOpenDocument(document: IOpenedDocument) : void {
-        this.reconciler.schedule(new ParseDocumentRunnable(document.uri, this.editorManager,
+        this.reconciler.schedule(new ParseDocumentRunnable(document.uri, 0, this.editorManager,
             this.connection))
             .then(
                 newAST=>this.registerNewAST(document.uri, document.version, newAST),
@@ -541,8 +588,8 @@ class ASTManager implements IASTManagerModule {
 
         this.connection.debug(" document is changed", "ASTManager", "onChangeDocument")
 
-        this.reconciler.schedule(new ParseDocumentRunnable(document.uri, this.editorManager,
-            this.connection))
+        this.reconciler.schedule(new ParseDocumentRunnable(document.uri, document.version,
+            this.editorManager, this.connection))
             .then(newAST=>{
 
                     this.connection.debugDetail(
