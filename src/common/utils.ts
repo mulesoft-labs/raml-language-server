@@ -1,5 +1,9 @@
 import URI = require("urijs")
 import path = require("path")
+import {
+    MessageSeverity,
+    ILoggerSettings
+} from "./typeInterfaces";
 
 /**
  * Returns path from uri. If URI string is not a well-formed URI, but just an FS path, returns that path.
@@ -52,4 +56,52 @@ export function transformUriToOriginalFormat(originalUri: string, toTransform: s
     }
 
     return toTransform;
+}
+
+export interface LogMessage {
+    message:string
+    severity: MessageSeverity
+    component?: string
+    subcomponent?: string
+}
+
+/**
+ * Filters logger message based on logger settings.
+ * @param message
+ * @param settings
+ * @returns transformed message or null if it was filtered out.
+ */
+export function filterLogMessage(message: LogMessage, settings: ILoggerSettings) : LogMessage {
+    if (!settings) return {
+        message: message.message,
+        severity: message.severity,
+        component: message.component,
+        subcomponent: message.subcomponent
+    };
+
+    if (settings.disabled) return null;
+
+    if (message.component && settings.allowedComponents) {
+        if (settings.allowedComponents.indexOf(message.component) == -1) return null;
+    }
+
+    if (message.component && settings.deniedComponents) {
+        if (settings.allowedComponents.indexOf(message.component) != -1) return null;
+    }
+
+    if (settings.maxSeverity != null && message.severity != null) {
+        if (message.severity <= settings.maxSeverity) return null;
+    }
+
+    let text = message.message;
+    if (settings.maxMessageLength && text && text.length > settings.maxMessageLength) {
+        text = text.substring(0, settings.maxMessageLength - 1);
+    }
+
+    return {
+        message: text,
+        severity: message.severity,
+        component: message.component,
+        subcomponent: message.subcomponent
+    }
 }

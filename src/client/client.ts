@@ -7,7 +7,9 @@ import {
     Suggestion,
     ILogger,
     ILocation,
-    IRange
+    IRange,
+    ILoggerSettings,
+    MessageSeverity
 } from "./typeInterfaces";
 
 export {
@@ -19,7 +21,9 @@ export {
     Suggestion,
     ILogger,
     ILocation,
-    IRange
+    IRange,
+    ILoggerSettings,
+    MessageSeverity
 } from './typeInterfaces'
 
 export interface IClientConnection extends ILogger {

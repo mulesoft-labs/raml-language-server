@@ -1,6 +1,7 @@
 import {
     ILogger,
-    MessageSeverity
+    MessageSeverity,
+    ILoggerSettings
 } from '../../common/typeInterfaces'
 
 export type MessageToClientType =
@@ -16,7 +17,8 @@ export type MessageToServerType =
     "OPEN_DECLARATION" |
     "FIND_REFERENCES" |
     "MARK_OCCURRENCES"|
-    "RENAME";
+    "RENAME" |
+    "SET_LOGGER_CONFIGURATION";
 
 export interface ProtocolMessage<MessageType extends MessageToClientType | MessageToServerType> {
     type : MessageType
@@ -99,6 +101,12 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      */
     abstract error(message:string,
           component?: string, subcomponent?: string) : void;
+
+    /**
+     * Sets logger configuration, both for the server and for the client.
+     * @param loggerSettings
+     */
+    abstract setLoggerConfiguration(loggerSettings: ILoggerSettings) : void;
 
     /**
      * Sends message to the counterpart

@@ -22,9 +22,16 @@ import {
     ProtocolMessage,
     MessageToServerType, MessageToClientType
 } from './protocol'
-import {IStructureReport} from "../../common/typeInterfaces";
+
+import {IStructureReport, ILoggerSettings} from "../../common/typeInterfaces";
+
+import {
+    filterLogMessage
+} from "../../common/utils"
 
 class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType> implements IServerConnection {
+
+    private loggerSettings : ILoggerSettings;
 
     private openDocumentListeners : {(document: IOpenedDocument):void}[] = [];
     private changeDocumentListeners : {(document: IChangedDocument):void}[] = [];
@@ -275,6 +282,11 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
         return result;
     }
 
+    SET_LOGGER_CONFIGURATION(payload:ILoggerSettings) : void {
+        
+        this.setLoggerConfiguration(payload);
+    }
+
     /**
      * Logs a message
      * @param message - message text
@@ -283,6 +295,22 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
      * @param subcomponent - sub-component name
      */
     log(message:string, severity: MessageSeverity,
+        component?: string, subcomponent?: string) : void {
+
+        let filtered = filterLogMessage({
+            message:message,
+            severity: severity,
+            component: component,
+            subcomponent: subcomponent
+        }, this.loggerSettings)
+
+        if (filtered) {
+            this.internalLog(filtered.message, filtered.severity,
+                filtered.component, filtered.subcomponent);
+        }
+    }
+
+    internalLog(message:string, severity: MessageSeverity,
         component?: string, subcomponent?: string) : void {
 
         let toLog = "";
@@ -362,6 +390,14 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
     error(message:string,
           component?: string, subcomponent?: string) : void {
         this.log(message, MessageSeverity.ERROR, component, subcomponent);
+    }
+
+    /**
+     * Sets connection logger configuration.
+     * @param loggerSettings
+     */
+    setLoggerConfiguration(loggerSettings: ILoggerSettings) {
+        this.loggerSettings = loggerSettings;
     }
 }
 

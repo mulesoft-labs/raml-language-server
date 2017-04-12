@@ -170,6 +170,38 @@ export enum MessageSeverity {
     ERROR
 }
 
+/**
+ * Settings of logger to filter the msssages.
+ */
+export interface ILoggerSettings {
+
+    /**
+     * If true, disables all logging.
+     */
+    disabled? : boolean;
+
+    /**
+     * List of components, which are allowed to appear in log.
+     * If empty or null, all components are allowed (except those excplicitly denied).
+     */
+    allowedComponents?: string[]
+
+    /**
+     * Components, which never appear in the log
+     */
+    deniedComponents?: string[]
+
+    /**
+     * Messages with lower severity will not appear in log.
+     */
+    maxSeverity?: MessageSeverity
+
+    /**
+     * Messages having more length will be cut off to this number.
+     */
+    maxMessageLength?: number
+}
+
 export interface ILogger {
     /**
      * Logs a message
@@ -226,6 +258,11 @@ export interface ILogger {
     error(message:string,
           component?: string, subcomponent?: string) : void;
 
+    /**
+     * Sets logger configuration, both for the server and for the client.
+     * @param loggerSettings
+     */
+    setLoggerConfiguration(loggerSettings: ILoggerSettings);
 }
 
 /**

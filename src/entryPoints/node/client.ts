@@ -9,17 +9,24 @@ import {
 
 import {
     IChangedDocument,
-    MessageSeverity
+    MessageSeverity,
+    ILoggerSettings
 } from '../../client/typeInterfaces'
 
 import {
     VersionedDocumentManager
 } from './clientVersionManager'
 
+import {
+    filterLogMessage
+} from '../../common/utils'
+
 import childProcess = require("child_process");
 
 export class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
     implements clientInterfaces.IClientConnection {
+
+    private loggerSettings : ILoggerSettings;
 
     private validationReportListeners : {(report:clientInterfaces.IValidationReport):void}[] = [];
     private structureReportListeners : {(report:clientInterfaces.IStructureReport):void}[] = [];
@@ -35,11 +42,11 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
         });
 
         serverProcess.stdout.on('data', data => {
-            this.debug("Server process stdout:\n" + data.toString(), "NodeProcessClientConnection");
+            console.log(data.toString());
         });
 
         serverProcess.stderr.on('data', data => {
-            this.debug("Server process stderr:\n" + data.toString(), "NodeProcessClientConnection");
+            console.log(data.toString());
         });
 
         serverProcess.on('close', function (code) {
@@ -174,6 +181,22 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
         });
     }
 
+    /**
+     * Sets connection logger configuration, both for the server and for the client.
+     * @param loggerSettings
+     */
+    setLoggerConfiguration(loggerSettings: ILoggerSettings) : void {
+
+        //changing client configuration
+        this.loggerSettings = loggerSettings;
+
+        //changing server configuration
+        this.send({
+            type : "SET_LOGGER_CONFIGURATION",
+            payload : loggerSettings
+        })
+    }
+
     VALIDATION_REPORT(report : clientInterfaces.IValidationReport) : void {
         for (let listener of this.validationReportListeners) {
             listener(report);
@@ -210,6 +233,29 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
      * @param subcomponent - sub-component name
      */
     log(message:string, severity: MessageSeverity,
+        component?: string, subcomponent?: string) : void {
+
+        let filtered = filterLogMessage({
+            message:message,
+            severity: severity,
+            component: component,
+            subcomponent: subcomponent
+        }, this.loggerSettings)
+
+        if (filtered) {
+            this.internalLog(filtered.message, filtered.severity,
+                filtered.component, filtered.subcomponent);
+        }
+    }
+
+    /**
+     * Logs a message
+     * @param message - message text
+     * @param severity - message severity
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    internalLog(message:string, severity: MessageSeverity,
         component?: string, subcomponent?: string) : void {
 
         let toLog = "";

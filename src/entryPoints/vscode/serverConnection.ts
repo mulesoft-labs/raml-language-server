@@ -13,7 +13,9 @@ import {
     StructureCategories,
     Suggestion,
     MessageSeverity,
-    ILocation, ITextEdit
+    ILocation,
+    ITextEdit,
+    ILoggerSettings
 } from '../../common/typeInterfaces'
 
 import {
@@ -34,11 +36,22 @@ import {
 
 export class ProxyServerConnection extends AbstractServerConnection implements IServerConnection {
 
-
+    private loggerSettings : ILoggerSettings;
     private documents: TextDocuments;
 
     constructor(private vsCodeConnection : IConnection){
         super()
+
+        this.setLoggerConfiguration({
+            // allowedComponents: [
+            //     "ParseDocumentRunnable",
+            //     "MessageDispatcher:NodeProcessServerConnection",
+            //     "Reconciler",
+            //     "StructureManager"
+            // ],
+            maxSeverity: MessageSeverity.ERROR,
+            maxMessageLength: 60
+        })
     }
 
     public listen() : void {
@@ -371,6 +384,29 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
     log(message:string, severity: MessageSeverity,
         component?: string, subcomponent?: string) : void {
 
+        let filtered = utils.filterLogMessage({
+            message:message,
+            severity: severity,
+            component: component,
+            subcomponent: subcomponent
+        }, this.loggerSettings)
+
+        if (filtered) {
+            this.internalLog(filtered.message, filtered.severity,
+                filtered.component, filtered.subcomponent);
+        }
+    }
+
+    /**
+     * Logs a message
+     * @param message - message text
+     * @param severity - message severity
+     * @param component - component name
+     * @param subcomponent - sub-component name
+     */
+    internalLog(message:string, severity: MessageSeverity,
+        component?: string, subcomponent?: string) : void {
+
         let toLog = "";
 
         let currentDate = new Date();
@@ -448,6 +484,14 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
     error(message:string,
           component?: string, subcomponent?: string) : void {
         this.log(message, MessageSeverity.ERROR, component, subcomponent);
+    }
+
+    /**
+     * Sets connection logger configuration.
+     * @param loggerSettings
+     */
+    setLoggerConfiguration(loggerSettings: ILoggerSettings) {
+        this.loggerSettings = loggerSettings;
     }
 
     documentHighlight(uri: string, position : Position) : DocumentHighlight[] {

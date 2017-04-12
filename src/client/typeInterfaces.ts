@@ -6,7 +6,8 @@ export {
     ILogger,
     ILocation,
     IRange,
-    MessageSeverity
+    MessageSeverity,
+    ILoggerSettings
 } from '../common/typeInterfaces'
 
 import {

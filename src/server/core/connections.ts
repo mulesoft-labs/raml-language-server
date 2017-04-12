@@ -9,7 +9,8 @@ import {
     Suggestion,
     ILogger,
     MessageSeverity,
-    ILocation
+    ILocation,
+    ILoggerSettings
 } from '../../common/typeInterfaces'
 
 export {
@@ -23,7 +24,8 @@ export {
     Suggestion,
     ILogger,
     MessageSeverity,
-    ILocation
+    ILocation,
+    ILoggerSettings
 } from '../../common/typeInterfaces'
 
 export interface IServerConnection extends ILogger {
@@ -96,4 +98,10 @@ export interface IServerConnection extends ILogger {
      * @param listener
      */
     onRename(listener: (uri: string, position: number, newName: string) => IChangedDocument[])
+
+    /**
+     * Sets connection logger configuration.
+     * @param loggerSettings
+     */
+    setLoggerConfiguration(loggerSettings: ILoggerSettings);
 }

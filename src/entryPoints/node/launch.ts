@@ -3,7 +3,8 @@ import childProcess = require("child_process");
 import path = require("path");
 
 import {
-    IClientConnection
+    IClientConnection,
+    MessageSeverity
 } from '../../client/client'
 
 import {
@@ -24,7 +25,20 @@ function launch() : IClientConnection {
         silent: true
     });
 
-    return new NodeProcessClientConnection(serverProcess);
+    let clientConnection = new NodeProcessClientConnection(serverProcess);
+
+    clientConnection.setLoggerConfiguration({
+        // allowedComponents: [
+        //     "ParseDocumentRunnable",
+        //     "MessageDispatcher:NodeProcessServerConnection",
+        //     "Reconciler",
+        //     "StructureManager"
+        // ],
+        maxSeverity: MessageSeverity.ERROR,
+        maxMessageLength: 60
+    });
+
+    return clientConnection;
 }
 
 
