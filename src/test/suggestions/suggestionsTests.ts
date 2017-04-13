@@ -6,6 +6,8 @@ var assert:any = <any>chaiModule.assert
 
 describe("Async completion tests", function() {
     it("test0", function (done) {
+        this.timeout(30000);
+
         testCompletionByEntryEnd('basic/LibraryExample/slack.raml', done, 'CH11\n    ', 'queryParameters, headers, queryString, responses, body, protocols, is, securedBy, displayName, properties, get, put, post, delete, options, head, patch');
     });
 
@@ -598,13 +600,17 @@ function resolve(testPath: string): string {
     return utils.resolve(__dirname, '../../../src/test/data/suggestions/' + testPath);
 }
 
+var connection;
+
 export function completionByUniqueEntryAsync(filePath: string, entry: string, begin: boolean = false, callback: (result: string) => void): void {
     filePath = resolve(filePath);
     let content = fs.readFileSync(filePath).toString();
 
     let position = begin ? (content.indexOf(entry)) : offsetForEntry(entry, content);
 
-    let connection = index.getNodeClientConnection();
+    connection = index.getNodeClientConnection();
+
+    (<any>connection).loggingEnabled = false;
 
     connection.documentOpened({
         uri: filePath,
@@ -640,4 +646,10 @@ function testCompletionByEntryEnd(testPath: string, done: any, entry: string, ex
         }
     });
 }
+
+after(function() {
+    if(connection) {
+        connection.stop();
+    }
+});
 
