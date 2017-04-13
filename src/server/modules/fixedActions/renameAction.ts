@@ -44,7 +44,17 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
 
     listen() {
         this.connection.onRename((uri: string, position: number, newName: string) => {
-            return this.rename(uri, position, newName);
+            let result = this.rename(uri, position, newName);
+
+            this.connection.debugDetail("Renaming result for uri: " + uri,
+                "RenameActionModule", "onRename");
+
+            if (result.length >= 1) {
+                this.connection.debugDetail("Text:\n" + result[0].text,
+                    "RenameActionModule", "onRename");
+            }
+
+            return result;
         })
     }
 

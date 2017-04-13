@@ -660,18 +660,9 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
 
         }
 
-        // TODO as opposed to what is described here
-        // https://github.com/Microsoft/language-server-protocol/blob/master/protocol.md#workspaceedit
-        // and a declaration of WorkspaceEdit in d.ts, in practise current version of Visual Studio Code
-        // wants TextDocumentEdit[] as "changes" field inside WorkspaceEdit.
-        // It took a lot of time to find this out, only debugging of VS Code itself did help.
-        // Respective source code of the client is in a comment in the bottom: asWorkspaceEdit() method.
-        // To be compatible with other potential protocol clients, we should wait until thi is resolved
-        // and put in the correct field name.
-
         let result: WorkspaceEdit = <any>{
-            changes: uriChanges
-            //documentChanges: uriChanges
+            //changes: uriChanges
+            documentChanges: uriChanges
         }
 
         this.debugDetail("Returning",
