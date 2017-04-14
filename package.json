@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "rimraf dist && tsc",
-    "test" : "mocha ./dist/test/suggestions/suggestionsTests.js"
+    "test" : "gulp test"
   },
   "repository": {
     "type": "git",
@@ -29,7 +29,8 @@
     "shortid": "^2.2.6",
     "vscode-languageserver": "^3.2.0",
     "promise-polyfill": "^5.1.0",
-    "urijs": "^1.18.7"
+    "urijs": "^1.18.7",
+    "underscore": "^1.8.3"
   },
   "devDependencies": {
     "@types/node": "^6.0.52",
