@@ -7,7 +7,7 @@ npm-debug.log
 
 .project
 .settings
-.vscode
+/.vscode
 
 /browserVersion
 /browser_version_npm
@@ -16,11 +16,11 @@ npm-debug.log
 /src/**/*.js.map
 /src/**/*.d.ts
 
-!/src/devUtil/documentation/theme.js
-
 /typings/
 
 /dist/
 
 /coverage
 coverage.zip
+
+raml-language-server.zip
