@@ -29,13 +29,10 @@ function launch() : IClientConnection {
 
     clientConnection.setLoggerConfiguration({
         // allowedComponents: [
-        //     "ParseDocumentRunnable",
-        //     "MessageDispatcher:NodeProcessServerConnection",
-        //     "Reconciler",
-        //     "StructureManager"
+        //     "CompletionManagerModule"
         // ],
         maxSeverity: MessageSeverity.ERROR,
-        maxMessageLength: 60
+        maxMessageLength: 50
     });
 
     return clientConnection;

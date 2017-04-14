@@ -44,13 +44,10 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
 
         this.setLoggerConfiguration({
             // allowedComponents: [
-            //     "ParseDocumentRunnable",
-            //     "MessageDispatcher:NodeProcessServerConnection",
-            //     "Reconciler",
-            //     "StructureManager"
+            //     "CompletionManagerModule"
             // ],
             maxSeverity: MessageSeverity.ERROR,
-            maxMessageLength: 60
+            maxMessageLength: 50
         })
     }
 

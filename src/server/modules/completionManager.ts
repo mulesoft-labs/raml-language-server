@@ -23,17 +23,23 @@ import {
     Icons,
     TextStyles,
     StructureCategories,
-    Suggestion
+    Suggestion,
+    ILogger
 } from '../../common/typeInterfaces'
 
 import rp=require("raml-1-parser")
 import lowLevel=rp.ll;
 import hl=rp.hl;
 
+import {
+    pathFromURI,
+    dirname,
+    basename,
+    resolve
+} from '../../common/utils'
+
 import suggestions = require("raml-suggestions")
 
-//TODO remove this dependency and implement required methods from scratch
-import pathModule = require("path")
 
 //TODO replace this with a new FS manager which should rely on editor manager and
 //other ways to report existing files
@@ -100,7 +106,7 @@ class EditorStateProvider implements suggestions.IEditorStateProvider {
     getBaseName(): string {
         if (!this.editor) return "";
 
-        return pathModule.basename(this.getPath());
+        return basename(this.getPath());
     }
 
     /**
@@ -114,35 +120,68 @@ class EditorStateProvider implements suggestions.IEditorStateProvider {
 }
 
 class FSProvider implements suggestions.IFSProvider {
-    contentDirName(content: suggestions.IEditorStateProvider): string {
-        var contentPath = content.getPath();
 
-        return pathModule.dirname(contentPath);
+    constructor(private logger: ILogger) {
+
+    }
+
+    contentDirName(content: suggestions.IEditorStateProvider): string {
+        let contentPath = content.getPath();
+
+        let converted = pathFromURI(contentPath);
+
+        let result = dirname(converted);
+
+        this.logger.debugDetail("contentDirName result: " + result,
+            "CompletionManagerModule", "FSProvider#contentDirName")
+
+        return result;
     }
 
     dirName(childPath: string): string {
-        return pathModule.dirname(childPath);
+        this.logger.debugDetail("Dirname for path: " + childPath,
+            "CompletionManagerModule", "FSProvider#dirName")
+
+        let result =  dirname(childPath);
+
+        this.logger.debugDetail("result: " + result,
+            "CompletionManagerModule", "FSProvider#dirName")
+
+        return result;
     }
 
     exists(checkPath: string): boolean {
+        this.logger.debugDetail("Request for existence: " + checkPath,
+            "CompletionManagerModule", "FSProvider#exists")
+
         return fs.existsSync(checkPath);
     }
 
     resolve(contextPath: string, relativePath: string): string {
-        return pathModule.resolve(contextPath, relativePath);
+        return resolve(contextPath, relativePath);
     }
 
     isDirectory(dirPath: string): boolean {
+
+        this.logger.debugDetail("Request for directory check: " + dirPath,
+            "CompletionManagerModule", "FSProvider#isDirectory")
+
         var stat = fs.statSync(dirPath);
 
         return stat && stat.isDirectory();
     }
 
     readDir(dirPath: string): string[] {
+        this.logger.debugDetail("Request for directory content: " + dirPath,
+            "CompletionManagerModule", "FSProvider#readDir")
+
         return fs.readdirSync(dirPath);
     }
 
     existsAsync(path: string): Promise<boolean> {
+        this.logger.debugDetail("Request for existence: " + path,
+            "CompletionManagerModule", "FSProvider#existsAsync")
+
         return new Promise(resolve => {
             fs.exists(path, (result) => {resolve(result)})
         });
@@ -153,6 +192,9 @@ class FSProvider implements suggestions.IFSProvider {
      * @param fullPath
      */
     readDirAsync(path: string): Promise<string[]> {
+        this.logger.debugDetail("Request for directory content: " + path,
+            "CompletionManagerModule", "FSProvider#readDirAsync")
+
         return new Promise(resolve => {
             fs.readdir(path, (err, result) => {resolve(result)})
         });
@@ -163,6 +205,10 @@ class FSProvider implements suggestions.IFSProvider {
      * @param fullPath
      */
     isDirectoryAsync(path: string): Promise<boolean> {
+
+        this.logger.debugDetail("Request for directory check: " + path,
+            "CompletionManagerModule", "FSProvider#isDirectoryAsync")
+
         return new Promise(resolve => {
             fs.stat(path, (err, stats) => {resolve(stats.isDirectory())})
         });
@@ -182,10 +228,10 @@ class CompletionManagerModule implements IListeningModule {
 
     getCompletion(uri: string, position: number) : Suggestion[] {
         this.connection.debug("Called getCompletion for position " + position, "CompletionManagerModule", "getCompletion")
-
+        ;
         let astProvider = new ASTProvider(uri, this.astManagerModule);
         let editorProvider = new EditorStateProvider(uri, position, this.editorManagerModule);
-        let fsProvider = new FSProvider();
+        let fsProvider = new FSProvider(this.connection);
 
         //TODO remove after leaving prototype phase, only needed for logging
         let editorText = editorProvider.getText();
@@ -206,6 +252,7 @@ class CompletionManagerModule implements IListeningModule {
         suggestions.setDefaultASTProvider(astProvider);
 
         let result = suggestions.suggest(editorProvider, fsProvider);
+        this.connection.debug("Got suggestion results: " + (result?result.length:0), "CompletionManagerModule", "getCompletion")
 
         for (let suggestion of result) {
             this.connection.debug("Suggestion: text: " + suggestion.text, "CompletionManagerModule", "getCompletion")
