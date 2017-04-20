@@ -43,11 +43,12 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         super()
 
         this.setLoggerConfiguration({
-            // allowedComponents: [
-            //     "CompletionManagerModule"
-            // ],
-            maxSeverity: MessageSeverity.ERROR,
-            maxMessageLength: 50
+            allowedComponents: [
+                "RenameActionModule",
+                "ProxyServerConnection"
+            ],
+            //maxSeverity: MessageSeverity.ERROR,
+            //maxMessageLength: 50
         })
     }
 

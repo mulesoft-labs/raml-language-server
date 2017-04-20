@@ -162,11 +162,35 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
                 var oldValue = hlnode.attrValue(
                     hlnode.definition().getAdapter(def.RAMLService).getKeyProp().nameId())
 
-                //todo update nodes
-                findUsagesResult.results.reverse().forEach(x=> {
-                    var ua = x;
+                let filtered : hl.IParseResult[] = [];
+                findUsagesResult.results.reverse().forEach(usage=> {
 
-                    this.renameInProperty(ua.asAttr(), oldValue, newName)
+                    let hasConflicting = false;
+
+                    for (let current of filtered) {
+                        let currentLowLevel = current.lowLevel();
+                        if (!currentLowLevel) continue;
+
+                        let currentStart = currentLowLevel.start();
+                        let currentEnd = currentLowLevel.end();
+
+                        let usageLowLevel = usage.lowLevel();
+                        if (!usageLowLevel) continue;
+
+                        let usageStart = usageLowLevel.start();
+                        let usageEnd = usageLowLevel.end();
+
+                        if (usageStart <= currentEnd && usageEnd >= currentStart) {
+                            hasConflicting = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasConflicting) filtered.push(usage);
+                })
+
+                filtered.forEach(x=> {
+                    this.renameInProperty(x.asAttr(), oldValue, newName)
                 })
                 hlnode.attr(
                     hlnode.definition().getAdapter(def.RAMLService).getKeyProp().nameId()
@@ -274,73 +298,6 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
         }
 
         return astNode;
-
-        // let unitPath = utils.pathFromURI(uri);
-        // var newProjectId: string = utils.dirname(unitPath);
-        //
-        // var project = parserApi.project.createProject(newProjectId);
-        //
-        // var kind = search.determineCompletionKind(text, offset);
-        //
-        // if(kind==search.LocationKind.KEY_COMPLETION&&clearLastChar){
-        //     var pos=offset>0?offset-1:offset;
-        //     for (var i=pos;i>0;i--){
-        //         var c=text[i];
-        //         if (c=='\r'||c=='\n'){
-        //             break;
-        //         }
-        //         else{
-        //             if (c==' '||c=='\t'){
-        //                 ilevel++;
-        //             }
-        //         }
-        //     }
-        //     var oldOfffset=offset;
-        //
-        //     text=text.substring(0,oldOfffset)+"k:"+text.substring(oldOfffset);
-        // }
-        //
-        // var ilevel=0;
-        //
-        // var unit = project.setCachedUnitContent(unitPath, text);
-        //
-        // var ast=unit.highLevel();
-        // var cm=offset;
-        // for (var pm=offset-1;pm>=0;pm--){
-        //     var c=text[pm];
-        //     if (c==' '||c=='\t'){
-        //         cm=pm-1;
-        //         continue;
-        //     }
-        //     break;
-        // }
-        // var astNode=ast.findElementAtOffset(cm);
-        // this.connection.debugDetail("Found current ast node: " + astNode.printDetails(),
-        //     "RenameActionModule", "getAstNode");
-        //
-        // if (astNode&&astNode.parent()==null){
-        //     if (ilevel>0&&kind==search.LocationKind.KEY_COMPLETION) {
-        //
-        //         var attr=null;
-        //         for (let currentAttribute of astNode.attrs()){
-        //
-        //             var at=<any>attr;
-        //             if (at.lowLevel().start()<offset&&at.lowLevel().end()>=offset&&
-        //                 !at.property().isKey()) {
-        //
-        //                 attr = currentAttribute;
-        //                 break;
-        //             }
-        //         }
-        //
-        //         if (!attr) {
-        //             return null;
-        //         }
-        //     }
-        //     //check if we are on correct indentation level
-        // }
-        //
-        // return astNode;
     }
 
     private getKey(t: def.AnnotationType,n:lowLevel.ILowLevelASTNode){
