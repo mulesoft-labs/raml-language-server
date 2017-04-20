@@ -17,15 +17,20 @@ import {
     IListeningModule
 } from './commonInterfaces'
 
+import {
+    IEditorManagerModule
+} from './editorManager'
+
 import parser = require("raml-1-parser");
 import utils = parser.utils;
 
 type IHighLevelNode = parser.hl.IHighLevelNode;
 
 export function createManager(connection : IServerConnection,
-    astManagerModule : IASTManagerModule) : IListeningModule {
+    astManagerModule : IASTManagerModule,
+    editorManagerModule: IEditorManagerModule) : IListeningModule {
 
-    return new ValidationManager(connection, astManagerModule);
+    return new ValidationManager(connection, astManagerModule, editorManagerModule);
 }
 
 class Acceptor extends utils.PointOfViewValidationAcceptorImpl {
@@ -117,7 +122,8 @@ class Acceptor extends utils.PointOfViewValidationAcceptorImpl {
 }
 
 class ValidationManager {
-    constructor(private connection : IServerConnection, private astManagerModule : IASTManagerModule) {
+    constructor(private connection : IServerConnection, private astManagerModule : IASTManagerModule,
+                private editorManagerModule: IEditorManagerModule) {
     }
 
     listen() {
@@ -150,6 +156,41 @@ class ValidationManager {
 
         astNode.validate(acceptor);
 
-        return acceptor.getErrors();
+        let acceptedErrors = acceptor.getErrors();
+
+        let editor = this.editorManagerModule.getEditor(ramlPath);
+        if (!editor) return acceptedErrors;
+
+        let text = editor.getText();
+        if (!text) return acceptedErrors;
+
+        let tabErrors : IValidationIssue[] = [];
+        while (true) {
+            var tab:number = text.indexOf('\t',tab)
+            if (tab != -1) {
+                let tabWarning = {
+                    code : "TAB_WARNING",
+
+                    type: "Warning",
+
+                    filePath: ramlPath,
+
+                    text: "Using tabs  can lead to unpredictable results",
+                    range: {
+                        start: tab,
+                        end: tab+1
+                    },
+                    trace: []
+                }
+
+                tabErrors.push(tabWarning);
+                tab++;
+            }
+            else{
+                break;
+            }
+        }
+
+        return acceptedErrors.concat(tabErrors);
     }
 }

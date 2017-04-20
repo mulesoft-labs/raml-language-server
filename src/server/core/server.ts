@@ -32,7 +32,7 @@ export class Server {
         this.modules.push(astManagerModule)
 
         this.modules.push(ValidationManagerModule.createManager(connection,
-            astManagerModule));
+            astManagerModule, editorManagerModule));
 
         this.modules.push(StructureManagerModule.createManager(connection,
             astManagerModule));
