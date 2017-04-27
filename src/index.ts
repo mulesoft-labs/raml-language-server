@@ -13,8 +13,14 @@ export {
     StructureNodeJSON,
     Suggestion,
     StructureCategories,
-    ITextEdit
+    ITextEdit,
+    IRange
 } from './common/typeInterfaces'
+
+export {
+    Runnable,
+    Reconciler
+} from './common/reconciler'
 
 import {
     getConnection
