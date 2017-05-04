@@ -1,8 +1,8 @@
-import clientTypeInterfaces = require("../../client/typeInterfaces")
-import commonTypeInterfaces = require("../../common/typeInterfaces")
+import clientTypeInterfaces = require("../../../client/typeInterfaces")
+import commonTypeInterfaces = require("../../../common/typeInterfaces")
 import {
     applyDocumentEdits
-} from '../../common/textEditProcessor'
+} from '../../../common/textEditProcessor'
 
 export class VersionedDocument {
 

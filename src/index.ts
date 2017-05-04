@@ -24,7 +24,7 @@ export {
 
 import {
     getConnection
-} from './entryPoints/node/launch'
+} from './entryPoints/node/client/launch'
 
 /**
  * Launches node entry point (separate node server process) and returns client connection.

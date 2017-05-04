@@ -1,4 +1,3 @@
-
 import {
     IServerConnection,
     IRange,
@@ -11,25 +10,26 @@ import {
     ILogger,
     MessageSeverity,
     ILocation
-} from '../../server/core/connections'
+} from '../../../server/core/connections'
 
 import {
-    Server
-} from '../../server/core/server'
-
-import {
-    MessageDispatcher,
     ProtocolMessage,
     MessageToServerType, MessageToClientType
-} from './protocol'
+} from '../../common/protocol'
 
-import {IStructureReport, ILoggerSettings} from "../../common/typeInterfaces";
+import {
+    MessageDispatcher
+} from '../../common/messageDispatcher'
+
+import {IStructureReport, ILoggerSettings} from "../../../common/typeInterfaces";
 
 import {
     filterLogMessage
-} from "../../common/utils"
+} from "../../../common/utils"
 
-class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType> implements IServerConnection {
+export abstract class AbstractServerConnection extends MessageDispatcher<MessageToClientType> implements IServerConnection {
+
+    abstract sendMessage (message : ProtocolMessage<MessageToClientType>) : void;
 
     private loggerSettings : ILoggerSettings;
 
@@ -43,8 +43,8 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
     private markOccurrencesListeners : {(uri : string, position: number):IRange[]}[] = [];
     private renameListeners : {(uri : string, position: number, newName: string):IChangedDocument[]}[] = [];
 
-    constructor() {
-        super("NodeProcessServerConnection")
+    constructor(name : string) {
+        super(name)
     }
 
     /**
@@ -135,15 +135,55 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
     }
 
     /**
+     * Returns whether path/url exists.
+     * @param fullPath
+     */
+    exists(path: string): Promise<boolean> {
+        return this.sendWithResponse({
+            type: "EXISTS",
+            payload: path
+        })
+    }
+
+    /**
+     * Returns directory content list.
+     * @param fullPath
+     */
+    readDir(path: string): Promise<string[]> {
+        return this.sendWithResponse({
+            type: "READ_DIR",
+            payload: path
+        })
+    }
+
+    /**
+     * Returns whether path/url represents a directory
+     * @param path
+     */
+    isDirectory(path: string): Promise<boolean> {
+        return this.sendWithResponse({
+            type: "IS_DIRECTORY",
+            payload: path
+        })
+    }
+
+    /**
+     * File contents by full path/url.
+     * @param path
+     */
+    content(path:string):Promise<string> {
+        return this.sendWithResponse({
+            type: "CONTENT",
+            payload: path
+        })
+    }
+
+    /**
      * Marks occurrences of a symbol under the cursor in the current document.
      * @param listener
      */
     onMarkOccurrences(listener: (uri: string, position: number) => IRange[]) {
         this.markOccurrencesListeners.push(listener);
-    }
-
-    sendMessage (message : ProtocolMessage<MessageToClientType>) : void {
-        process.send(message);
     }
 
     /**
@@ -283,7 +323,7 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
     }
 
     SET_LOGGER_CONFIGURATION(payload:ILoggerSettings) : void {
-        
+
         this.setLoggerConfiguration(payload);
     }
 
@@ -311,7 +351,7 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
     }
 
     internalLog(message:string, severity: MessageSeverity,
-        component?: string, subcomponent?: string) : void {
+                component?: string, subcomponent?: string) : void {
 
         let toLog = "";
 
@@ -400,12 +440,3 @@ class NodeProcessServerConnection extends MessageDispatcher<MessageToClientType>
         this.loggerSettings = loggerSettings;
     }
 }
-
-let connection = new NodeProcessServerConnection();
-
-let server = new Server(connection);
-server.listen();
-
-process.on('message', (data: ProtocolMessage<MessageToClientType>) => {
-    connection.handleRecievedMessage(data);
-});

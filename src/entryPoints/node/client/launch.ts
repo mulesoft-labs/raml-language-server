@@ -5,7 +5,7 @@ import path = require("path");
 import {
     IClientConnection,
     MessageSeverity
-} from '../../client/client'
+} from '../../../client/client'
 
 import {
     NodeProcessClientConnection
@@ -21,7 +21,7 @@ export function getConnection() : IClientConnection {
 
 function launch() : IClientConnection {
 
-    let serverProcess = (<any>childProcess).fork(path.resolve(__dirname, './serverProcess.js'), [], {
+    let serverProcess = (<any>childProcess).fork(path.resolve(__dirname, '../server/serverProcess.js'), [], {
         silent: true
     });
 

@@ -114,4 +114,27 @@ export interface IClientConnection extends ILogger {
      * @param uri
      */
     getLatestVersion(uri: string) : Promise<number>;
+
+    /**
+     * Listens to the server requests for FS path existence, answering whether
+     * a particular path exists on FS.
+     */
+    onExists(listener: (path: string)=>Promise<boolean>) : void
+
+    /**
+     * Listens to the server requests for directory contents, answering with a list
+     * of files in a directory.
+     */
+    onReadDir(listener: (path: string)=>Promise<string[]>) : void
+
+    /**
+     * Listens to the server requests for directory check, answering whether
+     * a particular path is a directory.
+     */
+    onIsDirectory(listener: (path: string)=>Promise<boolean>) : void
+
+    /**
+     * Listens to the server requests for file contents, answering what contents file has.
+     */
+    onContent(listener: (path: string)=>Promise<string>) : void;
 }

@@ -1,31 +1,14 @@
 import {
+    ProtocolMessage,
+    MessageToClientType,
+    MessageToServerType
+} from './protocol'
+
+import {
     ILogger,
     MessageSeverity,
     ILoggerSettings
 } from '../../common/typeInterfaces'
-
-export type MessageToClientType =
-    "VALIDATION_REPORT" |
-    "STRUCTURE_REPORT";
-
-export type MessageToServerType =
-    "OPEN_DOCUMENT" |
-    "CHANGE_DOCUMENT" |
-    "CLOSE_DOCUMENT" |
-    "GET_STRUCTURE" |
-    "GET_SUGGESTIONS" |
-    "OPEN_DECLARATION" |
-    "FIND_REFERENCES" |
-    "MARK_OCCURRENCES"|
-    "RENAME" |
-    "SET_LOGGER_CONFIGURATION";
-
-export interface ProtocolMessage<MessageType extends MessageToClientType | MessageToServerType> {
-    type : MessageType
-    payload : any,
-    id? : string
-    errorMessage? : string
-}
 
 let shortid = require('shortid');
 
@@ -38,7 +21,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
     implements ILogger {
     private callBacks : {[messageId : string] : CallBackHandle<any>} = {};
 
-    constructor(private name: string) {}
+    constructor(protected name: string) {}
 
     /**
      * Sends message to the counterpart.
@@ -55,7 +38,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @param subcomponent - sub-component name
      */
     abstract log(message:string, severity: MessageSeverity,
-        component?: string, subcomponent?: string) : void
+                 component?: string, subcomponent?: string) : void
 
     /**
      * Logs a DEBUG severity message.
@@ -64,7 +47,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @param subcomponent - sub-component name
      */
     abstract debug(message:string,
-          component?: string, subcomponent?: string) : void;
+                   component?: string, subcomponent?: string) : void;
 
     /**
      * Logs a DEBUG_DETAIL severity message.
@@ -73,7 +56,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @param subcomponent - sub-component name
      */
     abstract debugDetail(message:string,
-                component?: string, subcomponent?: string) : void;
+                         component?: string, subcomponent?: string) : void;
 
     /**
      * Logs a DEBUG_OVERVIEW severity message.
@@ -82,7 +65,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @param subcomponent - sub-component name
      */
     abstract debugOverview(message:string,
-                  component?: string, subcomponent?: string) : void;
+                           component?: string, subcomponent?: string) : void;
 
     /**
      * Logs a WARNING severity message.
@@ -91,7 +74,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @param subcomponent - sub-component name
      */
     abstract warning(message:string,
-            component?: string, subcomponent?: string) : void;
+                     component?: string, subcomponent?: string) : void;
 
     /**
      * Logs an ERROR severity message.
@@ -100,7 +83,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @param subcomponent - sub-component name
      */
     abstract error(message:string,
-          component?: string, subcomponent?: string) : void;
+                   component?: string, subcomponent?: string) : void;
 
     /**
      * Sets logger configuration, both for the server and for the client.

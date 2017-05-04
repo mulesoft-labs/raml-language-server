@@ -103,5 +103,29 @@ export interface IServerConnection extends ILogger {
      * Sets connection logger configuration.
      * @param loggerSettings
      */
-    setLoggerConfiguration(loggerSettings: ILoggerSettings);
+    setLoggerConfiguration(loggerSettings: ILoggerSettings)
+
+    /**
+     * Returns whether path/url exists.
+     * @param fullPath
+     */
+    exists(path: string): Promise<boolean>
+
+    /**
+     * Returns directory content list.
+     * @param fullPath
+     */
+    readDir(path: string): Promise<string[]>
+
+    /**
+     * Returns whether path/url represents a directory
+     * @param path
+     */
+    isDirectory(path: string): Promise<boolean>
+
+    /**
+     * File contents by full path/url.
+     * @param fullPath
+     */
+    content(fullPath:string):Promise<string>
 }

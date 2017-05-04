@@ -1,17 +1,20 @@
-import clientInterfaces = require("../../client/client")
-import commonInterfaces = require("../../common/typeInterfaces")
+import clientInterfaces = require("../../../client/client")
+import commonInterfaces = require("../../../common/typeInterfaces")
 
 import {
-    MessageDispatcher,
     ProtocolMessage,
     MessageToServerType
-} from './protocol'
+} from '../../common/protocol'
+
+import {
+    MessageDispatcher
+} from '../../common/messageDispatcher'
 
 import {
     IChangedDocument,
     MessageSeverity,
     ILoggerSettings
-} from '../../client/typeInterfaces'
+} from '../../../client/typeInterfaces'
 
 import {
     VersionedDocumentManager
@@ -19,11 +22,9 @@ import {
 
 import {
     filterLogMessage
-} from '../../common/utils'
+} from '../../../common/utils'
 
-import childProcess = require("child_process");
-
-export class NodeProcessClientConnection extends MessageDispatcher<MessageToServerType>
+export abstract class AbstractClientConnection extends MessageDispatcher<MessageToServerType>
     implements clientInterfaces.IClientConnection {
 
     private loggerSettings : ILoggerSettings;
@@ -32,30 +33,26 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
     private structureReportListeners : {(report:clientInterfaces.IStructureReport):void}[] = [];
     private versionManager : VersionedDocumentManager;
 
-    constructor(private serverProcess : childProcess.ChildProcess){
-        super("NodeProcessClientConnection");
+    private onExistsListeners : {(path : string):Promise<boolean>}[] = [];
+    private onReadDirListeners : {(path : string):Promise<string[]>}[] = [];
+    private onIsDirectoryListeners : {(path : string):Promise<boolean>}[] = [];
+    private onContentListeners : {(path : string):Promise<string>}[] = [];
+
+    /**
+     * Sends message to the counterpart.
+     * @param message
+     */
+    abstract sendMessage (message : ProtocolMessage<MessageToServerType>) : void;
+
+    /**
+     * Stops the server.
+     */
+    abstract stop() : void;
+
+    constructor(name: string){
+        super(name);
 
         this.versionManager = new VersionedDocumentManager(this);
-
-        serverProcess.on('message', (serverMessage: ProtocolMessage<MessageToServerType>) => {
-            this.handleRecievedMessage(serverMessage);
-        });
-
-        serverProcess.stdout.on('data', data => {
-            console.log(data.toString());
-        });
-
-        serverProcess.stderr.on('data', data => {
-            console.log(data.toString());
-        });
-
-        serverProcess.on('close', function (code) {
-            this.debug('Validation process exited with code ' + code, "NodeProcessClientConnection");
-        });
-    }
-
-    stop() : void {
-        this.serverProcess.kill();
     }
 
     onValidationReport(listener : (report:clientInterfaces.IValidationReport)=>void) {
@@ -209,6 +206,46 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
         }
     }
 
+    EXISTS(path : string) : Promise<boolean> {
+
+        for (let listener of this.onExistsListeners) {
+            let result = listener(path);
+            if (result !==null) return result;
+        }
+
+        return null;
+    }
+
+    READ_DIR(path : string) : Promise<string[]> {
+
+        for (let listener of this.onReadDirListeners) {
+            let result = listener(path);
+            if (result !==null) return result;
+        }
+
+        return null;
+    }
+
+    IS_DIRECTORY(path : string) : Promise<boolean>{
+
+        for (let listener of this.onIsDirectoryListeners) {
+            let result = listener(path);
+            if (result !==null) return result;
+        }
+
+        return null;
+    }
+
+    CONTENT(path : string) : Promise<string> {
+
+        for (let listener of this.onContentListeners) {
+            let result = listener(path);
+            if (result !==null) return result;
+        }
+
+        return null;
+    }
+
     /**
      * Gets latest document version.
      * @param uri
@@ -217,12 +254,6 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
         let version = this.versionManager.getLatestDocumentVersion(uri);
 
         return Promise.resolve(version);
-    }
-
-    sendMessage
-    (message : ProtocolMessage<MessageToServerType>) : void {
-
-        this.serverProcess.send(message);
     }
 
     /**
@@ -256,7 +287,7 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
      * @param subcomponent - sub-component name
      */
     internalLog(message:string, severity: MessageSeverity,
-        component?: string, subcomponent?: string) : void {
+                component?: string, subcomponent?: string) : void {
 
         let toLog = "";
 
@@ -335,5 +366,36 @@ export class NodeProcessClientConnection extends MessageDispatcher<MessageToServ
     error(message:string,
           component?: string, subcomponent?: string) : void {
         this.log(message, MessageSeverity.ERROR, component, subcomponent);
+    }
+
+    /**
+     * Listens to the server requests for FS path existence, answering whether
+     * a particular path exists on FS.
+     */
+    onExists(listener: (path: string)=>Promise<boolean>) : void {
+        this.onExistsListeners.push(listener);
+    }
+
+    /**
+     * Listens to the server requests for directory contents, answering with a list
+     * of files in a directory.
+     */
+    onReadDir(listener: (path: string)=>Promise<string[]>) : void {
+        this.onReadDirListeners.push(listener)
+    }
+
+    /**
+     * Listens to the server requests for directory check, answering whether
+     * a particular path is a directory.
+     */
+    onIsDirectory(listener: (path: string)=>Promise<boolean>) : void {
+        this.onIsDirectoryListeners.push(listener)
+    }
+
+    /**
+     * Listens to the server requests for file contents, answering what contents file has.
+     */
+    onContent(listener: (path: string)=>Promise<string>) : void {
+        this.onContentListeners.push(listener)
     }
 }
