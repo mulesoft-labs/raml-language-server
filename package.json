@@ -5,7 +5,8 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "rimraf dist && tsc",
-    "test" : "gulp test"
+    "test" : "gulp test",
+    "generateBrowserVersion": "node dist/entryPoints/web_worker/packaging/webGenerator.js"
   },
   "repository": {
     "type": "git",
@@ -52,7 +53,10 @@
     "gulp-mocha": "^2.0.1",
     "gulp-rename": "^1.2.2",
     "gulp-sourcemaps": "^1.5.2",
-    "gulp-typescript": "^2.11.0"
+    "gulp-typescript": "^2.11.0",
+    "webpack": "1.4.2",
+    "mkdirp": "^0.5.0",
+    "json-loader": "^0.5.1"
   },
   "engines": {
     "node": "*",
