@@ -13,11 +13,11 @@ This project exposes not only the [RAML JS parser](https://github.com/raml-org/r
 
 RAML Server joins all the services and provides them as an interface with maximum simplicity. No RAML parser AST goes out from the LSP server. The LSP server has the full control of when and how RAML is parsed. The clients should not care about these details.
 
-The supported clients are divided into 3 types, by the type of the way the client launches the server and the environment, the server is executed in. For each type of the launch/environment we add its own supporting code, which should only care about the details of launch/transport. No business logics of how to handle RAML is located in there.
+The supported clients are divided into the following types based on the way the client launches the server and the environment in which the server is executed. We add supporting code for each type of launch/environment that handles only the details of launch/transport. No business logic for handling RAML is included.
 
 **Node-based** 
 
-This type of launch expects the client and the server to be running in node.js. An example is the API Worbench.
+This type of launch expects the client and the server to be running in node.js. An example is the API Workbench.
 
 **Web worker-based** 
 
@@ -25,27 +25,27 @@ This type of launch expects the client to be running in the browser, and the ser
 
 **MS LSP** 
 
-This type of launch expects the client to be running in the unknown environment, which supports MS LSP, and the server to be running in node.js. This allows to potentially support lots of current IDEs. Note: each additional LSP client requires its own code, but that code is thin.
+This type of launch expects the client to be running in an unknown environment, which supports MS LSP, and the server to be running in node.js. Consequently, it is possible to support many current IDEs. Note: each additional LSP client requires its own code, but that code is thin.
 
 ![Modules](images/Modules.png)
 
 No client module directly depends on the service modules or parser modules. The only point of connection for the clients is the server itself.
 
-Server module contains the following major parts:
+The server module contains the following major parts:
 
-* Server connection and server modules - this part is pure business logics, which either contains a direct implementation of RAML-related functionality, or a communicator to the related RAML service module.
-* An implementation of three types of launching, for each type of the client this server supports. Clients should not implement their own code of launching external node processes etc, it should be ease to launch the server.
-* An implementation of the protocol for the client to communicate to the server. Each protocol implementation contains two parts: client interface and a mechanism to transfer client interface calls/messages to the server and backwards. In case of MS LSP client interface is not needed, at least initially as we suppose that until we exceed current LSP support, clients already support protocol features that we support at the server part.
+* Server connection and server modules - this part is pure business logic, which either contains a direct implementation of RAML-related functionality or a communicator to the related RAML service module.
+* An implementation of three types of launching, for each type of the client this server supports. Clients should not implement their own code for launching external node processes, for example. It should be easy to launch the server.
+* An implementation of the protocol for the client to communicate to the server. Each protocol implementation contains two parts: a client interface and a mechanism to transfer client interface calls/messages to the server and back. In case the MS LSP client interface is not needed, initially and until we exceed current LSP support, we assume clients already support protocol features that we support at the server part.
 
 ## Features and modules
 
-Most of the features available in the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol) and [VSCode Extensions](https://code.visualstudio.com/docs/extensions/overview) have already been developed and battle tested in the [API Workbench](http://apiworkbench.com/) Atom package.
+Most of the features available in the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol) and [VSCode Extensions](https://code.visualstudio.com/docs/extensions/overview) have already been developed and battle-tested in the [API Workbench](http://apiworkbench.com/) Atom package.
 
 We are currently working on extracting these features as stand-alone components that can be used to implement the LSP server.
 
-There are a number of server modules, each providing a feature and, supposedly, binding on one or more of client connection methods.
+There are a number of server modules, each providing a feature and, supposedly, binding on one or more client connection methods.
 
-The current list of modules, which is going to expand:
+The current list of modules, which is going to expand is:
 * Editor Manager - handles RAML documents, their contents, conversion of absolute positions to lines and columns etc.
 * AST Manager - provides AST data to other modules, both on-demand and notification-based.
 * Validation Manager - handles RAML validation reports.
@@ -65,7 +65,7 @@ Modules are located in `src/server/modules` folder and its subfolders.
 
 An interface for this client is custom and simple. It contains a single method per major functionality feature.
 
-In example, client can notify the server that a document was opened by calling a method:
+For example, a client can notify the server that a document was opened by calling a method:
 ```js
 /**
  * Notifies the server that document is opened.
@@ -75,7 +75,7 @@ documentOpened(document: IOpenedDocument);
 ```
 Where `IOpenedDocument` has only two fields: document URI and document text.
 
-And get notified about new validation reports from the server by adding a listener:
+A client can get notified about new validation reports from the server by adding a listener:
 
 ```js
 /**
@@ -85,7 +85,7 @@ And get notified about new validation reports from the server by adding a listen
 onValidationReport(listener : (report:IValidationReport)=>void);
 ```
 
-Or finding references by calling:
+A client can find references by calling:
 
 ```js
 /**
@@ -97,21 +97,21 @@ Or finding references by calling:
 findReferences(uri: string, position: number) : Promise<ILocation[]>
 ```
 
-It is possible that further along the road some data interfaces will change by receiving new fields, but the simplicity should be preserved.
+It is possible that future development might include the addition of new fields to some data interfaces, but the simplicity should be preserved.
 
-Note the an emitter of an event can be both client and server. In example, client does not ask server for validation report, instead server notifies client that the new report is ready when the server has time to parse RAML and collection validation data. Server decides when and how to parse RAML and update IDE-related data, client can either subscribe to events, or ask for immediate/fast (but potentially outdated) results stored at the server.
+Note the an emitter of an event can be both client and server. For example, the client does not ask server for a validation report, instead the server notifies the client that the new report is ready when the server has time to parse RAML and collection validation data. The server decides when and how to parse RAML and update IDE-related data. The client can either subscribe to events, or ask for immediate/fast (but potentially outdated) results stored at the server.
 
-Server implements node-based launching, a transport that transfers client/server calls via node messages and provides a single simple method, which launches the server and returns an instance of client connection.
+The server implements node-based launching, a transport that transfers client/server calls via node messages and provides a single simple method, which launches the server and returns an instance of a client connection.
 
-In the current implementation prototype client interface is located in `src/client/client.ts` file `IClientConnection` interface, launching interface is located in `src/index.ts` `getNodeClientConnection()` method, launching implementation is located in `src/entryPoints/node` folder
+In the current implementation prototype, the client interface is located in `src/client/client.ts` file `IClientConnection` interface, the launching interface is located in `src/index.ts` `getNodeClientConnection()` method, and the launching implementation is located in `src/entryPoints/node` folder.
 
 ### Web worker-based client
 
 This type of client uses the same client interface as node-based client for unification.
 
-Launching should handle web-worker related functionality and contain a simple method to launch the worker and return client connection. All transport should be handled by this type of launching and hidden from the client.
+Launching should handle web-worker related functionality and contain a simple method to launch the worker and return the client connection. All transport should be handled by this type of launching and hidden from the client.
 
-This is also the place where the “universal” server data like structure is converted to this particular client’s terms like outline if needed.
+This is also the place where the “universal” server data-like structure is converted to this particular client’s terms like outline if needed.
 
 This client will be located in `src/entryPoints/web` when it is implemented.
 
@@ -119,17 +119,17 @@ This client will be located in `src/entryPoints/web` when it is implemented.
 
 This type of client has no client interface because this is something handled by the standard LSP clients, at least until we decide to extend what MS LSP currently provides.
 
-Launching is represented by the proper LSP config, it is supposed that the client simply adds raml-language-client to dependencies list and refers it as a server module. For non-node clients it can be harder.
+Launching is represented by the proper LSP config, assumiing the client simply adds raml-language-client to the dependencies list and refers to it as a server module. For non-node clients, launching can be more difficult.
 
-Communication is handled as server part by converting MS LSP server calls/data to/from server interface calls/data. This is also the place where the “universal” server data like structure is converted to this particular client’s terms like symbols if needed.
+Communication is handled by the server part by converting MS LSP server calls/data to/from server interface calls/data. This is also the place where the “universal” server data-like structure is converted to this particular client’s terms like symbols if needed.
 
-In the current implementation prototype launching implementation is located in `src/entryPoints/vscode` folder
+In the current implementation prototype, the launching implementation is located in `src/entryPoints/vscode` folder.
 
 ### Server interface
 
-Server interface is represented by the server connection and is something server business logics communicates to in order to provide its functionality to the clients. It resembles the client one for node-based clients:
+The server interface is represented by the server connection. The server business logic communicates with the server interface to provide its functionality to the clients. It resembles the client interface for node-based clients, as shown in the following examples.
 
-Get knowing about document being opened:
+Getting knowledge about the document being opened:
 
 ```js
 /**
@@ -139,7 +139,7 @@ Get knowing about document being opened:
 onOpenDocument(listener: (document: IOpenedDocument)=>void);
 ```
 
-Notifying the client about new validation report:
+Notifying the client about a new validation report:
 
 ```js
 /**
@@ -159,7 +159,7 @@ Finding the references by the client request and letting the client know the res
 onFindReferences(listener: (uri: string, position: number) => ILocation[])
 ```
 
-In the current implementation prototype server interface is located in `src/server/core/connections.ts` file `IServerConnection` interface, implementation is located in `src/server/core` folder.
+In the current implementation prototype, the server interface is located in `src/server/core/connections.ts`. The file `IServerConnection` interface, implementation is located in `src/server/core` folder.
 
 ## Contribution
 
