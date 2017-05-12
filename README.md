@@ -1,35 +1,45 @@
-# RAML Language Server (Work in Progress)
+# RAML Language Server
 
 A Language Server that exposes smart [RAML](http://raml.org/) language support for various IDEs
 using the new [Language Server Protocol standard](https://github.com/Microsoft/language-server-protocol).
 
+## Status
+
+Currently, the RAML Language Server is in beta. 
+
 ## Architecture
 
-This project exposes not only the [RAML 1.0 JS parser](https://github.com/raml-org/raml-js-parser-2) but also functionalities that are currently part of the [API Workbench](http://apiworkbench.com/) Atom Package
-as a [Language Server](https://github.com/Microsoft/language-server-protocol).
+This project exposes not only the [RAML JS parser](https://github.com/raml-org/raml-js-parser-2) but also functionalities that are currently part of the [API Workbench](http://apiworkbench.com/) Atom package as a [Language Server](https://github.com/Microsoft/language-server-protocol).
 
-RAML Server joins all the services and provides them out in an interface with maximum simplicity. No RAML Parser AST goes out from the LSP server. LSP server has the full control of when and how RAML is parsed, client should not care about details.
+RAML Server joins all the services and provides them as an interface with maximum simplicity. No RAML parser AST goes out from the LSP server. The LSP server has the full control of when and how RAML is parsed. The clients should not care about these details.
 
-The supported clients are divided into 3 types, by the type of the way the client launches the server and the environment, the server is executed in. For each type of the launch/environment we add its own supporting code, which should only care about the details of launch/transport. No business logics of how to handle RAML is located there.
+The supported clients are divided into 3 types, by the type of the way the client launches the server and the environment, the server is executed in. For each type of the launch/environment we add its own supporting code, which should only care about the details of launch/transport. No business logics of how to handle RAML is located in there.
 
-Node-based like API Workbench. This type of launch expects the client and the server to be running in node.js.
+**Node-based** 
 
-Web worker-based like API Designer. This type of launch expects the client to be running in the browser, and the server to be running in web worker.
+This type of launch expects the client and the server to be running in node.js. An example is the API Worbench.
 
-MS LSP: This type of launch expects the client to be running in the unknown environment, which supports MS LSP, and the server to be running in node.js. This allows to potentially support lots of current IDEs. Note: each additional LSP client requires its own code, but that code is thin.
+**Web worker-based** 
+
+This type of launch expects the client to be running in the browser, and the server to be running in web worker. An example might be any web editor.
+
+**MS LSP** 
+
+This type of launch expects the client to be running in the unknown environment, which supports MS LSP, and the server to be running in node.js. This allows to potentially support lots of current IDEs. Note: each additional LSP client requires its own code, but that code is thin.
 
 ![Modules](images/Modules.png)
 
-No client module directly depends on service modules or parser modules. The only point of connection for the clients is the server itself.
+No client module directly depends on the service modules or parser modules. The only point of connection for the clients is the server itself.
 
 Server module contains the following major parts:
+
 * Server connection and server modules - this part is pure business logics, which either contains a direct implementation of RAML-related functionality, or a communicator to the related RAML service module.
 * An implementation of three types of launching, for each type of the client this server supports. Clients should not implement their own code of launching external node processes etc, it should be ease to launch the server.
 * An implementation of the protocol for the client to communicate to the server. Each protocol implementation contains two parts: client interface and a mechanism to transfer client interface calls/messages to the server and backwards. In case of MS LSP client interface is not needed, at least initially as we suppose that until we exceed current LSP support, clients already support protocol features that we support at the server part.
 
 ## Features and modules
 
-Most of the features available in the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol) and [VSCode Extensions](https://code.visualstudio.com/docs/extensions/overview) have already been developed and battle tested in the [API Workbench](http://apiworkbench.com/) Atom Package.
+Most of the features available in the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol) and [VSCode Extensions](https://code.visualstudio.com/docs/extensions/overview) have already been developed and battle tested in the [API Workbench](http://apiworkbench.com/) Atom package.
 
 We are currently working on extracting these features as stand-alone components that can be used to implement the LSP server.
 
@@ -52,6 +62,7 @@ Modules are located in `src/server/modules` folder and its subfolders.
 ## Code highlights
 
 ### Node-based client
+
 An interface for this client is custom and simple. It contains a single method per major functionality feature.
 
 In example, client can notify the server that a document was opened by calling a method:
@@ -95,6 +106,7 @@ Server implements node-based launching, a transport that transfers client/server
 In the current implementation prototype client interface is located in `src/client/client.ts` file `IClientConnection` interface, launching interface is located in `src/index.ts` `getNodeClientConnection()` method, launching implementation is located in `src/entryPoints/node` folder
 
 ### Web worker-based client
+
 This type of client uses the same client interface as node-based client for unification.
 
 Launching should handle web-worker related functionality and contain a simple method to launch the worker and return client connection. All transport should be handled by this type of launching and hidden from the client.
@@ -104,6 +116,7 @@ This is also the place where the “universal” server data like structure is c
 This client will be located in `src/entryPoints/web` when it is implemented.
 
 ### MS LSP client
+
 This type of client has no client interface because this is something handled by the standard LSP clients, at least until we decide to extend what MS LSP currently provides.
 
 Launching is represented by the proper LSP config, it is supposed that the client simply adds raml-language-client to dependencies list and refers it as a server module. For non-node clients it can be harder.
@@ -113,6 +126,7 @@ Communication is handled as server part by converting MS LSP server calls/data t
 In the current implementation prototype launching implementation is located in `src/entryPoints/vscode` folder
 
 ### Server interface
+
 Server interface is represented by the server connection and is something server business logics communicates to in order to provide its functionality to the clients. It resembles the client one for node-based clients:
 
 Get knowing about document being opened:
@@ -147,9 +161,8 @@ onFindReferences(listener: (uri: string, position: number) => ILocation[])
 
 In the current implementation prototype server interface is located in `src/server/core/connections.ts` file `IServerConnection` interface, implementation is located in `src/server/core` folder.
 
+## Contribution
 
-## FAQ
+If you are interested in contributing some code to this project, thanks! Please first [read and accept the Contributors Agreement](https://api-notebook.anypoint.mulesoft.com/notebooks#bc1cf75a0284268407e4).
 
-**Q: Should the scope of this project be extended to developing a full-blown VSCode Extension?**
-
-A: Most likely yes
+To discuss this project, please use its [github issues](https://github.com/raml-org/raml-js-parser-2/issues) or the [RAML forum](http://forums.raml.org/).
