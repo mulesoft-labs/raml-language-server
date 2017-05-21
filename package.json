@@ -6,7 +6,8 @@
   "scripts": {
     "build": "rimraf dist && tsc",
     "test" : "gulp test",
-    "generateBrowserVersion": "npm run build && node dist/entryPoints/web_worker/packaging/webGenerator.js"
+    "generateBrowserVersion": "npm run build && node dist/entryPoints/web_worker/packaging/webGenerator.js",
+    "buildBrowserPublishNpm": "npm run build && node dist/entryPoints/web_worker/packaging/webGenerator.js --type 'npm'"
   },
   "repository": {
     "type": "git",
