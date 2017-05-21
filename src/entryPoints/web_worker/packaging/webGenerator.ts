@@ -3,7 +3,7 @@ import path = require("path");
 import mkdirp = require("mkdirp");
 var webpack = require("webpack");
 
-function createBrowserPackage(minify = true) {
+function createBrowserPackage(minify = false) {
     console.log("Minify: " + minify);
     var rootPath = path.join(__dirname, "../../../../");
 

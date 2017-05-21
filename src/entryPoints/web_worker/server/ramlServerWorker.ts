@@ -16,7 +16,7 @@ declare function postMessage(message);
 class WebWorkerServerConnection extends AbstractServerConnection {
 
     constructor() {
-        super("NodeProcessServerConnection")
+        super("WebServerConnection")
     }
 
     sendMessage (message : ProtocolMessage<MessageToClientType>) : void {

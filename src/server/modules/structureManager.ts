@@ -255,9 +255,13 @@ class StructureManager {
 
         let result = ramlOutline.getStructureForAllCategories();
 
+        let jsonResult = {};
         if (result) {
             for (let categoryName in result) {
                 let categoryJSON = result[categoryName];
+
+                jsonResult[categoryName] = categoryJSON.toJSON();
+
                 if (categoryJSON) {
                     this.connection.debugDetail("Structure for category " + categoryName +"\n"
                         + JSON.stringify(categoryJSON, null, 2), "StructureManager", "calculateStructure")
@@ -268,6 +272,6 @@ class StructureManager {
         this.connection.debug("Calculation result is not null:" + (result!=null?"true":"false"), "StructureManager",
             "calculateStructure");
 
-        return result;
+        return jsonResult;
     }
 }
