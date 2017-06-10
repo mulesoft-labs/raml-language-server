@@ -90,7 +90,7 @@ export function filterLogMessage(message: LogMessage, settings: ILoggerSettings)
     }
 
     if (settings.maxSeverity != null && message.severity != null) {
-        if (message.severity <= settings.maxSeverity) return null;
+        if (message.severity < settings.maxSeverity) return null;
     }
 
     let text = message.message;

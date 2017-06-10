@@ -4,7 +4,7 @@ import fs = require("fs")
 import chaiModule = require("chai");
 var assert:any = <any>chaiModule.assert
 
-describe("Async completion tests", function() {
+describe("Suggestion tests", function() {
     it("test0", function (done) {
         this.timeout(30000);
 
@@ -610,7 +610,15 @@ export function completionByUniqueEntryAsync(filePath: string, entry: string, be
 
     connection = index.getNodeClientConnection();
 
-    (<any>connection).loggingEnabled = false;
+    //(<any>connection).loggingEnabled = false;
+    connection.setLoggerConfiguration({
+        allowedComponents: [
+            "NodeProcessServerConnection",
+            "CompletionManagerModule"
+        ],
+        maxSeverity: 0,
+        maxMessageLength: 50
+    });
 
     connection.documentOpened({
         uri: filePath,

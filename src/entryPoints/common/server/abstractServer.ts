@@ -36,8 +36,8 @@ export abstract class AbstractServerConnection extends MessageDispatcher<Message
     private openDocumentListeners : {(document: IOpenedDocument):void}[] = [];
     private changeDocumentListeners : {(document: IChangedDocument):void}[] = [];
     private closeDocumentListeners : {(string):void}[] = [];
-    private documentStructureListeners : {(uri : string):{[categoryName:string] : StructureNodeJSON}}[] = [];
-    private documentCompletionListeners : {(uri : string, position: number):Suggestion[]}[] = [];
+    private documentStructureListeners : {(uri : string):Promise<{[categoryName:string] : StructureNodeJSON}>}[] = [];
+    private documentCompletionListeners : {(uri : string, position: number):Promise<Suggestion[]>}[] = [];
     private openDeclarationListeners : {(uri : string, position: number):ILocation[]}[] = [];
     private findReferencesListeners : {(uri : string, position: number):ILocation[]}[] = [];
     private markOccurrencesListeners : {(uri : string, position: number):IRange[]}[] = [];
@@ -75,7 +75,7 @@ export abstract class AbstractServerConnection extends MessageDispatcher<Message
      * Adds a listener to document structure request. Must notify listeners in order of registration.
      * @param listener
      */
-    onDocumentStructure(listener: (uri : string)=>{[categoryName:string] : StructureNodeJSON}) {
+    onDocumentStructure(listener: (uri : string)=>Promise<{[categoryName:string] : StructureNodeJSON}>) {
         this.documentStructureListeners.push(listener);
     }
 
@@ -83,7 +83,7 @@ export abstract class AbstractServerConnection extends MessageDispatcher<Message
      * Adds a listener to document completion request. Must notify listeners in order of registration.
      * @param listener
      */
-    onDocumentCompletion(listener: (uri : string, position: number)=>Suggestion[]) {
+    onDocumentCompletion(listener: (uri : string, position: number)=>Promise<Suggestion[]>) {
         this.documentCompletionListeners.push(listener);
     }
 
@@ -224,9 +224,9 @@ export abstract class AbstractServerConnection extends MessageDispatcher<Message
      * @param uri
      * @constructor
      */
-    GET_STRUCTURE(uri : string) : {[categoryName:string] : StructureNodeJSON} {
+    GET_STRUCTURE(uri : string) : Promise<{[categoryName:string] : StructureNodeJSON}> {
         if (this.documentStructureListeners.length == 0)
-            return {};
+            return Promise.resolve({});
 
         return this.documentStructureListeners[0](uri);
     }
@@ -237,16 +237,30 @@ export abstract class AbstractServerConnection extends MessageDispatcher<Message
      * @param position - offset in the document starting from 0
      * @constructor
      */
-    GET_SUGGESTIONS(payload:{uri : string, position: number}) : Suggestion[] {
+    GET_SUGGESTIONS(payload:{uri : string, position: number}) : Promise<Suggestion[]> {
         if (this.documentCompletionListeners.length == 0)
-            return [];
+            return Promise.resolve([]);
 
-        let result = [];
-        for (let listener of this.documentCompletionListeners) {
-            result = result.concat(listener(payload.uri, payload.position));
+        let promises = []
+        for(let listener of this.documentCompletionListeners) {
+            this.debugDetail("Calling a listener",
+                "ProxyServerConnection", "getCompletion")
+
+            let listenerResult = listener(payload.uri, payload.position);
+            if (listenerResult) promises.push(listenerResult)
         }
 
-        return result;
+        return Promise.all(promises).then(resolvedResults => {
+
+            let result = [];
+            for (let currentPromiseResult of resolvedResults) {
+                result = result.concat(currentPromiseResult);
+            }
+
+            return result;
+        })
+
+
     }
 
     /**

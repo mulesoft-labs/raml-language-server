@@ -155,7 +155,7 @@ class ASTProvider implements ramlOutline.IASTProvider {
 
     getASTRoot() {
         this.logger.debug("Asked for AST", "ASTProvider", "getASTRoot")
-        let ast = <any> this.astManagerModule.forceGetCurrentAST(this.uri);
+        let ast = <any> this.astManagerModule.getCurrentAST(this.uri);
 
         this.logger.debugDetail("AST found: " + (ast?"true":"false"), "ASTProvider", "getASTRoot")
 
@@ -189,20 +189,21 @@ class StructureManager {
             this.connection.debug("Calculating structure due to new AST available", "StructureManager",
                 "listen");
 
-            let structureForUri = this.calculateStructure(uri);
+            this.calculateStructure(uri).then(structureForUri=>{
+                this.connection.debug("Calculation result is not null:" + (structureForUri!=null?"true":"false"), "StructureManager",
+                    "listen");
 
-            this.connection.debug("Calculation result is not null:" + (structureForUri!=null?"true":"false"), "StructureManager",
-                "listen");
+                if (structureForUri) {
+                    this.cachedStructures[uri] = structureForUri;
 
-            if (structureForUri) {
-                this.cachedStructures[uri] = structureForUri;
+                    this.connection.structureAvailable({
+                        uri: uri,
+                        version: version,
+                        structure: structureForUri
+                    })
+                }
+            })
 
-                this.connection.structureAvailable({
-                    uri: uri,
-                    version: version,
-                    structure: structureForUri
-                })
-            }
         })
 
         this.connection.onCloseDocument(uri=>delete this.cachedStructures[uri]);
@@ -216,62 +217,71 @@ class StructureManager {
         return vsCodeUri;
     }
 
-    getStructure(uri : string): {[categoryName:string] : StructureNodeJSON} {
-        try {
-            this.calculatingStructureOnDirectRequest = true;
+    getStructure(uri : string): Promise<{[categoryName:string] : StructureNodeJSON}> {
+        this.connection.debug("Requested structure for uri " + uri, "StructureManager",
+            "getStructure");
 
-            this.connection.debug("Requested structure for uri " + uri, "StructureManager",
-                "getStructure");
+        let cached = this.cachedStructures[uri];
 
-            let cached = this.cachedStructures[uri];
+        this.connection.debug("Found cached structure: " + (cached ? "true" : "false"), "StructureManager",
+            "getStructure");
 
-            this.connection.debug("Found cached structure: " + (cached ? "true" : "false"), "StructureManager",
-                "getStructure");
+        if (cached) return Promise.resolve(cached);
 
-            if (cached) return cached;
+        this.connection.debug("Calculating structure due to getStructure request and no cached version found", "StructureManager",
+            "getStructure");
 
-            this.connection.debug("Calculating structure due to getStructure request and no cached version found", "StructureManager",
-                "getStructure");
+        this.calculatingStructureOnDirectRequest = true;
 
-            let calculated = this.calculateStructure(uri);
-            this.connection.debug("Calculation result is not null:" + (calculated != null ? "true" : "false"), "StructureManager",
-                "getStructure");
+        return this.calculateStructure(uri).then(calculated=>{
+            try {
 
-            this.cachedStructures[uri] = calculated;
+                this.connection.debug("Calculation result is not null:" + (calculated != null ? "true" : "false"), "StructureManager",
+                    "getStructure");
 
-            return calculated;
+                this.cachedStructures[uri] = calculated;
 
-        } finally {
+                return calculated;
+
+            } finally {
+                this.calculatingStructureOnDirectRequest = false;
+            }
+        }).catch(error=>{
             this.calculatingStructureOnDirectRequest = false;
-        }
+            throw error;
+        })
     }
 
-    calculateStructure(uri : string): {[categoryName:string] : StructureNodeJSON} {
+    calculateStructure(uri : string): Promise<{[categoryName:string] : StructureNodeJSON}> {
 
         this.connection.debug("Called for uri: " + uri,
             "StructureManager", "calculateStructure");
 
-        ramlOutline.setASTProvider(new ASTProvider(uri, this.astManagerModule, this.connection));
+        //Forcing current AST to exist
+        return this.astManagerModule.forceGetCurrentAST(uri).then(currentAST=>{
 
-        let result = ramlOutline.getStructureForAllCategories();
+            ramlOutline.setASTProvider(new ASTProvider(uri, this.astManagerModule, this.connection));
 
-        let jsonResult = {};
-        if (result) {
-            for (let categoryName in result) {
-                let categoryJSON = result[categoryName];
+            let result = ramlOutline.getStructureForAllCategories();
 
-                jsonResult[categoryName] = categoryJSON.toJSON();
+            let jsonResult = {};
+            if (result) {
+                for (let categoryName in result) {
+                    let categoryJSON = result[categoryName];
 
-                if (categoryJSON) {
-                    this.connection.debugDetail("Structure for category " + categoryName +"\n"
-                        + JSON.stringify(categoryJSON, null, 2), "StructureManager", "calculateStructure")
+                    jsonResult[categoryName] = categoryJSON.toJSON();
+
+                    if (categoryJSON) {
+                        this.connection.debugDetail("Structure for category " + categoryName +"\n"
+                            + JSON.stringify(categoryJSON, null, 2), "StructureManager", "calculateStructure")
+                    }
                 }
             }
-        }
 
-        this.connection.debug("Calculation result is not null:" + (result!=null?"true":"false"), "StructureManager",
-            "calculateStructure");
+            this.connection.debug("Calculation result is not null:" + (result!=null?"true":"false"), "StructureManager",
+                "calculateStructure");
 
-        return jsonResult;
+            return jsonResult;
+        })
     }
 }

@@ -15,10 +15,12 @@ export interface Runnable<ResultType> {
      */
     run() : Promise<ResultType>;
 
-    /**
-     * Performs the actual business logics synchronously.
-     */
-    runSynchronously() : ResultType;
+    //Commented out as we do not allow to run parsing synhronously any more due to the connection,
+    //which provides file system information does this only asynchronously
+    // /**
+    //  * Performs the actual business logics synchronously.
+    //  */
+    // runSynchronously() : ResultType;
 
     /**
      * Whether two runnable conflict with each other.

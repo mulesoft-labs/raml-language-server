@@ -1,9 +1,9 @@
 export enum MessageSeverity {
-    DEBUG_DETAIL,
-    DEBUG,
-    DEBUG_OVERVIEW,
-    WARNING,
-    ERROR
+    DEBUG_DETAIL = 0,
+    DEBUG = 1,
+    DEBUG_OVERVIEW = 2,
+    WARNING = 3,
+    ERROR = 4
 }
 
 /**

@@ -55,13 +55,13 @@ export interface IServerConnection extends ILogger {
      * Adds a listener to document completion request. Must notify listeners in order of registration.
      * @param listener
      */
-    onDocumentCompletion(listener: (uri : string, position: number)=>Suggestion[])
+    onDocumentCompletion(listener: (uri : string, position: number)=>Promise<Suggestion[]>)
 
     /**
      * Adds a listener to document structure request. Must notify listeners in order of registration.
      * @param listener
      */
-    onDocumentStructure(listener: (uri : string)=>{[categoryName:string] : StructureNodeJSON})
+    onDocumentStructure(listener: (uri : string)=>Promise<{[categoryName:string] : StructureNodeJSON}>)
 
     /**
      * Adds a listener to document open declaration request.  Must notify listeners in order of registration.

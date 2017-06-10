@@ -21,9 +21,15 @@ export function getConnection() : IClientConnection {
 
 function launch() : IClientConnection {
 
-    let serverProcess = (<any>childProcess).fork(path.resolve(__dirname, '../server/serverProcess.js'), [], {
-        silent: true
-    });
+    // let serverProcess = (<any>childProcess).fork(
+    //     path.resolve(__dirname, '../server/serverProcess.js'), ['--debug=6010'], {
+    //     silent: true
+    // });
+
+    let serverProcess = (<any>childProcess).fork(
+        path.resolve(__dirname, '../server/serverProcess.js'), [], {
+            silent: true
+        });
 
     let clientConnection = new NodeProcessClientConnection(serverProcess);
 

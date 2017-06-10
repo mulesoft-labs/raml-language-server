@@ -3,7 +3,6 @@
 
 import parser = require("raml-1-parser");
 import path = require("path");
-import fs = require('fs');
 import {
     IServerConnection
 } from '../core/connections'
@@ -57,10 +56,11 @@ export interface IASTManagerModule extends IListeningModule {
     getCurrentAST(uri: string) : IHighLevelNode;
 
     /**
-     * Gets current AST if there is any. If not, performs immediate synchronous parsing and returns the results.
+     * Gets current AST if there is any.
+     * If not, performs immediate asynchronous parsing and returns the results.
      * @param uri
      */
-    forceGetCurrentAST(uri: string) : IHighLevelNode;
+    forceGetCurrentAST(uri: string) : Promise<IHighLevelNode>;
 
     /**
      * Adds listener for new ASTs being parsed.
@@ -115,6 +115,7 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
     constructor(private uri : string,
                 private version: number,
                 private editorManager : IEditorManagerModule,
+                private connection : IServerConnection,
                 private logger: ILogger) {
         //TODO maybe also accept pure content
     }
@@ -142,7 +143,7 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
 
         var dummyProject: any = parser.project.createProject(path.dirname(this.uri));
 
-
+        let connection = this.connection;
 
         var fsResolver = {
             content : function(path) {
@@ -150,46 +151,23 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
                 this.logger.debug("Request for path " + path,
                     "ParseDocumentRunnable", "fsResolver#content")
 
-                if (path.indexOf("file://") == 0) {
-                    path = path.substring(7);
-                    this.logger.debugDetail("Path changed to: " + path,
-                        "ParseDocumentRunnable", "fsResolver#content")
-                }
-                if (typeof path!="string"){
-                    path=""+path;
-                }
-                if (!fs.existsSync(path)){
-                    return null;
-                }
-                try {
-                    return fs.readFileSync(path).toString();
-                } catch (e){
-                    return null;
-                }
+                this.logger.error("Should never be called",
+                    "ParseDocumentRunnable", "fsResolver#content")
+                return null;
             },
 
             contentAsync : function(path){
 
-                return new Promise(function(resolve, reject) {
+                this.logger.debug("Request for path " + path,
+                    "ParseDocumentRunnable", "fsResolver#contentAsync")
 
-                    this.logger.debug("Request for path " + path,
+                if (path.indexOf("file://") == 0) {
+                    path = path.substring(7);
+                    this.logger.debugDetail("Path changed to: " + path,
                         "ParseDocumentRunnable", "fsResolver#contentAsync")
+                }
 
-                    if (path.indexOf("file://") == 0) {
-                        path = path.substring(7);
-                        this.logger.debugDetail("Path changed to: " + path,
-                            "ParseDocumentRunnable", "fsResolver#contentAsync")
-                    }
-
-                    fs.readFile(path,function(err,data){
-                        if(err!=null){
-                            // return reject(err);
-                            return reject(err.toString());
-                        }
-                        var content = data.toString();
-                        resolve(content);
-                    });
-                });
+                return connection.content(path);
             }
         }
 
@@ -253,31 +231,33 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
         }
     }
 
-    parseSynchronously(parserOptions: any) : IHighLevelNode {
-
-        let editor = this.editorManager.getEditor(this.uri);
-
-        this.logger.debugDetail("Got editor: " + (editor != null),
-            "ParseDocumentRunnable", "parseSynchronously");
-
-        if (!editor) {
-
-            let api = parser.loadRAMLSync(parserOptions.filePath, [], parserOptions);
-            this.logger.debug("Parsing finished, api: " + (api != null),
-                "ParseDocumentRunnable", "parseSynchronously");
-
-            return api.highLevel();
-        } else {
-            this.logger.debugDetail("EDITOR text:\n" + editor.getText(),
-                "ParseDocumentRunnable", "parseSynchronously")
-
-            let api = parser.parseRAMLSync(editor.getText(), parserOptions);
-            this.logger.debug("Parsing finished, api: " + (api != null),
-                "ParseDocumentRunnable", "parseSynchronously");
-
-            return api.highLevel();
-        }
-    }
+    //Commented out as we do not allow to run parsing synhronously any more due to the connection,
+    //which provides file system information does this only asynchronously
+    // parseSynchronously(parserOptions: any) : IHighLevelNode {
+    //
+    //     let editor = this.editorManager.getEditor(this.uri);
+    //
+    //     this.logger.debugDetail("Got editor: " + (editor != null),
+    //         "ParseDocumentRunnable", "parseSynchronously");
+    //
+    //     if (!editor) {
+    //
+    //         let api = parser.loadRAMLSync(parserOptions.filePath, [], parserOptions);
+    //         this.logger.debug("Parsing finished, api: " + (api != null),
+    //             "ParseDocumentRunnable", "parseSynchronously");
+    //
+    //         return api.highLevel();
+    //     } else {
+    //         this.logger.debugDetail("EDITOR text:\n" + editor.getText(),
+    //             "ParseDocumentRunnable", "parseSynchronously")
+    //
+    //         let api = parser.parseRAMLSync(editor.getText(), parserOptions);
+    //         this.logger.debug("Parsing finished, api: " + (api != null),
+    //             "ParseDocumentRunnable", "parseSynchronously");
+    //
+    //         return api.highLevel();
+    //     }
+    // }
 
     /**
      * Performs the actual business logics.
@@ -289,10 +269,12 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
         return this.parseAsynchronously(options);
     }
 
-    public runSynchronously() : IHighLevelNode {
-        let options = this.prepareParserOptions();
-        return this.parseSynchronously(options);
-    }
+    //Commented out as we do not allow to run parsing synhronously any more due to the connection,
+    //which provides file system information does this only asynchronously
+    // public runSynchronously() : IHighLevelNode {
+    //     let options = this.prepareParserOptions();
+    //     return this.parseSynchronously(options);
+    // }
 
     /**
      * Whether two runnable conflict with each other.
@@ -359,24 +341,25 @@ class ASTManager implements IASTManagerModule {
         return this.currentASTs[uri];
     }
 
-    forceGetCurrentAST(uri: string) : IHighLevelNode {
+    forceGetCurrentAST(uri: string) : Promise<IHighLevelNode> {
         let current = this.currentASTs[uri];
-        if (current) return current;
+        if (current) return Promise.resolve(current);
 
         let runner = new ParseDocumentRunnable(uri, null, this.editorManager,
-            this.connection)
+            this.connection, this.connection)
 
-        let newAST = runner.runSynchronously();
+        let newASTPromise = runner.run();
+        if (!newASTPromise) return null;
 
-        if (newAST) {
+        return newASTPromise.then(newAST=>{
             let version = null;
             let editor = this.editorManager.getEditor(uri);
             if (editor) version = editor.getVersion();
 
             this.registerNewAST(uri, version, newAST)
-        }
 
-        return newAST;
+            return newAST;
+        })
     }
 
     onNewASTAvailable(listener: (uri: string, version: number,
@@ -396,7 +379,7 @@ class ASTManager implements IASTManagerModule {
 
     onOpenDocument(document: IOpenedDocument) : void {
         this.reconciler.schedule(new ParseDocumentRunnable(document.uri, 0, this.editorManager,
-            this.connection))
+            this.connection, this.connection))
             .then(
                 newAST=>this.registerNewAST(document.uri, document.version, newAST),
                 error=>this.registerASTParseError(document.uri, error)
@@ -409,7 +392,7 @@ class ASTManager implements IASTManagerModule {
         this.connection.debug(" document is changed", "ASTManager", "onChangeDocument")
 
         this.reconciler.schedule(new ParseDocumentRunnable(document.uri, document.version,
-            this.editorManager, this.connection))
+            this.editorManager, this.connection, this.connection))
             .then(newAST=>{
 
                     this.connection.debugDetail(

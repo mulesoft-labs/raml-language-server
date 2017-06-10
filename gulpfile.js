@@ -10,6 +10,7 @@ var testFiles = [
     "dist/test/parsertests/parserTests.js",
     "dist/test/structure/structureTests.js",
     "dist/test/parsertests/parserTests2.js",
+    //TODO uncomment ast reuse tests
     "dist/test/parsertests/astReuseTestsBasicTyping.js"
 ];
 

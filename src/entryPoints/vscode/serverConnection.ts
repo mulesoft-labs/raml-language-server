@@ -46,7 +46,7 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
 
         this.setLoggerConfiguration({
             allowedComponents: [
-                "RenameActionModule",
+                "CompletionManagerModule",
                 "ProxyServerConnection"
             ],
             //maxSeverity: MessageSeverity.ERROR,
@@ -84,7 +84,7 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         })
 
         // This handler provides the initial list of the completion items.
-        this.vsCodeConnection.onCompletion((textDocumentPosition: TextDocumentPositionParams): CompletionList => {
+        this.vsCodeConnection.onCompletion((textDocumentPosition: TextDocumentPositionParams): Promise<CompletionList> => {
 
             return this.getCompletion(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
         });
@@ -172,120 +172,141 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         });
     }
 
-    getSymbols(uri: string) : SymbolInformation[] {
+    getSymbols(uri: string) : Promise<SymbolInformation[]> {
         this.debug("ServerConnection:getSymbols called for uri: " + uri,
             "ProxyServerConnection", "getSymbols")
 
-        if (this.documentStructureListeners.length == 0) return [];
+        if (this.documentStructureListeners.length == 0) return Promise.resolve([]);
 
         //TODO handle many structure providers?
-        let structure : {[categoryName:string] : StructureNodeJSON} = this.documentStructureListeners[0](uri);
+        let structurePromise : Promise<{[categoryName:string] : StructureNodeJSON}> =
+            this.documentStructureListeners[0](uri);
 
-        this.debugDetail("ServerConnection:getSymbols got structure: " + (structure != null),
+        this.debugDetail("ServerConnection:getSymbols got structure promise: " + (structurePromise != null),
             "ProxyServerConnection", "getSymbols")
 
-        if (!structure) return [];
+        if (!structurePromise) return Promise.resolve([]);
 
-        let document = this.documents.get(uri)
-        this.debugDetail("ServerConnection:getSymbols got document: " + (document != null),
-            "ProxyServerConnection", "getSymbols")
-        if (!document) return [];
+        return structurePromise.then(structure=>{
+            this.debugDetail("ServerConnection:getSymbols got structure: " + (structure != null),
+                "ProxyServerConnection", "getSymbols")
 
-        var result : SymbolInformation[] = [];
-        for (let categoryName in structure) {
-            let vsKind : SymbolKind = null;
+            if (!structure) return [];
 
-            if (StructureCategories[StructureCategories.ResourcesCategory] == categoryName) {
-                vsKind = SymbolKind.Function
-            } else if (StructureCategories[StructureCategories.ResourceTypesAndTraitsCategory] == categoryName) {
-                vsKind = SymbolKind.Interface;
-            } else if (StructureCategories[StructureCategories.SchemasAndTypesCategory] == categoryName) {
-                vsKind = SymbolKind.Class;
-            } else if (StructureCategories[StructureCategories.OtherCategory] == categoryName) {
-                vsKind = SymbolKind.Constant;
-            }
+            let document = this.documents.get(uri)
+            this.debugDetail("ServerConnection:getSymbols got document: " + (document != null),
+                "ProxyServerConnection", "getSymbols")
+            if (!document) return [];
 
-            let topLevelNode = structure[categoryName];
-            let items = topLevelNode.children;
-            if (items) {
-                result = result.concat(items.map(item=>{
-                    let start = document.positionAt(item.start)
-                    let end = document.positionAt(item.end)
-                    this.debugDetail("ServerConnection:getSymbols converting item " + item.text,
-                        "ProxyServerConnection", "getSymbols");
+            var result : SymbolInformation[] = [];
+            for (let categoryName in structure) {
+                let vsKind : SymbolKind = null;
 
-                    let symbolInfo : SymbolInformation = {
-                        name: item.text,
-                        kind: vsKind,
-                        location: {
-                            uri: uri,
-                            range: {
-                                start: start,
-                                end: end
+                if (StructureCategories[StructureCategories.ResourcesCategory] == categoryName) {
+                    vsKind = SymbolKind.Function
+                } else if (StructureCategories[StructureCategories.ResourceTypesAndTraitsCategory] == categoryName) {
+                    vsKind = SymbolKind.Interface;
+                } else if (StructureCategories[StructureCategories.SchemasAndTypesCategory] == categoryName) {
+                    vsKind = SymbolKind.Class;
+                } else if (StructureCategories[StructureCategories.OtherCategory] == categoryName) {
+                    vsKind = SymbolKind.Constant;
+                }
+
+                let topLevelNode = structure[categoryName];
+                let items = topLevelNode.children;
+                if (items) {
+                    result = result.concat(items.map(item=>{
+                        let start = document.positionAt(item.start)
+                        let end = document.positionAt(item.end)
+                        this.debugDetail("ServerConnection:getSymbols converting item " + item.text,
+                            "ProxyServerConnection", "getSymbols");
+
+                        let symbolInfo : SymbolInformation = {
+                            name: item.text,
+                            kind: vsKind,
+                            location: {
+                                uri: uri,
+                                range: {
+                                    start: start,
+                                    end: end
+                                }
                             }
                         }
-                    }
-                    return symbolInfo;
-                }));
+                        return symbolInfo;
+                    }));
+                }
             }
-        }
 
-        return result;
+            return result;
+        })
     }
 
-    getCompletion(uri: string, position : Position) : CompletionList {
+    getCompletion(uri: string, position : Position) : Promise<CompletionList> {
         this.debug("getCompletion called for uri: " + uri,
             "ProxyServerConnection", "getCompletion")
 
-        if (this.documentCompletionListeners.length == 0) return {
+        if (this.documentCompletionListeners.length == 0) return Promise.resolve({
             isIncomplete: true,
             items: []
-        };
+        });
 
         let document = this.documents.get(uri)
         this.debugDetail("got document: " + (document != null),
             "ProxyServerConnection", "getCompletion")
-        if (!document) return {
+        if (!document) return Promise.resolve({
             isIncomplete: true,
             items: []
-        };
+        });
 
         let offset = document.offsetAt(position);
 
         this.debugDetail("offset is: " + offset,
             "ProxyServerConnection", "getCompletion")
 
-        let result : CompletionItem[]  = [];
-
+        let promises = []
         for(let listener of this.documentCompletionListeners) {
-
             this.debugDetail("Calling a listener",
                 "ProxyServerConnection", "getCompletion")
 
-            let suggestions = listener(uri, offset);
-
-            this.debugDetail("Got suggestions: " + (suggestions?suggestions.length:0),
-                "ProxyServerConnection", "getCompletion")
-
-            for (let suggestion of suggestions) {
-                let text = suggestion.text || suggestion.displayText;
-
-                this.debugDetail("adding suggestion: " + text,
-                    "ProxyServerConnection", "getCompletion")
-
-                text = this.removeCompletionPreviousLineIndentation(text);
-
-                result.push({
-                    label: text,
-                    kind: CompletionItemKind.Text
-                })
-            }
+            let listenerResult = listener(uri, offset);
+            if (listenerResult) promises.push(listenerResult)
         }
 
-        return {
-            isIncomplete: true,
-            items: result
-        };
+        return Promise.all(promises).then(resolvedResults => {
+
+            let result : CompletionItem[]  = [];
+
+            this.debugDetail("Got suggestion promises resolved: "
+                + (resolvedResults?resolvedResults.length:0),
+                "ProxyServerConnection", "getCompletion")
+
+            for(let currentPromiseResult of resolvedResults) {
+
+                let suggestions = currentPromiseResult;
+
+                this.debugDetail("Got suggestions: " + (suggestions?suggestions.length:0),
+                    "ProxyServerConnection", "getCompletion")
+
+                for (let suggestion of suggestions) {
+                    let text = suggestion.text || suggestion.displayText;
+
+                    this.debugDetail("adding suggestion: " + text,
+                        "ProxyServerConnection", "getCompletion")
+
+                    text = this.removeCompletionPreviousLineIndentation(text);
+
+                    result.push({
+                        label: text,
+                        kind: CompletionItemKind.Text
+                    })
+                }
+            }
+
+            return {
+                isIncomplete: true,
+                items: result
+            };
+        })
     }
 
     private removeCompletionPreviousLineIndentation(originalText: string) {

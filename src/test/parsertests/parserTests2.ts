@@ -682,7 +682,7 @@ describe('External Types', function(){
     });
 
     it('Should validate json schemas',function(done){
-        util.testErrors(done, util.data('parser/externalTypes/eType05.raml'),["Invalid JSON schema: Unexpected token p"]);
+        util.testErrors(done, util.data('parser/externalTypes/eType05.raml'),["Invalid JSON schema: Cannot tokenize symbol 'p'"]);
     });
 
     it('Should parse json schemas referencing json schemas',function(done){
