@@ -183,7 +183,7 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
 
         return {
             filePath: documentUri,
-            fsResolver: dummyProject.resolver,
+            fsResolver: fsResolver,
             httpResolver: dummyProject._httpResolver,
             rejectOnErrors: false
         }
