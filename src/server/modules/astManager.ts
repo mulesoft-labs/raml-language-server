@@ -145,25 +145,27 @@ class ParseDocumentRunnable implements Runnable<IHighLevelNode> {
 
         let connection = this.connection;
 
+        let logger = this.logger;
+
         var fsResolver = {
             content : function(path) {
 
-                this.logger.debug("Request for path " + path,
+                logger.debug("Request for path " + path,
                     "ParseDocumentRunnable", "fsResolver#content")
 
-                this.logger.error("Should never be called",
+                logger.error("Should never be called",
                     "ParseDocumentRunnable", "fsResolver#content")
                 return null;
             },
 
             contentAsync : function(path){
 
-                this.logger.debug("Request for path " + path,
+                logger.debug("Request for path " + path,
                     "ParseDocumentRunnable", "fsResolver#contentAsync")
 
                 if (path.indexOf("file://") == 0) {
                     path = path.substring(7);
-                    this.logger.debugDetail("Path changed to: " + path,
+                    logger.debugDetail("Path changed to: " + path,
                         "ParseDocumentRunnable", "fsResolver#contentAsync")
                 }
 
