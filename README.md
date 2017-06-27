@@ -1,4 +1,4 @@
-# RAML Language Server
+# RAML Language Server (beta)
 
 A Language Server that exposes smart [RAML](http://raml.org/) language support for various IDEs
 using the new [Language Server Protocol standard](https://github.com/Microsoft/language-server-protocol).
