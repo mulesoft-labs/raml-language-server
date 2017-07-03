@@ -1,0 +1,24 @@
+{
+  "title": "Library",
+  "description": "",
+  "type": null,
+  "children": [
+    {
+      "title": "Documentation",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "usage",
+          "description": "contains description of why library exist",
+          "type": "ATTRIBUTETEXT",
+          "children": [],
+          "valueText": null
+        }
+      ],
+      "valueText": null
+    }
+  ],
+  "valueText": null,
+  "nodeId": ""
+}

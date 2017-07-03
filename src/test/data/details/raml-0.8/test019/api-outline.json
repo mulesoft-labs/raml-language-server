@@ -1,0 +1,38 @@
+{
+  "title": "BasicSecurityScheme",
+  "description": "Security schemes that can be applied using securedBy",
+  "type": null,
+  "children": [
+    {
+      "title": "name",
+      "description": "Name of the security scheme",
+      "type": "ATTRIBUTETEXT",
+      "children": [],
+      "valueText": "basic"
+    },
+    {
+      "title": "type",
+      "description": "The securitySchemes property MUST be used to specify an API's security mechanisms, including the required settings and the authentication methods that the API supports. one authentication method is allowed if the API supports them.",
+      "type": "ATTRIBUTETEXT",
+      "children": [],
+      "valueText": "Basic Authentication"
+    },
+    {
+      "title": "Documentation",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "description",
+          "description": "The description attribute MAY be used to describe a security schemes property.",
+          "type": "MARKDOWN",
+          "children": [],
+          "valueText": "This API supports Basic Authentication.\n"
+        }
+      ],
+      "valueText": null
+    }
+  ],
+  "valueText": null,
+  "nodeId": ".basic"
+}

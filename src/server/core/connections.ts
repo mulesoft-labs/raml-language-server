@@ -10,7 +10,8 @@ import {
     ILogger,
     MessageSeverity,
     ILocation,
-    ILoggerSettings
+    ILoggerSettings,
+    DetailsItemJSON
 } from '../../common/typeInterfaces'
 
 export {
@@ -25,7 +26,8 @@ export {
     ILogger,
     MessageSeverity,
     ILocation,
-    ILoggerSettings
+    ILoggerSettings,
+    DetailsItemJSON
 } from '../../common/typeInterfaces'
 
 export interface IServerConnection extends ILogger {
@@ -128,4 +130,10 @@ export interface IServerConnection extends ILogger {
      * @param fullPath
      */
     content(fullPath:string):Promise<string>
+
+    /**
+     * Adds a listener to document details request. Must notify listeners in order of registration.
+     * @param listener
+     */
+    onDocumentDetails(listener: (uri : string, position: number)=>Promise<DetailsItemJSON>)
 }

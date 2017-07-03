@@ -9,7 +9,8 @@ import {
     ILocation,
     IRange,
     ILoggerSettings,
-    MessageSeverity
+    MessageSeverity,
+    DetailsItemJSON
 } from "./typeInterfaces";
 
 export {
@@ -23,7 +24,8 @@ export {
     ILocation,
     IRange,
     ILoggerSettings,
-    MessageSeverity
+    MessageSeverity,
+    DetailsItemJSON
 } from './typeInterfaces'
 
 export interface IClientConnection extends ILogger {
@@ -137,4 +139,10 @@ export interface IClientConnection extends ILogger {
      * Listens to the server requests for file contents, answering what contents file has.
      */
     onContent(listener: (path: string)=>Promise<string>) : void;
+
+    /**
+     * Requests server for the document+position details.
+     * @param uri
+     */
+    getDetails(uri: string, position: number) : Promise<DetailsItemJSON>
 }

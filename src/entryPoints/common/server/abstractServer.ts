@@ -9,7 +9,8 @@ import {
     Suggestion,
     ILogger,
     MessageSeverity,
-    ILocation
+    ILocation,
+    DetailsItemJSON
 } from '../../../server/core/connections'
 
 import {
@@ -42,6 +43,7 @@ export abstract class AbstractServerConnection extends MessageDispatcher<Message
     private findReferencesListeners : {(uri : string, position: number):ILocation[]}[] = [];
     private markOccurrencesListeners : {(uri : string, position: number):IRange[]}[] = [];
     private renameListeners : {(uri : string, position: number, newName: string):IChangedDocument[]}[] = [];
+    private documentDetailsListeners : {(uri : string, position: number):Promise<DetailsItemJSON>}[] = [];
 
     constructor(name : string) {
         super(name)
@@ -184,6 +186,14 @@ export abstract class AbstractServerConnection extends MessageDispatcher<Message
      */
     onMarkOccurrences(listener: (uri: string, position: number) => IRange[]) {
         this.markOccurrencesListeners.push(listener);
+    }
+
+    /**
+     * Adds a listener to document details request. Must notify listeners in order of registration.
+     * @param listener
+     */
+    onDocumentDetails(listener: (uri : string, position: number)=>Promise<DetailsItemJSON>){
+        this.documentDetailsListeners.push(listener)
     }
 
     /**
@@ -339,6 +349,18 @@ export abstract class AbstractServerConnection extends MessageDispatcher<Message
     SET_LOGGER_CONFIGURATION(payload:ILoggerSettings) : void {
 
         this.setLoggerConfiguration(payload);
+    }
+
+    /**
+     * Handler of GET_STRUCTURE message.
+     * @param uri
+     * @constructor
+     */
+    GET_DETAILS(payload:{uri : string, position: number}) : Promise<DetailsItemJSON> {
+        if (this.documentDetailsListeners.length == 0)
+            return Promise.resolve(null);
+
+        return this.documentDetailsListeners[0](payload.uri,payload.position);
     }
 
     /**

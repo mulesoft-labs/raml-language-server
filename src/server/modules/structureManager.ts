@@ -26,6 +26,8 @@ import lowLevel=rp.ll;
 import hl=rp.hl;
 import utils = rp.utils;
 import ramlOutline =require('raml-outline')
+import outlineManagerCommons = require('./outlineManagerCommons')
+
 let universes=rp.universes;
 
 export function createManager(connection : IServerConnection,
@@ -34,18 +36,6 @@ export function createManager(connection : IServerConnection,
     return new StructureManager(connection, astManagerModule);
 }
 
-
-
-/**
- * Generates node key
- * @param node
- * @returns {any}
- */
-export function keyProvider(node: hl.IParseResult) : string {
-    if (!node) return null;
-    if (node && !node.parent()) return node.name();
-    else return node.name() + " :: " + keyProvider(node.parent());
-}
 
 var prohibit={
     resources:true,
@@ -137,9 +127,7 @@ function createDecorations() : void {
 }
 
 export function initialize() {
-
-    ramlOutline.initialize();
-    ramlOutline.setKeyProvider(<any>keyProvider);
+    outlineManagerCommons.initialize();
 
     createCategories();
 
@@ -147,25 +135,6 @@ export function initialize() {
 }
 
 initialize();
-
-class ASTProvider implements ramlOutline.IASTProvider {
-    constructor(private uri: string, private astManagerModule: IASTManagerModule,
-        private logger: ILogger) {
-    }
-
-    getASTRoot() {
-        this.logger.debug("Asked for AST", "ASTProvider", "getASTRoot")
-        let ast = <any> this.astManagerModule.getCurrentAST(this.uri);
-
-        this.logger.debugDetail("AST found: " + (ast?"true":"false"), "ASTProvider", "getASTRoot")
-
-        return ast;
-    }
-
-    getSelectedNode() {
-        return this.getASTRoot();
-    }
-}
 
 class StructureManager {
 
@@ -260,7 +229,7 @@ class StructureManager {
         //Forcing current AST to exist
         return this.astManagerModule.forceGetCurrentAST(uri).then(currentAST=>{
 
-            ramlOutline.setASTProvider(new ASTProvider(uri, this.astManagerModule, this.connection));
+            outlineManagerCommons.setOutlineASTProvider(uri, this.astManagerModule, this.connection);
 
             let result = ramlOutline.getStructureForAllCategories();
 

@@ -1,0 +1,31 @@
+{
+  "title": "UsesDeclaration",
+  "description": "",
+  "type": null,
+  "children": [
+    {
+      "title": "key",
+      "description": "Name prefix (without dot) used to refer imported declarations",
+      "type": "ATTRIBUTETEXT",
+      "children": [],
+      "valueText": "files"
+    },
+    {
+      "title": "General",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "value",
+          "description": "Content of the schema",
+          "type": "ATTRIBUTETEXT",
+          "children": [],
+          "valueText": "files.raml"
+        }
+      ],
+      "valueText": null
+    }
+  ],
+  "valueText": null,
+  "nodeId": ".files"
+}

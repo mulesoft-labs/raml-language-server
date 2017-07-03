@@ -2,17 +2,20 @@ import path = require("path")
 import suiteUtil = require("./testSuiteUtils")
 
 var args = process.argv;
-var inputDataDir = null;
-var mochaFile = null;
+var structureInputDataDir = null;
+var structureMochaFile = null;
+var detailsInputDataDir = null;
+var detailsMochaFile = null;
+
 var dataRoot = null;
 
 for(var i = 0 ; i < args.length ; i++){
     if(i < args.length-1) {
-        if (args[i] == "-inputDataDir") {
-            inputDataDir = args[++i];
+        if (args[i] == "-structureInputDataDir") {
+            structureInputDataDir = args[++i];
         }
-        else if (args[i] == "-mochaFile") {
-            mochaFile = args[++i];
+        else if (args[i] == "-structureMochaFile") {
+            structureMochaFile = args[++i];
         }
         else if (args[i] == "-dataRoot") {
             dataRoot = args[++i];
@@ -20,21 +23,39 @@ for(var i = 0 ; i < args.length ; i++){
     }
 }
 
-if(inputDataDir==null){
-    inputDataDir = path.resolve(suiteUtil.projectFolder(),"src/test/data/structure");
+if(structureInputDataDir==null){
+    structureInputDataDir = path.resolve(suiteUtil.projectFolder(),"src/test/data/structure");
 }
 
-if(mochaFile==null){
-    mochaFile = path.resolve(suiteUtil.projectFolder(),"src/test/structure_suite.ts");
+if(structureMochaFile==null){
+    structureMochaFile = path.resolve(suiteUtil.projectFolder(),"src/test/structure_suite.ts");
+}
+
+if(detailsInputDataDir==null){
+    detailsInputDataDir = path.resolve(suiteUtil.projectFolder(),"src/test/data/details");
+}
+
+if(detailsMochaFile==null){
+    detailsMochaFile = path.resolve(suiteUtil.projectFolder(),"src/test/details_suite.ts");
 }
 
 if(dataRoot==null){
     dataRoot = path.resolve(suiteUtil.projectFolder(),"src/test/data")
 }
+
 suiteUtil.generateSuite(
-    inputDataDir,
-    mochaFile,
+    structureInputDataDir,
+    structureMochaFile,
     dataRoot,
-    'Async outline test set'
+    'Outline Test Set',
+    'testOutline'
+);
+
+suiteUtil.generateSuite(
+    detailsInputDataDir,
+    detailsMochaFile,
+    dataRoot,
+    'Details Test Set',
+    'testDetails'
 );
 

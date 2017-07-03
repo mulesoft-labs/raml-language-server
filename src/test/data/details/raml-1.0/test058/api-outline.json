@@ -1,0 +1,75 @@
+{
+  "title": "Method",
+  "description": "Methods that are part of this resource type definition",
+  "type": null,
+  "children": [
+    {
+      "title": "method",
+      "description": "Method that can be called",
+      "type": "ATTRIBUTETEXT",
+      "children": [],
+      "valueText": "get"
+    },
+    {
+      "title": "Documentation",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "displayName",
+          "description": "The displayName attribute specifies the method display name. It is a friendly name used only for  display or documentation purposes. If displayName is not specified, it defaults to the element's key (the name of the property itself).",
+          "type": "ATTRIBUTETEXT",
+          "children": [],
+          "valueText": null
+        },
+        {
+          "title": "description",
+          "description": "",
+          "type": "MARKDOWN",
+          "children": [],
+          "valueText": null
+        }
+      ],
+      "valueText": null
+    },
+    {
+      "title": "References",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "is",
+          "description": "Instantiation of applyed traits",
+          "type": "MULTIEDITOR",
+          "children": [],
+          "valueText": ""
+        },
+        {
+          "title": "securedBy",
+          "description": "securityScheme may also be applied to a resource by using the securedBy key, which is equivalent to applying the securityScheme to all methods that may be declared, explicitly or implicitly, by defining the resourceTypes or traits property for that resource. To indicate that the method may be called without applying any securityScheme, the method may be annotated with the null securityScheme.",
+          "type": "MULTIEDITOR",
+          "children": [],
+          "valueText": ""
+        }
+      ],
+      "valueText": null
+    },
+    {
+      "title": "General",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "protocols",
+          "description": "A method can override the protocols specified in the resource or at the API root, by employing this property.",
+          "type": "MULTIEDITOR",
+          "children": [],
+          "valueText": ""
+        }
+      ],
+      "valueText": null
+    }
+  ],
+  "valueText": null,
+  "nodeId": ".collection.get"
+}

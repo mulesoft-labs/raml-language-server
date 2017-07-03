@@ -1,0 +1,74 @@
+{
+  "title": "ResourceType",
+  "description": "Declarations of resource types for use within this API",
+  "type": null,
+  "children": [
+    {
+      "title": "name",
+      "description": "Name of the resource type",
+      "type": "ATTRIBUTETEXT",
+      "children": [],
+      "valueText": "main"
+    },
+    {
+      "title": "Documentation",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "displayName",
+          "description": "The displayName attribute specifies the resource type display name. It is a friendly name used only for  display or documentation purposes. If displayName is not specified, it defaults to the element's key (the name of the property itself).",
+          "type": "ATTRIBUTETEXT",
+          "children": [],
+          "valueText": null
+        },
+        {
+          "title": "usage",
+          "description": "Instructions on how and when the resource type should be used.",
+          "type": "ATTRIBUTETEXT",
+          "children": [],
+          "valueText": null
+        },
+        {
+          "title": "description",
+          "description": "",
+          "type": "MARKDOWN",
+          "children": [],
+          "valueText": null
+        }
+      ],
+      "valueText": null
+    },
+    {
+      "title": "References",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "is",
+          "description": "A list of the traits to apply to all methods declared (implicitly or explicitly) for this resource. Individual methods may override this declaration",
+          "type": "MULTIEDITOR",
+          "children": [],
+          "valueText": ""
+        },
+        {
+          "title": "securedBy",
+          "description": "The security schemes that apply to all methods declared (implicitly or explicitly) for this resource.",
+          "type": "MULTIEDITOR",
+          "children": [],
+          "valueText": ""
+        },
+        {
+          "title": "type",
+          "description": "The resource type which this resource inherits.",
+          "type": "ATTRIBUTETEXT",
+          "children": [],
+          "valueText": null
+        }
+      ],
+      "valueText": null
+    }
+  ],
+  "valueText": null,
+  "nodeId": ".main"
+}

@@ -13,7 +13,8 @@ import {
     StructureCategories,
     Suggestion,
     MessageSeverity,
-    ILocation
+    ILocation,
+    DetailsItemJSON
 } from '../../common/typeInterfaces'
 
 import utils = require("../../common/utils")
@@ -29,6 +30,7 @@ export abstract class AbstractServerConnection {
     protected findreferencesListeners : {(uri : string, position: number):ILocation[]}[] = [];
     protected markOccurrencesListeners : {(uri : string, position: number):IRange[]}[] = [];
     protected renameListeners : {(uri : string, position: number, newName: string):IChangedDocument[]}[] = [];
+    protected documentDetailsListeners : {(uri : string, position: number):Promise<DetailsItemJSON>}[] = [];
 
     /**
      * Adds a listener to document open notification. Must notify listeners in order of registration.
@@ -108,5 +110,13 @@ export abstract class AbstractServerConnection {
      */
     onRename(listener: (uri: string, position: number, newName: string) => IChangedDocument[]) {
         this.renameListeners.push(listener);
+    }
+
+    /**
+     * Adds a listener to document details request. Must notify listeners in order of registration.
+     * @param listener
+     */
+    onDocumentDetails(listener: (uri : string, position: number)=>Promise<DetailsItemJSON>) {
+        this.documentDetailsListeners.push(listener);
     }
 }

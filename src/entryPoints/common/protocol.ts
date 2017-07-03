@@ -16,7 +16,8 @@ export type MessageToServerType =
     "FIND_REFERENCES" |
     "MARK_OCCURRENCES"|
     "RENAME" |
-    "SET_LOGGER_CONFIGURATION";
+    "SET_LOGGER_CONFIGURATION" |
+    "GET_DETAILS";
 
 export interface ProtocolMessage<MessageType extends MessageToClientType | MessageToServerType> {
     type : MessageType

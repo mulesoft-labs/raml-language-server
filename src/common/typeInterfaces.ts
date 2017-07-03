@@ -18,6 +18,11 @@ export type StructureNodeJSON = outline.StructureNodeJSON;
 export type Suggestion = suggestions.Suggestion;
 
 /**
+ * Details node JSON representation.
+ */
+export type DetailsItemJSON = outline.DetailsItemJSON;
+
+/**
  * Range in the document.
  */
 export interface IRange {

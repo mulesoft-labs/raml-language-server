@@ -1,0 +1,45 @@
+{
+  "title": "OAuth1SecurityScheme",
+  "description": "Declarations of security schemes for use within this API.",
+  "type": null,
+  "children": [
+    {
+      "title": "name",
+      "description": "Name of the security scheme",
+      "type": "ATTRIBUTETEXT",
+      "children": [],
+      "valueText": "oauth_1_0"
+    },
+    {
+      "title": "Documentation",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "displayName",
+          "description": "The displayName attribute specifies the security scheme display name. It is a friendly name used only for  display or documentation purposes. If displayName is not specified, it defaults to the element's key (the name of the property itself).",
+          "type": "ATTRIBUTETEXT",
+          "children": [],
+          "valueText": null
+        },
+        {
+          "title": "description",
+          "description": "The description MAY be used to describe a securityScheme.",
+          "type": "MARKDOWN",
+          "children": [],
+          "valueText": "OAuth 1.0 continues to be supported for all API requests, but OAuth 2.0 is now preferred.\n"
+        }
+      ],
+      "valueText": null
+    },
+    {
+      "title": "type",
+      "description": "The securitySchemes property MUST be used to specify an API's security mechanisms, including the required settings and the authentication methods that the API supports. one authentication method is allowed if the API supports them.",
+      "type": "ATTRIBUTETEXT",
+      "children": [],
+      "valueText": "OAuth 1.0"
+    }
+  ],
+  "valueText": null,
+  "nodeId": ".oauth_1_0"
+}

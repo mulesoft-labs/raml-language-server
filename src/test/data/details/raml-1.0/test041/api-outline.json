@@ -1,0 +1,8 @@
+{
+  "title": "SecuritySchemePart",
+  "description": "A description of the request components related to Security that are determined by the scheme: the headers, query parameters or responses. As a best practice, even for standard security schemes, API designers SHOULD describe these properties of security schemes. Including the security scheme description completes an API documentation.",
+  "type": null,
+  "children": [],
+  "valueText": null,
+  "nodeId": ".custom_scheme.describedBy"
+}

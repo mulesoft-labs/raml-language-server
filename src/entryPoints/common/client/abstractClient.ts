@@ -179,6 +179,20 @@ export abstract class AbstractClientConnection extends MessageDispatcher<Message
     }
 
     /**
+     * Requests server for the document+position details.
+     * @param uri
+     */
+    getDetails(uri: string, position: number) : Promise<clientInterfaces.DetailsItemJSON> {
+        return this.sendWithResponse({
+            type : "GET_DETAILS",
+            payload : {
+                uri: uri,
+                position: position
+            }
+        });
+    }
+
+    /**
      * Sets connection logger configuration, both for the server and for the client.
      * @param loggerSettings
      */

@@ -1,0 +1,23 @@
+{
+  "title": "DocumentationItem",
+  "description": "Additional overall documentation for the API",
+  "type": null,
+  "children": [
+    {
+      "title": "title",
+      "description": "Title of documentation section",
+      "type": "ATTRIBUTETEXT",
+      "children": [],
+      "valueText": "doc"
+    },
+    {
+      "title": "content",
+      "description": "Content of documentation section",
+      "type": "MARKDOWN",
+      "children": [],
+      "valueText": "description"
+    }
+  ],
+  "valueText": null,
+  "nodeId": "."
+}
