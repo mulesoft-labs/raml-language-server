@@ -51,7 +51,7 @@ class ASTProvider implements ramlOutline.IASTProvider {
     }
 
     getSelectedNode() {
-        return this.getASTRoot();
+        return null;
     }
 }
 

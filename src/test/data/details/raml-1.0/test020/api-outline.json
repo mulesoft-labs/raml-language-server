@@ -40,6 +40,5 @@
       "valueText": "Digest Authentication"
     }
   ],
-  "valueText": null,
-  "nodeId": ".digest"
+  "valueText": null
 }

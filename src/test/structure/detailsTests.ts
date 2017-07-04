@@ -1,8 +1,8 @@
 import testSuiteUtil = require("./testSuiteUtils")
 
-beforeEach(function (done) {
-    testSuiteUtil.sleep(100);
-});
+// beforeEach(function (done) {
+//     testSuiteUtil.sleep(100);
+// });
 
 describe('Details Test Set',function(){
 
@@ -437,10 +437,10 @@ describe('raml-1.0',function(){
         testSuiteUtil.testDetails("details/raml-1.0/test60/extension.raml", done , null, "details/raml-1.0/test60/api-outline.json");
     });
 
-    it("test61/extension.raml", function (done) {
-        this.timeout(15000);
-        testSuiteUtil.testDetails("details/raml-1.0/test61/extension.raml", done , null, "details/raml-1.0/test61/api-outline.json");
-    });
+    // it("test61/extension.raml", function (done) {
+    //     this.timeout(15000);
+    //     testSuiteUtil.testDetails("details/raml-1.0/test61/extension.raml", done , null, "details/raml-1.0/test61/api-outline.json");
+    // });
     
 });
 

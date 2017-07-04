@@ -33,45 +33,12 @@ export function createManager(connection : IServerConnection,
     return new DetailsManager(connection, astManagerModule);
 }
 
-
-
-/**
- * Generates node key
- * @param node
- * @returns {any}
- */
-export function keyProvider(node: hl.IParseResult) : string {
-    if (!node) return null;
-    if (node && !node.parent()) return node.name();
-    else return node.name() + " :: " + keyProvider(node.parent());
-}
-
 export function initialize() {
-
-    ramlOutline.initialize();
-    ramlOutline.setKeyProvider(<any>keyProvider);
+    outlineManagerCommons.initialize();
 }
 
 initialize();
 
-class ASTProvider implements ramlOutline.IASTProvider {
-    constructor(private uri: string, private astManagerModule: IASTManagerModule,
-                private logger: ILogger) {
-    }
-
-    getASTRoot() {
-        this.logger.debug("Asked for AST", "ASTProvider", "getASTRoot")
-        let ast = <any> this.astManagerModule.getCurrentAST(this.uri);
-
-        this.logger.debugDetail("AST found: " + (ast?"true":"false"), "ASTProvider", "getASTRoot")
-
-        return ast;
-    }
-
-    getSelectedNode() {
-        return this.getASTRoot();
-    }
-}
 
 class DetailsManager {
 

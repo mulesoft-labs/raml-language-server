@@ -25,6 +25,5 @@
       "valueText": "https://api.mysampleapi.com/1/oauth/access_token"
     }
   ],
-  "valueText": null,
-  "nodeId": ".oauth_1_0.settings"
+  "valueText": null
 }

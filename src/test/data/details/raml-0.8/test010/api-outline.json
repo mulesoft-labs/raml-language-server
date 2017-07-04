@@ -63,6 +63,5 @@
       "valueText": null
     }
   ],
-  "valueText": null,
-  "nodeId": "./users/{id}.get"
+  "valueText": null
 }

@@ -18,6 +18,8 @@ import CompletionManagerModule = require('../modules/completionManager')
 
 import FixedActionsManagerModule = require('../modules/fixedActionsManager')
 
+import DetailsManagerModule = require('../modules/detailsManager')
+
 export class Server {
 
     private modules : IListeningModule[] = [];
@@ -35,6 +37,9 @@ export class Server {
             astManagerModule, editorManagerModule));
 
         this.modules.push(StructureManagerModule.createManager(connection,
+            astManagerModule));
+
+        this.modules.push(DetailsManagerModule.createManager(connection,
             astManagerModule));
 
         this.modules.push(CompletionManagerModule.createManager(connection,

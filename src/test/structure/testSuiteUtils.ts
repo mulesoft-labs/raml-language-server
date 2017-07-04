@@ -692,8 +692,19 @@ function getDetailsJSONAsync(apiPath:string, callback: (result: Object, error: a
 
     connection = index.getNodeClientConnection();
 
+    // connection.setLoggerConfiguration({
+    //
+    //     allowedComponents: [
+    //         "NodeProcessServerConnection",
+    //         "DetailsManager"
+    //     ],
+    //     maxSeverity: 0,
+    //     maxMessageLength: 500
+    // });
+
     connection.setLoggerConfiguration({
-        disabled: true
+        maxSeverity: 4,
+        maxMessageLength: 50
     });
 
     connection.documentOpened({
@@ -715,9 +726,7 @@ export function testDetails (
     regenerateJSON:boolean=false,
     callTests:boolean=true):void{
 
-    if(apiPath){
-        apiPath = data(apiPath);
-    }
+
 
     getDetailsJSONAsync(apiPath, (result, error) => {
         if(error) {
@@ -740,7 +749,11 @@ export function testDetailsStructure (
     apiPath:string, json: any, extensions?:string[],
     detailsJsonPath?:string,
     regenerateJSON:boolean=false,
-    callTests:boolean=true):void{
+    callTests:boolean=true):boolean{
+
+    if(apiPath){
+        apiPath = data(apiPath);
+    }
 
     if(extensions){
         extensions = extensions.map(x=>data(x));
@@ -773,6 +786,7 @@ export function testDetailsStructure (
 
 
     var outlineJson:any = readTestJSON(detailsJsonPath);
+
     var pathRegExp = new RegExp('/errors\\[\\d+\\]/path');
     var messageRegExp = new RegExp('/errors\\[\\d+\\]/message');
     var diff = compare(json,outlineJson).filter(x=>{
@@ -786,11 +800,19 @@ export function testDetailsStructure (
     var diffArr = [];
     if(diff.length==0){
         assert(true);
+        return true;
     }
     else{
-        console.warn("DIFFERENCE DETECTED FOR " + detailsJsonPath);
-        console.warn(diff.map(x=>x.message("actual","expected")).join("\n\n"));
+        console.log("DIFFERENCE DETECTED FOR " + detailsJsonPath);
+        console.log(diff.map(x=>x.message("actual","expected")).join("\n\n"));
+
+        console.log("ORIGINAL:")
+        console.log(JSON.stringify(outlineJson, null, 2))
+
+        console.log("TEST RESULT:")
+        console.log(JSON.stringify(json, null, 2))
 
         assert(false);
+        return false;
     }
 }

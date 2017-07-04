@@ -40,6 +40,5 @@
       "valueText": "https://www.dropbox.com/1/oauth2/authorize"
     }
   ],
-  "valueText": null,
-  "nodeId": ".oauth_2_0.settings"
+  "valueText": null
 }
