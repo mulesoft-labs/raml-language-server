@@ -23,6 +23,21 @@ export type Suggestion = suggestions.Suggestion;
 export type DetailsItemJSON = outline.DetailsItemJSON;
 
 /**
+ * Details item having a value text.
+ */
+export type DetailsValuedItemJSON = outline.DetailsValuedItemJSON;
+
+/**
+ * Details item having potential value options.
+ */
+export type DetailsItemWithOptionsJSON = outline.DetailsItemWithOptionsJSON;
+
+/**
+ * Type of details item
+ */
+export type DetailsItemType = outline.DetailsItemType;
+
+/**
  * Range in the document.
  */
 export interface IRange {

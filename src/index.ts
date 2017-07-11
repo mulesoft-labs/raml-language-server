@@ -14,7 +14,11 @@ export {
     Suggestion,
     StructureCategories,
     ITextEdit,
-    IRange
+    IRange,
+    DetailsItemJSON,
+    DetailsValuedItemJSON,
+    DetailsItemWithOptionsJSON,
+    DetailsItemType
 } from './common/typeInterfaces'
 
 export {
