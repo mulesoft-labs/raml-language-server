@@ -10,7 +10,8 @@ import {
     IRange,
     ILoggerSettings,
     MessageSeverity,
-    DetailsItemJSON
+    DetailsItemJSON,
+    IDetailsReport
 } from "./typeInterfaces";
 
 export {
@@ -25,7 +26,8 @@ export {
     IRange,
     ILoggerSettings,
     MessageSeverity,
-    DetailsItemJSON
+    DetailsItemJSON,
+    IDetailsReport
 } from './typeInterfaces'
 
 export interface IClientConnection extends ILogger {
@@ -145,4 +147,18 @@ export interface IClientConnection extends ILogger {
      * @param uri
      */
     getDetails(uri: string, position: number) : Promise<DetailsItemJSON>
+
+    /**
+     * Reports to the server the position (cursor) change on the client.
+     * @param uri - document uri.
+     * @param position - curtsor position, starting from 0.
+     */
+    positionChanged(uri: string, position: number) : void;
+
+    /**
+     * Report from the server that the new details are calculated
+     * for particular document and position.
+     * @param listener
+     */
+    onDetailsReport(listener : (IDetailsReport)=>void)
 }

@@ -4,7 +4,7 @@ import {
 } from '../../common/protocol'
 
 import {
-    AbstractServerConnection
+    AbstractMSServerConnection
 } from '../../common/server/abstractServer'
 
 import {
@@ -13,7 +13,7 @@ import {
 
 declare function postMessage(message);
 
-class WebWorkerServerConnection extends AbstractServerConnection {
+class WebWorkerServerConnection extends AbstractMSServerConnection {
 
     constructor() {
         super("WebServerConnection")

@@ -4,7 +4,8 @@ export type MessageToClientType =
     "EXISTS" |
     "READ_DIR" |
     "IS_DIRECTORY" |
-    "CONTENT";
+    "CONTENT" |
+    "DETAILS_REPORT";
 
 export type MessageToServerType =
     "OPEN_DOCUMENT" |
@@ -17,7 +18,8 @@ export type MessageToServerType =
     "MARK_OCCURRENCES"|
     "RENAME" |
     "SET_LOGGER_CONFIGURATION" |
-    "GET_DETAILS";
+    "GET_DETAILS" |
+    "CHANGE_POSITION";
 
 export interface ProtocolMessage<MessageType extends MessageToClientType | MessageToServerType> {
     type : MessageType

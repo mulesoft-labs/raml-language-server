@@ -14,7 +14,8 @@ import {
     Suggestion,
     MessageSeverity,
     ILocation,
-    DetailsItemJSON
+    DetailsItemJSON,
+    IDetailsReport
 } from '../../common/typeInterfaces'
 
 import utils = require("../../common/utils")
@@ -31,6 +32,7 @@ export abstract class AbstractServerConnection {
     protected markOccurrencesListeners : {(uri : string, position: number):IRange[]}[] = [];
     protected renameListeners : {(uri : string, position: number, newName: string):IChangedDocument[]}[] = [];
     protected documentDetailsListeners : {(uri : string, position: number):Promise<DetailsItemJSON>}[] = [];
+    private changePositionListeners: {(uri : string, position: number):void}[] = [];
 
     /**
      * Adds a listener to document open notification. Must notify listeners in order of registration.
@@ -97,6 +99,15 @@ export abstract class AbstractServerConnection {
     }
 
     /**
+     * Reports new calculated details when available.
+     * @param report - details report.
+     */
+    detailsAvailable(report: IDetailsReport) {
+        //we dont need it
+    }
+
+
+    /**
      * Marks occurrences of a symbol under the cursor in the current document.
      * @param listener
      */
@@ -118,5 +129,14 @@ export abstract class AbstractServerConnection {
      */
     onDocumentDetails(listener: (uri : string, position: number)=>Promise<DetailsItemJSON>) {
         this.documentDetailsListeners.push(listener);
+    }
+
+    /**
+     * Adds a listener to document cursor position change notification.
+     * Must notify listeners in order of registration.
+     * @param listener
+     */
+    onChangePosition(listener: (uri: string, position: number)=>void) {
+        this.changePositionListeners.push(listener);
     }
 }

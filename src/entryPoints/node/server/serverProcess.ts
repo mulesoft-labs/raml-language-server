@@ -4,7 +4,7 @@ import {
 } from '../../common/protocol'
 
 import {
-    AbstractServerConnection
+    AbstractMSServerConnection
 } from '../../common/server/abstractServer'
 
 import {
@@ -13,7 +13,7 @@ import {
 
 import fs = require("fs")
 
-class NodeProcessServerConnection extends AbstractServerConnection {
+class NodeProcessServerConnection extends AbstractMSServerConnection {
 
     constructor() {
         super("NodeProcessServerConnection")

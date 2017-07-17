@@ -9,6 +9,10 @@ import {
 } from './astManager'
 
 import {
+    IEditorManagerModule
+} from './editorManager'
+
+import {
     IValidationIssue,
     DetailsItemJSON,
     ILogger
@@ -28,9 +32,10 @@ import outlineManagerCommons = require('./outlineManagerCommons')
 let universes=rp.universes;
 
 export function createManager(connection : IServerConnection,
-                              astManagerModule : IASTManagerModule) : IListeningModule {
+                              astManagerModule : IASTManagerModule,
+                              editorManagerModule: IEditorManagerModule) : IListeningModule {
 
-    return new DetailsManager(connection, astManagerModule);
+    return new DetailsManager(connection, astManagerModule, editorManagerModule);
 }
 
 export function initialize() {
@@ -42,13 +47,69 @@ initialize();
 
 class DetailsManager {
 
-    constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule) {
+    /**
+     * Whether direct calculation is on.
+     * @type {boolean}
+     */
+    private calculatingDetailsOnDirectRequest = false;
+
+    /**
+     * Remembering positions for opened documents.
+     * @type {{}}
+     */
+    private uriToPositions : {[uri:string]:number} = {}
+
+    constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
+        private editorManager: IEditorManagerModule) {
     }
 
     listen() {
         this.connection.onDocumentDetails((uri, position)=>{
             return this.getDetails(uri, position);
         })
+
+        this.astManagerModule.onNewASTAvailable((uri: string, version:number, ast: hl.IHighLevelNode)=>{
+
+            this.calculateAndSendDetailsReport(uri, version);
+        })
+
+        this.connection.onChangePosition((uri, position)=>{
+
+            this.uriToPositions[uri] = position;
+
+            let editor = this.editorManager.getEditor(uri);
+
+            if (!editor) return;
+            let version = editor.getVersion();
+
+            this.calculateAndSendDetailsReport(uri, version);
+        })
+    }
+
+    private calculateAndSendDetailsReport(uri: string, version: number) {
+
+        //we do not want reporting while performing the calculation
+        if (this.calculatingDetailsOnDirectRequest) return;
+
+        this.connection.debug("Calculating structure due to new AST available", "StructureManager",
+            "listen");
+
+        let knownPosition = this.uriToPositions[uri];
+        if (knownPosition != null) {
+            this.calculateDetails(uri, knownPosition).then(detailsForUri=>{
+                this.connection.debug("Calculation result is not null:" + (detailsForUri!=null?"true":"false"), "DetailsManager",
+                    "listen");
+
+                if (detailsForUri) {
+                    this.connection.detailsAvailable({
+                        uri: uri,
+                        position: knownPosition,
+                        version: version,
+                        details: detailsForUri
+                    })
+                }
+            })
+        }
     }
 
     vsCodeUriToParserUri(vsCodeUri : string) : string {
@@ -63,14 +124,19 @@ class DetailsManager {
         this.connection.debug("Requested details for uri " + uri + " and position " + position, "DetailsManager",
             "getDetails");
 
+        this.calculatingDetailsOnDirectRequest = true;
+
         return this.calculateDetails(uri, position).then(calculated=>{
 
             this.connection.debug("Calculation result is not null:" + (calculated != null ? "true" : "false"), "DetailsManager",
                 "getDetails");
 
+            this.calculatingDetailsOnDirectRequest = false;
+
             return calculated;
 
         }).catch(error=>{
+            this.calculatingDetailsOnDirectRequest = false;
             throw error;
         })
     }

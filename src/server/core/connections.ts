@@ -11,7 +11,8 @@ import {
     MessageSeverity,
     ILocation,
     ILoggerSettings,
-    DetailsItemJSON
+    DetailsItemJSON,
+    IDetailsReport
 } from '../../common/typeInterfaces'
 
 export {
@@ -27,7 +28,8 @@ export {
     MessageSeverity,
     ILocation,
     ILoggerSettings,
-    DetailsItemJSON
+    DetailsItemJSON,
+    IDetailsReport
 } from '../../common/typeInterfaces'
 
 export interface IServerConnection extends ILogger {
@@ -136,4 +138,17 @@ export interface IServerConnection extends ILogger {
      * @param listener
      */
     onDocumentDetails(listener: (uri : string, position: number)=>Promise<DetailsItemJSON>)
+
+    /**
+     * Adds a listener to document cursor position change notification.
+     * Must notify listeners in order of registration.
+     * @param listener
+     */
+    onChangePosition(listener: (uri: string, position: number)=>void);
+
+    /**
+     * Reports new calculated details when available.
+     * @param report - details report.
+     */
+    detailsAvailable(report: IDetailsReport);
 }

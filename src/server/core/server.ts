@@ -40,7 +40,7 @@ export class Server {
             astManagerModule));
 
         this.modules.push(DetailsManagerModule.createManager(connection,
-            astManagerModule));
+            astManagerModule, editorManagerModule));
 
         this.modules.push(CompletionManagerModule.createManager(connection,
             astManagerModule, editorManagerModule));

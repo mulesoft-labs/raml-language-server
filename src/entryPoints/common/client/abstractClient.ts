@@ -37,6 +37,7 @@ export abstract class AbstractClientConnection extends MessageDispatcher<Message
     private onReadDirListeners : {(path : string):Promise<string[]>}[] = [];
     private onIsDirectoryListeners : {(path : string):Promise<boolean>}[] = [];
     private onContentListeners : {(path : string):Promise<string>}[] = [];
+    private onDetailsReportListeners : {(report : clientInterfaces.IDetailsReport):void}[] = [];
 
     /**
      * Sends message to the counterpart.
@@ -260,6 +261,12 @@ export abstract class AbstractClientConnection extends MessageDispatcher<Message
         return null;
     }
 
+    DETAILS_REPORT(report : clientInterfaces.IDetailsReport) : void {
+        for (let listener of this.onDetailsReportListeners) {
+            listener(report);
+        }
+    }
+
     /**
      * Gets latest document version.
      * @param uri
@@ -411,5 +418,29 @@ export abstract class AbstractClientConnection extends MessageDispatcher<Message
      */
     onContent(listener: (path: string)=>Promise<string>) : void {
         this.onContentListeners.push(listener)
+    }
+
+    /**
+     * Reports to the server the position (cursor) change on the client.
+     * @param uri - document uri.
+     * @param position - curtsor position, starting from 0.
+     */
+    positionChanged(uri: string, position: number) : void {
+        this.send({
+            type : "CHANGE_POSITION",
+            payload : {
+                uri: uri,
+                position: position
+            }
+        })
+    }
+
+    /**
+     * Report from the server that the new details are calculated
+     * for particular document and position.
+     * @param listener
+     */
+    onDetailsReport(listener : (IDetailsReport)=>void) {
+        this.onDetailsReportListeners.push(listener);
     }
 }

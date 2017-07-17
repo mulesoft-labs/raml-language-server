@@ -109,6 +109,28 @@ export interface IStructureReport {
     structure: {[categoryName:string] : StructureNodeJSON};
 }
 
+export interface IDetailsReport {
+    /**
+     * Document uri.
+     */
+    uri : string;
+
+    /**
+     * Cursor position in the document, starting from 0.
+     */
+    position: number,
+
+    /**
+     * Optional document version.
+     */
+    version?: number;
+
+    /**
+     * Details root item.
+     */
+    details : DetailsItemJSON;
+}
+
 export interface IOpenedDocument {
     /**
      * Document URI

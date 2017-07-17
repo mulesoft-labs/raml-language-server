@@ -8,7 +8,8 @@ export {
     IRange,
     MessageSeverity,
     ILoggerSettings,
-    DetailsItemJSON
+    DetailsItemJSON,
+    IDetailsReport
 } from '../common/typeInterfaces'
 
 import {

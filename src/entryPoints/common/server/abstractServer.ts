@@ -10,7 +10,8 @@ import {
     ILogger,
     MessageSeverity,
     ILocation,
-    DetailsItemJSON
+    DetailsItemJSON,
+    IDetailsReport
 } from '../../../server/core/connections'
 
 import {
@@ -28,7 +29,7 @@ import {
     filterLogMessage
 } from "../../../common/utils"
 
-export abstract class AbstractServerConnection extends MessageDispatcher<MessageToClientType> implements IServerConnection {
+export abstract class AbstractMSServerConnection extends MessageDispatcher<MessageToClientType> implements IServerConnection {
 
     abstract sendMessage (message : ProtocolMessage<MessageToClientType>) : void;
 
@@ -44,6 +45,7 @@ export abstract class AbstractServerConnection extends MessageDispatcher<Message
     private markOccurrencesListeners : {(uri : string, position: number):IRange[]}[] = [];
     private renameListeners : {(uri : string, position: number, newName: string):IChangedDocument[]}[] = [];
     private documentDetailsListeners : {(uri : string, position: number):Promise<DetailsItemJSON>}[] = [];
+    private changePositionListeners: {(uri : string, position: number):void}[] = [];
 
     constructor(name : string) {
         super(name)
@@ -194,6 +196,26 @@ export abstract class AbstractServerConnection extends MessageDispatcher<Message
      */
     onDocumentDetails(listener: (uri : string, position: number)=>Promise<DetailsItemJSON>){
         this.documentDetailsListeners.push(listener)
+    }
+
+    /**
+     * Adds a listener to document cursor position change notification.
+     * Must notify listeners in order of registration.
+     * @param listener
+     */
+    onChangePosition(listener: (uri: string, position: number)=>void) {
+        this.changePositionListeners.push(listener);
+    }
+
+    /**
+     * Reports new calculated details when available.
+     * @param report - details report.
+     */
+    detailsAvailable(report: IDetailsReport) {
+        this.send({
+            type : "DETAILS_REPORT",
+            payload : report
+        })
     }
 
     /**
@@ -361,6 +383,17 @@ export abstract class AbstractServerConnection extends MessageDispatcher<Message
             return Promise.resolve(null);
 
         return this.documentDetailsListeners[0](payload.uri,payload.position);
+    }
+
+    /**
+     * Handler for CHANGE_POSITION message.
+     * @param payload
+     * @constructor
+     */
+    CHANGE_POSITION(payload:{uri : string, position: number}) : void {
+        for (let listener of this.changePositionListeners) {
+            listener(payload.uri, payload.position);
+        }
     }
 
     /**
