@@ -18,7 +18,8 @@ export {
     DetailsItemJSON,
     DetailsValuedItemJSON,
     DetailsItemWithOptionsJSON,
-    DetailsItemType
+    DetailsItemType,
+    IDetailsReport
 } from './common/typeInterfaces'
 
 export {

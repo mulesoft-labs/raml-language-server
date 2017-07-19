@@ -41,6 +41,14 @@ function launch() : IClientConnection {
         maxMessageLength: 50
     });
 
+    // clientConnection.setLoggerConfiguration({
+    //     allowedComponents: [
+    //         "DetailsManager"
+    //     ],
+    //     maxSeverity: MessageSeverity.DEBUG_DETAIL,
+    //     maxMessageLength: 500
+    // });
+
     return clientConnection;
 }
 

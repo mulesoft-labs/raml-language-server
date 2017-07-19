@@ -70,10 +70,16 @@ class DetailsManager {
 
         this.astManagerModule.onNewASTAvailable((uri: string, version:number, ast: hl.IHighLevelNode)=>{
 
+            this.connection.debug("Got new AST report for uri " + uri,
+                "DetailsManager", "listen");
+
             this.calculateAndSendDetailsReport(uri, version);
         })
 
         this.connection.onChangePosition((uri, position)=>{
+
+            this.connection.debug("Got new position report for uri " + uri + " : " + position,
+                "DetailsManager", "listen");
 
             this.uriToPositions[uri] = position;
 
@@ -91,14 +97,17 @@ class DetailsManager {
         //we do not want reporting while performing the calculation
         if (this.calculatingDetailsOnDirectRequest) return;
 
-        this.connection.debug("Calculating structure due to new AST available", "StructureManager",
-            "listen");
+        this.connection.debug("Calculating details", "DetailsManager",
+            "calculateAndSendDetailsReport");
 
         let knownPosition = this.uriToPositions[uri];
+        this.connection.debug("Found position: " + knownPosition, "DetailsManager",
+            "calculateAndSendDetailsReport");
+
         if (knownPosition != null) {
             this.calculateDetails(uri, knownPosition).then(detailsForUri=>{
                 this.connection.debug("Calculation result is not null:" + (detailsForUri!=null?"true":"false"), "DetailsManager",
-                    "listen");
+                    "calculateAndSendDetailsReport");
 
                 if (detailsForUri) {
                     this.connection.detailsAvailable({
