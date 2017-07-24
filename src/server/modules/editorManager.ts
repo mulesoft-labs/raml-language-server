@@ -11,6 +11,7 @@ import {
 
 import {
     IAbstractTextEditor,
+    IAbstractTextEditorWithCursor,
     IEditorTextBuffer,
     IPoint,
     IRange,
@@ -19,7 +20,7 @@ import {
 
 export interface IEditorManagerModule extends IListeningModule {
     listen() : void;
-    getEditor(uri : string) : IAbstractTextEditor;
+    getEditor(uri : string) : IAbstractTextEditorWithCursor;
     onChangeDocument(listener: (document : IChangedDocument)=>void);
 }
 
@@ -173,13 +174,30 @@ class TextBufferInfo implements IEditorTextBuffer {
     }
 }
 
-class TextEditorInfo implements IAbstractTextEditor{
+class TextEditorInfo implements IAbstractTextEditorWithCursor {
 
     private buffer : TextBufferInfo;
+    private cursorPosition: number;
 
     constructor(private uri : string, private version : number, text : string) {
         this.buffer = new TextBufferInfo();
         this.buffer.setText(text);
+    }
+
+    setCursorPosition(position) {
+        this.cursorPosition = position;
+    }
+
+    /**
+     * Returns current cursor position
+     */
+    getCursorBufferPosition() : IPoint {
+        if (this.buffer == null || this.cursorPosition == null) return {
+            row: 0,
+            column: 0
+        };
+
+        return this.getBuffer().positionForCharacterIndex(this.cursorPosition);
     }
 
     /**
@@ -236,6 +254,13 @@ class EditorManager implements IEditorManagerModule {
             (document : IChangedDocument)=>{this.documentWasChanged(document)}
         );
 
+        this.connection.onChangePosition((uri, position)=>{
+            let editor = this.getEditor(uri);
+            if (!editor) return;
+
+            (<TextEditorInfo> editor).setCursorPosition(position);
+        })
+
         this.connection.onCloseDocument(
             (uri : string)=>{this.onCloseDocument(uri)}
         );
@@ -245,7 +270,7 @@ class EditorManager implements IEditorManagerModule {
         this.documentChangeListeners.push(listener);
     }
 
-    getEditor(uri : string) : IAbstractTextEditor {
+    getEditor(uri : string) : IAbstractTextEditorWithCursor {
         return this.uriToEditor[uri];
     }
 

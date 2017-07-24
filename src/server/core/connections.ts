@@ -12,7 +12,9 @@ import {
     ILocation,
     ILoggerSettings,
     DetailsItemJSON,
-    IDetailsReport
+    IDetailsReport,
+    IExecutableAction,
+    IUIDisplayRequest
 } from '../../common/typeInterfaces'
 
 export {
@@ -29,7 +31,9 @@ export {
     ILocation,
     ILoggerSettings,
     DetailsItemJSON,
-    IDetailsReport
+    IDetailsReport,
+    IExecutableAction,
+    IUIDisplayRequest
 } from '../../common/typeInterfaces'
 
 export interface IServerConnection extends ILogger {
@@ -151,4 +155,37 @@ export interface IServerConnection extends ILogger {
      * @param report - details report.
      */
     detailsAvailable(report: IDetailsReport);
+
+    /**
+     * Calculates the list of executable actions available in the current context.
+     *
+     * @param uri - document uri.
+     * @param position - optional position in the document.
+     * If not provided, the last reported by positionChanged method will be used.
+     * @param target - option target argument.
+     *
+     * "TARGET_RAML_EDITOR_NODE" and "TARGET_RAML_TREE_VIEWER_NODE" are potential values
+     * for actions based on the editor state and tree viewer state.
+     * "TARGET_RAML_EDITOR_NODE" is default.
+     */
+    onCalculateEditorContextActions(listener:(uri: string,
+        position?: number)=>Promise<IExecutableAction[]>): void;
+
+    /**
+     * Adds a listener for specific action execution.
+     * If action has UI, causes a consequent displayActionUI call.
+     * @param uri - document uri
+     * @param action - action to execute.
+     * @param position - optional position in the document.
+     * If not provided, the last reported by positionChanged method will be used.
+     */
+    onExecuteContextAction(listener:(uri: string, actionId: string,
+        position?: number)=>Promise<IChangedDocument[]>): void;
+
+    /**
+     * Adds a listener to display action UI.
+     * @param uiDisplayRequest - display request
+     * @return final UI state.
+     */
+    displayActionUI(uiDisplayRequest: IUIDisplayRequest): Promise<any>;
 }

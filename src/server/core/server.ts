@@ -20,6 +20,8 @@ import FixedActionsManagerModule = require('../modules/fixedActionsManager')
 
 import DetailsManagerModule = require('../modules/detailsManager')
 
+import CustomActionsManagerModule = require('../modules/customActionsManager')
+
 export class Server {
 
     private modules : IListeningModule[] = [];
@@ -46,6 +48,9 @@ export class Server {
             astManagerModule, editorManagerModule));
 
         this.modules.push(FixedActionsManagerModule.createManager(connection,
+            astManagerModule, editorManagerModule));
+
+        this.modules.push(CustomActionsManagerModule.createManager(connection,
             astManagerModule, editorManagerModule));
     }
 

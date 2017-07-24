@@ -230,3 +230,59 @@ export interface ILocation {
      */
     range: IRange
 }
+
+/**
+ * Actions are being exposed as this outer interface.
+ */
+export interface IExecutableAction {
+
+    /**
+     * Unique action ID.
+     */
+    id: string
+
+    /**
+     * Displayed menu item name
+     */
+    name : string
+
+    /**
+     * Action target (like editor node, tree viewer etc).
+     * The value must be recognizable by action consumers.
+     * Some of the standard values are defined in this module.
+     */
+    target : string
+
+    /**
+     * Action category and potential subcategories.
+     * In example, item with a name "itemName" and categories ["cat1", "cat2"]
+     * will be displayed as the following menu hierarchy: cat1/cat2/itemName
+     */
+    category? : string[]
+
+    /**
+     * Optional label, will be used instead of name for display purpose
+     */
+    label? : string
+}
+
+/**
+ * Server->Client request for UI display.
+ */
+export interface IUIDisplayRequest {
+
+    /**
+     * Action that requires UI to be displayed.
+     */
+    action: IExecutableAction
+
+    /**
+     * JS code displaying UI.
+     */
+    uiCode: string
+
+    /**
+     * Arbitrary JSON setting up initial UI state.
+     */
+    initialUIState: any
+}

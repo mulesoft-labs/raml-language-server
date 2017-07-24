@@ -13,7 +13,9 @@ import {
 import {
     IChangedDocument,
     MessageSeverity,
-    ILoggerSettings
+    ILoggerSettings,
+    IExecutableAction,
+    IUIDisplayRequest
 } from '../../../client/typeInterfaces'
 
 import {
@@ -38,6 +40,7 @@ export abstract class AbstractClientConnection extends MessageDispatcher<Message
     private onIsDirectoryListeners : {(path : string):Promise<boolean>}[] = [];
     private onContentListeners : {(path : string):Promise<string>}[] = [];
     private onDetailsReportListeners : {(report : clientInterfaces.IDetailsReport):void}[] = [];
+    private onDisplayActionUIListeners : {(uiDisplayRequest: IUIDisplayRequest):Promise<any>}[] = [];
 
     /**
      * Sends message to the counterpart.
@@ -442,5 +445,63 @@ export abstract class AbstractClientConnection extends MessageDispatcher<Message
      */
     onDetailsReport(listener : (IDetailsReport)=>void) {
         this.onDetailsReportListeners.push(listener);
+    }
+
+    /**
+     * Calculates the list of executable actions avilable in the current context.
+     *
+     * @param uri - document uri.
+     * @param position - optional position in the document.
+     * If not provided, the last reported by positionChanged method will be used.
+     */
+    calculateEditorContextActions(uri: string,
+        position?: number) : Promise<IExecutableAction[]> {
+
+        return this.sendWithResponse({
+            type : "CALCULATE_ACTIONS",
+            payload : {
+                uri: uri,
+                position: position
+            }
+        })
+    }
+
+    /**
+     * Executes the specified action. If action has UI, causes a consequent
+     * server->client UI message resulting in onDisplayActionUI listener call.
+     * @param uri - document uri
+     * @param action - action to execute.
+     * @param position - optional position in the document.
+     * If not provided, the last reported by positionChanged method will be used.
+     */
+    executeContextAction(uri: string, action: IExecutableAction,
+        position?: number): Promise<IChangedDocument[]> {
+
+        return this.sendWithResponse({
+            type : "EXECUTE_ACTION",
+            payload : {
+                uri: uri,
+                position: position,
+                actionId: action.id
+            }
+        })
+    }
+
+    /**
+     * Adds a listener to display action UI.
+     * @param listener - accepts UI display request, should result in a promise
+     * returning final UI state to be transferred to the server.
+     */
+    onDisplayActionUI(
+        listener: (uiDisplayRequest: IUIDisplayRequest)=>Promise<any>) {
+
+        this.onDisplayActionUIListeners.push(listener);
+    }
+
+    DISPLAY_ACTION_UI(uiDisplayRequest: IUIDisplayRequest) : Promise<any> {
+        if (!this.onDisplayActionUIListeners)
+            return Promise.reject(new Error("No handler for DISPLAY_ACTION_UI"));
+
+        return this.onDisplayActionUIListeners[0](uiDisplayRequest);
     }
 }

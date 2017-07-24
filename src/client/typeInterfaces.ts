@@ -9,7 +9,9 @@ export {
     MessageSeverity,
     ILoggerSettings,
     DetailsItemJSON,
-    IDetailsReport
+    IDetailsReport,
+    IExecutableAction,
+    IUIDisplayRequest
 } from '../common/typeInterfaces'
 
 import {

@@ -11,7 +11,9 @@ import {
     MessageSeverity,
     ILocation,
     DetailsItemJSON,
-    IDetailsReport
+    IDetailsReport,
+    IExecutableAction,
+    IUIDisplayRequest
 } from '../../../server/core/connections'
 
 import {
@@ -46,6 +48,14 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
     private renameListeners : {(uri : string, position: number, newName: string):IChangedDocument[]}[] = [];
     private documentDetailsListeners : {(uri : string, position: number):Promise<DetailsItemJSON>}[] = [];
     private changePositionListeners: {(uri : string, position: number):void}[] = [];
+
+    private calculateEditorContextActionsListeners:
+        {(uri: string, position?: number):Promise<IExecutableAction[]>}[] = [];
+
+    private executeContextActionListeners:
+        {(uri: string, actionId: string,
+          position?: number):Promise<IChangedDocument[]>}[] = [];
+
 
     constructor(name : string) {
         super(name)
@@ -507,5 +517,49 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      */
     setLoggerConfiguration(loggerSettings: ILoggerSettings) {
         this.loggerSettings = loggerSettings;
+    }
+
+    /**
+     * Calculates the list of executable actions available in the current context.
+     *
+     * @param uri - document uri.
+     * @param position - optional position in the document.
+     * If not provided, the last reported by positionChanged method will be used.
+     * @param target - option target argument.
+     *
+     * "TARGET_RAML_EDITOR_NODE" and "TARGET_RAML_TREE_VIEWER_NODE" are potential values
+     * for actions based on the editor state and tree viewer state.
+     * "TARGET_RAML_EDITOR_NODE" is default.
+     */
+    onCalculateEditorContextActions(listener:(uri: string,
+        position?: number)=>Promise<IExecutableAction[]>): void{
+
+        this.calculateEditorContextActionsListeners.push(listener);
+    }
+
+    /**
+     * Adds a listener for specific action execution.
+     * If action has UI, causes a consequent displayActionUI call.
+     * @param uri - document uri
+     * @param action - action to execute.
+     * @param position - optional position in the document.
+     * If not provided, the last reported by positionChanged method will be used.
+     */
+    onExecuteContextAction(listener:(uri: string, actionId: string,
+        position?: number)=>Promise<IChangedDocument[]>): void {
+
+        this.executeContextActionListeners.push(listener);
+    }
+
+    /**
+     * Adds a listener to display action UI.
+     * @param uiDisplayRequest - display request
+     * @return final UI state.
+     */
+    displayActionUI(uiDisplayRequest: IUIDisplayRequest): Promise<any> {
+        return this.sendWithResponse({
+            type : "DISPLAY_ACTION_UI",
+            payload : uiDisplayRequest
+        })
     }
 }

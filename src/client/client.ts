@@ -11,7 +11,9 @@ import {
     ILoggerSettings,
     MessageSeverity,
     DetailsItemJSON,
-    IDetailsReport
+    IDetailsReport,
+    IExecutableAction,
+    IUIDisplayRequest
 } from "./typeInterfaces";
 
 export {
@@ -27,7 +29,9 @@ export {
     ILoggerSettings,
     MessageSeverity,
     DetailsItemJSON,
-    IDetailsReport
+    IDetailsReport,
+    IExecutableAction,
+    IUIDisplayRequest
 } from './typeInterfaces'
 
 export interface IClientConnection extends ILogger {
@@ -161,4 +165,34 @@ export interface IClientConnection extends ILogger {
      * @param listener
      */
     onDetailsReport(listener : (IDetailsReport)=>void)
+
+    /**
+     * Calculates the list of executable actions avilable in the current context.
+     *
+     * @param uri - document uri.
+     * @param position - optional position in the document.
+     * If not provided, the last reported by positionChanged method will be used.
+     */
+    calculateEditorContextActions(uri: string,
+        position?: number) : Promise<IExecutableAction[]>;
+
+    /**
+     * Executes the specified action. If action has UI, causes a consequent
+     * server->client UI message resulting in onDisplayActionUI listener call.
+     * @param uri - document uri
+     * @param action - action to execute.
+     * @param position - optional position in the document.
+     * If not provided, the last reported by positionChanged method will be used.
+     */
+    executeContextAction(uri: string,
+        action: IExecutableAction, position?: number): Promise<IChangedDocument[]>;
+
+    /**
+     * Adds a listener to display action UI.
+     * @param listener - accepts UI display request, should result in a promise
+     * returning final UI state to be transferred to the server.
+     */
+    onDisplayActionUI(
+        listener: (uiDisplayRequest: IUIDisplayRequest)=>Promise<any>
+    );
 }
