@@ -610,7 +610,7 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         let document = this.documents.get(uri)
         this.debugDetail("got document: " + (document != null),
             "ProxyServerConnection", "rename")
-        if (!document) return [];
+        if (!document) return null;
 
         let offset = document.offsetAt(position);
 

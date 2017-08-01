@@ -365,7 +365,7 @@ class ASTManager implements IASTManagerModule {
     }
 
     onNewASTAvailable(listener: (uri: string, version: number,
-                                 ast: IHighLevelNode, error? : Error)=>{}) {
+                                 ast: IHighLevelNode, error? : Error)=>void) {
         this.astListeners.push(listener);
     }
 
