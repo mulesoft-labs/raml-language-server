@@ -36,7 +36,7 @@ if(typeof Promise === 'undefined' && typeof window !== 'undefined') {
 }
 
 export interface IASTListener {
-    (uri: string, version:number, ast: IHighLevelNode):void;
+    (uri: string, version:number, ast: IHighLevelNode, error? : Error):void;
 }
 
 /**

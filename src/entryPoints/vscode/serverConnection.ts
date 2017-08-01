@@ -605,7 +605,7 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         this.debug("rename called for uri: " + uri + " and name " + newName,
             "ProxyServerConnection", "rename")
 
-        if (this.renameListeners.length == 0) return [];
+        if (this.renameListeners.length == 0) return null;
 
         let document = this.documents.get(uri)
         this.debugDetail("got document: " + (document != null),
