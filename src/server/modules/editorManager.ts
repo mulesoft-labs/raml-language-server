@@ -201,6 +201,15 @@ class TextEditorInfo implements IAbstractTextEditorWithCursor {
     }
 
     /**
+     * Returns current cursor position, integer, starting from 0
+     */
+    getCursorPosition(): number {
+        if (!this.cursorPosition) return 0;
+
+        return this.cursorPosition;
+    }
+
+    /**
      * Returns complete text of the document opened in the editor.
      */
     getText() : string {

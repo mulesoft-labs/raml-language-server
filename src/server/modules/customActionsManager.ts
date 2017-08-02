@@ -52,16 +52,94 @@ class EditorProvider implements ramlActions.IEditorProvider {
 
 export function initialize() {
 
-    // ramlActions.setASTProvider()
-    // ramlActions.setASTModifier()
-    // ramlActions.setExternalUIDisplayExecutor()
-    // ramlActions.setDocumentChangeExecutor()
+    ramlActions.intializeStandardActions();
+}
+
+class ASTProvider implements ramlActions.IASTProvider {
+    constructor(private uri: string, private astManagerModule: IASTManagerModule,
+                private logger: ILogger, private position: number) {
+    }
+
+    getASTRoot() {
+
+        let result =  <any> this.astManagerModule.getCurrentAST(this.uri);
+
+        this.logger.debugDetail(
+            "Got AST from AST provider: " + (result?"true":"false"),
+            "CustomActionsManager", "ASTProvider#getASTRoot")
+
+        return result;
+    }
+
+    getSelectedNode() {
+        let root = this.getASTRoot();
+        if (!root) return null;
+
+        return root.findElementAtOffset(this.position);
+    }
+
+    /**
+     * Gets current AST root asynchronously.
+     * Can return null.
+     */
+    getASTRootAsync() {
+        return Promise.resolve(this.getASTRoot())
+    }
+
+    /**
+     * Gets current AST node asynchronously
+     * Can return null.
+     */
+    getSelectedNodeAsync() {
+        return Promise.resolve(this.getSelectedNode())
+    }
+}
+
+class CollectingDocumentChangeExecutor implements ramlActions.IDocumentChangeExecutor {
+    private changes: IChangedDocument[] = [];
+
+    changeDocument(change: IChangedDocument): Promise<void> {
+
+        this.changes.push(change);
+
+        return Promise.resolve(null);
+    }
+
+    public getChanges() {
+        return this.changes;
+    }
+}
+
+class ASTModifier implements ramlActions.IASTModifier {
+
+    constructor(private uri: string,
+                private changeExecutor: CollectingDocumentChangeExecutor) {}
+
+    deleteNode(node: hl.IParseResult) {
+
+        var parent = node.parent();
+        if (parent) {
+            parent.remove(<any>node);
+            parent.resetChildren();
+        }
+    }
+
+    updateText(node: lowLevel.ILowLevelASTNode) {
+        let newText = node.unit().contents();
+
+        this.changeExecutor.changeDocument({
+            uri: this.uri,
+            text: newText,
+        })
+    }
 }
 
 initialize();
 
 
 class CustomActionsManager {
+
+    private changeExecutor = new CollectingDocumentChangeExecutor();
 
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
         private editorManager: IEditorManagerModule) {
@@ -89,10 +167,19 @@ class CustomActionsManager {
         return vsCodeUri;
     }
 
-    private initializeActionsFramework(uri: string) {
+    private initializeActionsFramework(uri: string, position: number) {
 
         ramlActions.setEditorProvider(
             new EditorProvider(this.editorManager, uri));
+
+        ramlActions.setASTProvider(new ASTProvider(uri, this.astManagerModule,
+            this.connection, position));
+
+        this.changeExecutor = new CollectingDocumentChangeExecutor();
+
+        ramlActions.setASTModifier(new ASTModifier(uri, this.changeExecutor))
+
+        ramlActions.setDocumentChangeExecutor(this.changeExecutor);
     }
 
     calculateEditorActions(uri: string, position?: number):
@@ -102,11 +189,25 @@ class CustomActionsManager {
             + " and position " + position, "CustomActionsManager",
             "calculateEditorActions");
 
+        if (!position) {
+            position = this.editorManager.getEditor(uri).getCursorPosition();
+        }
+
+        let connection = this.connection;
+
         return this.astManagerModule.forceGetCurrentAST(uri).then(ast=>{
 
-            this.initializeActionsFramework(uri);
+            this.initializeActionsFramework(uri, position);
 
-            return ramlActions.calculateCurrentActions("TARGET_RAML_EDITOR_NODE");
+            connection.debugDetail("Starting to calculate actions",
+                "CustomActionsManager", "calculateEditorActions");
+
+            let actions = ramlActions.calculateCurrentActions("TARGET_RAML_EDITOR_NODE");
+
+            connection.debugDetail("Calculated actions: " + actions?actions.length.toString():"0",
+                "CustomActionsManager", "calculateEditorActions");
+
+            return actions;
         })
     }
 
@@ -117,12 +218,72 @@ class CustomActionsManager {
             + " and position " + position + " and action" + actionId,
             "CustomActionsManager", "executeAction");
 
+        if (!position) {
+            position = this.editorManager.getEditor(uri).getCursorPosition();
+        }
+
+        let connection = this.connection;
+
         return this.astManagerModule.forceGetCurrentAST(uri)
             .then(ast=>{
 
-            this.initializeActionsFramework(uri);
+            this.initializeActionsFramework(uri, position);
 
-            return ramlActions.executeAction(actionId);
+            ramlActions.setExternalUIDisplayExecutor(
+                (externalDisplay: ramlActions.IExternalUIDisplay)=>{
+
+                connection.debugDetail("Requested to display UI for action ID " + actionId,
+                    "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+                let action = ramlActions.findActionById(actionId);
+
+                connection.debugDetail("Action found: " + action?"true":"false",
+                    "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+                return (initialUIState?: any)=>{
+
+                    connection.debugDetail("Requested to display UI for action, git UI state",
+                        "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+                    let uiCode = externalDisplay.createUICode(initialUIState);
+
+                    connection.debugDetail("UI code generated: " + uiCode?"true":"false",
+                        "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+                    connection.debugDetail("Requesting client for UI code display.",
+                        "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+                    return connection.displayActionUI({
+
+                        action: action,
+
+                        uiCode: uiCode,
+
+                        initialUIState: initialUIState
+                    }).then(finalUIState=>{
+                        connection.debugDetail(
+                            "Client answered with fina UI state for action " + actionId +
+                            " , got final UI state: " + finalUIState?"true":"false",
+                            "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+                    })
+                }
+
+            })
+
+            connection.debugDetail("Starting to execute action " + actionId,
+                "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+            ramlActions.executeAction(actionId);
+
+            connection.debugDetail("Finished to execute action " + actionId,
+                "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+            let changes = this.changeExecutor.getChanges();
+
+            connection.debugDetail("Collected changes: " + changes?changes.length.toString():"0",
+                "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+            return changes;
 
         }).catch(error=>{
             throw error;

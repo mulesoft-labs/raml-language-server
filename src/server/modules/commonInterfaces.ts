@@ -149,6 +149,11 @@ export interface IAbstractTextEditorWithCursor extends IAbstractTextEditor {
      * Returns current cursor position
      */
     getCursorBufferPosition() : IPoint;
+
+    /**
+     * Returns current cursor position, integer, starting from 0
+     */
+    getCursorPosition(): number;
 }
 
 /**
