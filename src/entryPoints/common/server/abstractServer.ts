@@ -562,4 +562,31 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
             payload : uiDisplayRequest
         })
     }
+
+    CALCULATE_ACTIONS(payload:{uri: string, position?: number}) : Promise<IExecutableAction[]> {
+        if (!this.calculateEditorContextActionsListeners) return Promise.resolve([]);
+        
+        return this.calculateEditorContextActionsListeners[0](payload.uri, payload.position);
+    }
+
+    EXECUTE_ACTION(payload:{uri: string, actionId: string,
+                   position?: number}) : Promise<IChangedDocument[]> {
+
+        this.debugDetail("Called",
+            "ProxyServerConnection", "EXECUTE_ACTION")
+
+        if (!this.executeContextActionListeners) return Promise.resolve([]);
+
+        this.debugDetail("Before execution",
+            "ProxyServerConnection", "EXECUTE_ACTION")
+        
+        try {
+            let result = this.executeContextActionListeners[0](payload.uri, payload.actionId,
+                payload.position);
+            return result;
+        } catch (Error) {
+            this.debugDetail("Failed listener execution: " + Error.message,
+                "ProxyServerConnection", "EXECUTE_ACTION")
+        }
+    }
 }

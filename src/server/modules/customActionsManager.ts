@@ -154,6 +154,10 @@ class CustomActionsManager {
 
         this.connection.onExecuteContextAction(
             (uri, actionId, position?)=>{
+                this.connection.debug("onExecuteContextAction for uri " + uri,
+                    "CustomActionsManager",
+                    "calculateEditorActions");
+
                 return this.executeAction(uri, actionId, position)
             }
         )
@@ -207,7 +211,19 @@ class CustomActionsManager {
             connection.debugDetail("Calculated actions: " + actions?actions.length.toString():"0",
                 "CustomActionsManager", "calculateEditorActions");
 
-            return actions;
+            return actions.map(action=>{
+                return {
+                    id: action.id,
+
+                    name : action.name,
+
+                    target : action.target,
+
+                    category : action.category,
+
+                    label : action.label
+                }
+            })
         })
     }
 

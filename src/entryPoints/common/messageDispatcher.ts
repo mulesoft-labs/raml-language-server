@@ -202,6 +202,19 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
                     //looks like a promise, lets send the answer when its ready
                     <any>result.then(
                         (result)=>{
+                            this.debugDetail("Result promise resolved successfully",
+                                "MessageDispatcher:" + this.name, "handleRecievedMessage")
+
+                            let strResult : string = ""
+                            if (result != null) {
+                                strResult = (typeof(result) == 'string')?
+                                    result:JSON.stringify(result, null, 2)
+                            }
+
+                            this.debugDetail("Message "
+                                + message.type + " , result is:\n" + strResult,
+                                "MessageDispatcher:" + this.name, "handleRecievedMessage");
+
                             this.send({
                                 type: message.type,
                                 payload: result,
@@ -209,6 +222,10 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
                             })
                         },
                         (error)=>{
+                            this.debugDetail("Result promise failed of message "
+                                + message.type + " , error message is:\n" + error.message,
+                                "MessageDispatcher:" + this.name, "handleRecievedMessage");
+
                             this.send({
                                 type: message.type,
                                 payload: {},
