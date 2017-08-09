@@ -6,7 +6,9 @@ import {
 
 import {
     IOpenedDocument,
-    IChangedDocument
+    IChangedDocument,
+    IDocumentChangeExecutor,
+    ILogger
 } from '../../common/typeInterfaces'
 
 import {
@@ -22,6 +24,13 @@ export interface IEditorManagerModule extends IListeningModule {
     listen() : void;
     getEditor(uri : string) : IAbstractTextEditorWithCursor;
     onChangeDocument(listener: (document : IChangedDocument)=>void);
+
+    /**
+     * Sets document change executor to use when editor buffer text modification
+     * methods are being called.
+     * @param executor
+     */
+    setDocumentChangeExecutor(executor : IDocumentChangeExecutor) : void;
 }
 
 export function createManager(connection : IServerConnection) : IEditorManagerModule {
@@ -33,6 +42,10 @@ class TextBufferInfo implements IEditorTextBuffer {
 
     private text = "";
     private lineLengths: number[];
+
+    constructor(private uri: string, private editorManager : EditorManager,
+        private logger : ILogger) {
+    }
 
     /**
      * Gets offset from the beginning of the document by the position
@@ -47,6 +60,8 @@ class TextBufferInfo implements IEditorTextBuffer {
 
         return lineStartOffset + position.column;
     }
+
+
 
     /**
      * Gets position by the offset from the beginning of the document.
@@ -123,7 +138,27 @@ class TextBufferInfo implements IEditorTextBuffer {
      * @param normalizeLineEndings - whether to convert line endings to the ones standard for this document.
      */
     setTextInRange(range:IRange, text:string, normalizeLineEndings?:boolean):IRange {
-        //TODO
+        let startOffset = range?this.characterIndexForPosition(range.start) : 0;
+        let endOffset = range?this.characterIndexForPosition(range.end):text.length;
+
+        let startText = startOffset > 0 ? this.text.substring(0, startOffset) : "";
+        let endText = endOffset < this.text.length ? this.text.substring(endOffset) : "";
+        this.text = startText + text + endText;
+
+        //reporting the change to the client, if possible.
+        if (this.editorManager && this.editorManager.getDocumentChangeExecutor()) {
+            this.editorManager.getDocumentChangeExecutor().changeDocument({
+
+                uri: this.uri,
+
+                text: this.text
+            })
+        } else {
+            this.logger.error(
+                "Can not report document change to the client as there is no executor",
+            "EditorManager", "TextBufferInfo#setTextInRange")
+        }
+
         return null;
     }
 
@@ -179,8 +214,10 @@ class TextEditorInfo implements IAbstractTextEditorWithCursor {
     private buffer : TextBufferInfo;
     private cursorPosition: number;
 
-    constructor(private uri : string, private version : number, text : string) {
-        this.buffer = new TextBufferInfo();
+    constructor(private uri : string, private version : number, text : string,
+        editorManager : EditorManager, logger: ILogger) {
+
+        this.buffer = new TextBufferInfo(uri, editorManager, logger);
         this.buffer.setText(text);
     }
 
@@ -250,6 +287,7 @@ class EditorManager implements IEditorManagerModule {
 
     private uriToEditor : {[uri:string] : TextEditorInfo} = {};
     private documentChangeListeners: {(document : IChangedDocument):void}[] = []
+    private documentChangeExecutor : IDocumentChangeExecutor = null;
 
     constructor(private connection : IServerConnection){
     }
@@ -284,7 +322,22 @@ class EditorManager implements IEditorManagerModule {
     }
 
     onOpenDocument(document: IOpenedDocument) : void {
-        this.uriToEditor[document.uri] = new TextEditorInfo(document.uri, document.version, document.text)
+        this.uriToEditor[document.uri] =
+            new TextEditorInfo(document.uri, document.version, document.text,
+                this, this.connection)
+    }
+
+    /**
+     * Sets document change executor to use when editor buffer text modification
+     * methods are being called.
+     * @param executor
+     */
+    setDocumentChangeExecutor(executor : IDocumentChangeExecutor) : void {
+        this.documentChangeExecutor = executor;
+    }
+
+    getDocumentChangeExecutor() : IDocumentChangeExecutor {
+        return this.documentChangeExecutor;
     }
 
     documentWasChanged(document : IChangedDocument) : void {
@@ -310,7 +363,9 @@ class EditorManager implements IEditorManagerModule {
             }
         }
 
-        this.uriToEditor[document.uri] = new TextEditorInfo(document.uri, document.version, document.text)
+        this.uriToEditor[document.uri] =
+            new TextEditorInfo(document.uri, document.version, document.text,
+                this, this.connection)
         for(let listener of this.documentChangeListeners) {
             listener(document);
         }

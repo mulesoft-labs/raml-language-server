@@ -33,23 +33,23 @@ function launch() : IClientConnection {
 
     let clientConnection = new NodeProcessClientConnection(serverProcess);
 
-    // clientConnection.setLoggerConfiguration({
-    //     // allowedComponents: [
-    //     //     "CompletionManagerModule"
-    //     // ],
-    //     maxSeverity: MessageSeverity.ERROR,
-    //     maxMessageLength: 50
-    // });
-
     clientConnection.setLoggerConfiguration({
         // allowedComponents: [
-        //     "NodeProcessClientConnection",
-        //     "CustomActionsManager",
-        //
+        //     "CompletionManagerModule"
         // ],
-        maxSeverity: MessageSeverity.DEBUG_DETAIL,
-        maxMessageLength: 500
+        maxSeverity: MessageSeverity.ERROR,
+        maxMessageLength: 50
     });
+
+    // clientConnection.setLoggerConfiguration({
+    //     // allowedComponents: [
+    //     //     "NodeProcessClientConnection",
+    //     //     "CustomActionsManager",
+    //     //
+    //     // ],
+    //     maxSeverity: MessageSeverity.DEBUG_DETAIL,
+    //     maxMessageLength: 5000
+    // });
 
     return clientConnection;
 }

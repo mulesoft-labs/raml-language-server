@@ -184,6 +184,18 @@ export interface IChangedDocument {
     textEdits? : ITextEdit[];
 }
 
+/**
+ * Executes document changes.
+ */
+export interface IDocumentChangeExecutor {
+
+    /**
+     * Changes the document.
+     * @param change
+     */
+    changeDocument(change: IChangedDocument): Promise<void>;
+}
+
 export enum StructureCategories {
     ResourcesCategory = <any>"Resources",
     SchemasAndTypesCategory = <any>"Schemas & Types",

@@ -98,7 +98,14 @@ class ASTProvider implements ramlActions.IASTProvider {
 class CollectingDocumentChangeExecutor implements ramlActions.IDocumentChangeExecutor {
     private changes: IChangedDocument[] = [];
 
+    constructor(private logger: ILogger) {
+    }
+
     changeDocument(change: IChangedDocument): Promise<void> {
+
+        this.logger.debugDetail("Registering document change for document " + change.uri +
+            ", text is:\n" + change.text,
+            "CustomActionsManager", "CollectingDocumentChangeExecutor#changeDocument")
 
         this.changes.push(change);
 
@@ -139,10 +146,12 @@ initialize();
 
 class CustomActionsManager {
 
-    private changeExecutor = new CollectingDocumentChangeExecutor();
+    private changeExecutor = null;
 
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
         private editorManager: IEditorManagerModule) {
+
+        this.changeExecutor = new CollectingDocumentChangeExecutor(connection);
     }
 
     listen() {
@@ -179,11 +188,13 @@ class CustomActionsManager {
         ramlActions.setASTProvider(new ASTProvider(uri, this.astManagerModule,
             this.connection, position));
 
-        this.changeExecutor = new CollectingDocumentChangeExecutor();
+        this.changeExecutor = new CollectingDocumentChangeExecutor(this.connection);
 
         ramlActions.setASTModifier(new ASTModifier(uri, this.changeExecutor))
 
         ramlActions.setDocumentChangeExecutor(this.changeExecutor);
+
+        this.editorManager.setDocumentChangeExecutor(this.changeExecutor);
     }
 
     calculateEditorActions(uri: string, position?: number):
@@ -240,6 +251,8 @@ class CustomActionsManager {
 
         let connection = this.connection;
 
+        let editorManager = this.editorManager;
+
         return this.astManagerModule.forceGetCurrentAST(uri)
             .then(ast=>{
 
@@ -287,21 +300,24 @@ class CustomActionsManager {
             })
 
             connection.debugDetail("Starting to execute action " + actionId,
-                "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+                "CustomActionsManager", "executeAction");
 
             ramlActions.executeAction(actionId);
 
             connection.debugDetail("Finished to execute action " + actionId,
-                "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+                "CustomActionsManager", "executeAction");
+
+            editorManager.setDocumentChangeExecutor(null);
 
             let changes = this.changeExecutor.getChanges();
 
             connection.debugDetail("Collected changes: " + changes?changes.length.toString():"0",
-                "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+                "CustomActionsManager", "executeAction");
 
             return changes;
 
         }).catch(error=>{
+            editorManager.setDocumentChangeExecutor(null);
             throw error;
         })
     }
