@@ -58,7 +58,14 @@ class TextBufferInfo implements IEditorTextBuffer {
             lineStartOffset += this.lineLengths[i];
         }
 
-        return lineStartOffset + position.column;
+        let result = lineStartOffset + position.column;
+
+        this.logger.debugDetail(
+            "characterIndexForPosition:" +
+            ": [" + position.row + ":" +position.column + "] = " + result,
+            "EditorManager", "TextBufferInfo#characterIndexForPosition")
+
+        return result;
     }
 
 
@@ -73,6 +80,12 @@ class TextBufferInfo implements IEditorTextBuffer {
         for(var i = 0 ; i < this.lineLengths.length; i++){
             var lineLength = this.lineLengths[i];
             if(pos < lineLength){
+
+                this.logger.debugDetail(
+                    "positionForCharacterIndex:" + offset +
+                        ": [" + i + ":" +pos + "]",
+                    "EditorManager", "TextBufferInfo#positionForCharacterIndex")
+
                 return {
                     row: i,
                     column: pos
@@ -81,13 +94,27 @@ class TextBufferInfo implements IEditorTextBuffer {
             pos -= lineLength;
         }
         if(pos==0){
+
+            let row = this.lineLengths.length-1;
+            let column = this.lineLengths[this.lineLengths.length-1];
+
+            this.logger.debugDetail(
+                "positionForCharacterIndex:" + offset +
+                ": [" + row + ":" + column + "]",
+                "EditorManager", "TextBufferInfo#positionForCharacterIndex")
+
             return {
-                row: this.lineLengths.length-1,
-                column: this.lineLengths[this.lineLengths.length-1]
+                row: row,
+                column: column
             }
         }
 
-        throw new Error(`Character position exceeds text length: ${offset} > + ${this.text.length}`);
+        let errorMessage = `Character position exceeds text length: ${offset} > + ${this.text.length}`;
+
+        this.logger.error(errorMessage,
+            "EditorManager", "TextBufferInfo#positionForCharacterIndex")
+
+        throw new Error(errorMessage);
     }
 
     /**
@@ -114,6 +141,11 @@ class TextBufferInfo implements IEditorTextBuffer {
             column : lineStartOffset + lineLength
         }
 
+        this.logger.debugDetail(
+            "rangeForRow:" + row + ": [" + startPoint.row + ":" +startPoint.column + "]"
+            + ",[" + endPoint.row + ":" +endPoint.column + "]",
+            "EditorManager", "TextBufferInfo#rangeForRow")
+
         return {
             start: startPoint,
             end: endPoint
@@ -128,7 +160,14 @@ class TextBufferInfo implements IEditorTextBuffer {
         let startOffset = this.characterIndexForPosition(range.start);
         let endOffset = this.characterIndexForPosition(range.end);
 
-        return this.text.substring(startOffset, endOffset);
+        let result = this.text.substring(startOffset, endOffset);
+
+        this.logger.debugDetail(
+            "Text in range: [" + range.start.row + ":" +range.start.column + "]"
+                + ",[" + range.end.row + ":" +range.end.column + "]:\n" + result,
+            "EditorManager", "TextBufferInfo#getTextInRange")
+
+        return result;
     }
 
     /**
@@ -138,12 +177,34 @@ class TextBufferInfo implements IEditorTextBuffer {
      * @param normalizeLineEndings - whether to convert line endings to the ones standard for this document.
      */
     setTextInRange(range:IRange, text:string, normalizeLineEndings?:boolean):IRange {
+        this.logger.debug(
+            "Setting text in range: [" + range.start.row + ":" +range.start.column + "] ,"
+                + "[" + range.end.row + ":" +range.end.column + "]\n" + text,
+            "EditorManager", "TextBufferInfo#setTextInRange")
+
         let startOffset = range?this.characterIndexForPosition(range.start) : 0;
         let endOffset = range?this.characterIndexForPosition(range.end):text.length;
 
+        this.logger.debugDetail(
+            "Found range in absolute coords: [" + startOffset + ":" +endOffset + "]",
+            "EditorManager", "TextBufferInfo#setTextInRange")
+
         let startText = startOffset > 0 ? this.text.substring(0, startOffset) : "";
         let endText = endOffset < this.text.length ? this.text.substring(endOffset) : "";
-        this.text = startText + text + endText;
+
+        this.logger.debugDetail(
+            "Start text is:\n" + startText,
+            "EditorManager", "TextBufferInfo#setTextInRange")
+
+        this.logger.debugDetail(
+            "End text is:\n" + endText,
+            "EditorManager", "TextBufferInfo#setTextInRange")
+
+        this.setText(startText + text + endText);
+
+        this.logger.debugDetail(
+            "Final text is:\n" + this.text,
+            "EditorManager", "TextBufferInfo#setTextInRange")
 
         //reporting the change to the client, if possible.
         if (this.editorManager && this.editorManager.getDocumentChangeExecutor()) {

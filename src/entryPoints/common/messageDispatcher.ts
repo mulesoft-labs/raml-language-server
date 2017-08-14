@@ -96,7 +96,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @param message
      */
     public send(message : ProtocolMessage<MessageType>) : void {
-        this.debug("Sending message of type: " + message.type, "MessageDispatcher: " + this.name, "send");
+        this.debug("Sending message of type: " + message.type, "MessageDispatcher:" + this.name, "send");
         this.sendMessage(message);
     }
 
@@ -107,7 +107,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      * @return promise, which will contain the result returned by the counterpart
      */
     public sendWithResponse<ResultType>(message : ProtocolMessage<MessageType>) : Promise<ResultType> {
-        this.debug("Sending message with response of type: " + message.type, "MessageDispatcher: " + this.name, "sendWithResonse");
+        this.debug("Sending message with response of type: " + message.type, "MessageDispatcher:" + this.name, "sendWithResonse");
         return new Promise((resolve : (value?: ResultType) => void, reject: (error?: any) => void)=>{
 
             message.id = shortid.generate();
@@ -144,7 +144,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      */
     public handleRecievedMessage(message : ProtocolMessage<MessageType>) {
         this.debug("Recieved message of type: " + message.type + " and id: " + message.id,
-            "MessageDispatcher: " + this.name, "handleRecievedMessage");
+            "MessageDispatcher:" + this.name, "handleRecievedMessage");
 
         if (message.id && this.callBacks[message.id]) {
             this.debugDetail("MessageDispatcher:handleRecievedMessage Message callback found",
