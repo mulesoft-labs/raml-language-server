@@ -123,6 +123,10 @@ class TextBufferInfo implements IEditorTextBuffer {
      * @param includeNewline - whether to include new line character(s).
      */
     rangeForRow(row:number, includeNewline?:boolean):IRange {
+        this.logger.debugDetail(
+            "rangeForRow start:" + row,
+            "EditorManager", "TextBufferInfo#rangeForRow")
+
         let lineStartOffset = 0;
 
         for (let i = 0; i < row - 1; i++) {
@@ -133,16 +137,16 @@ class TextBufferInfo implements IEditorTextBuffer {
 
         let startPoint = {
             row : row,
-            column : lineStartOffset
+            column : 0
         }
 
         let endPoint = {
             row : row,
-            column : lineStartOffset + lineLength
+            column : lineLength
         }
 
         this.logger.debugDetail(
-            "rangeForRow:" + row + ": [" + startPoint.row + ":" +startPoint.column + "]"
+            "rangeForRow return:" + row + ": [" + startPoint.row + ":" +startPoint.column + "]"
             + ",[" + endPoint.row + ":" +endPoint.column + "]",
             "EditorManager", "TextBufferInfo#rangeForRow")
 
