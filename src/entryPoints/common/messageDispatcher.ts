@@ -97,6 +97,19 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
      */
     public send(message : ProtocolMessage<MessageType>) : void {
         this.debug("Sending message of type: " + message.type, "MessageDispatcher:" + this.name, "send");
+
+        try {
+            let strPayload : string = ""
+            if (message.payload != null) {
+                strPayload = (typeof(message.payload) == 'string')?
+                    message.payload:JSON.stringify(message.payload, null, 2)
+            }
+
+            this.debugDetail("Message "
+                + message.type + " , result is:\n" + strPayload,
+                "MessageDispatcher:" + this.name, "send");
+        } catch (Error){}
+
         this.sendMessage(message);
     }
 
@@ -115,6 +128,18 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
                 resolve : resolve,
                 reject : reject
             }
+
+            try {
+                let strPayload : string = ""
+                if (message.payload != null) {
+                    strPayload = (typeof(message.payload) == 'string')?
+                        message.payload:JSON.stringify(message.payload, null, 2)
+                }
+
+                this.debugDetail("Message "
+                    + message.type + " , result is:\n" + strPayload,
+                    "MessageDispatcher:" + this.name, "sendWithResponse");
+            } catch (Error){}
 
             this.sendMessage(message);
         })
@@ -205,15 +230,17 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
                             this.debugDetail("Result promise resolved successfully",
                                 "MessageDispatcher:" + this.name, "handleRecievedMessage")
 
-                            let strResult : string = ""
-                            if (result != null) {
-                                strResult = (typeof(result) == 'string')?
-                                    result:JSON.stringify(result, null, 2)
-                            }
+                            try {
+                                let strResult : string = ""
+                                if (result != null) {
+                                    strResult = (typeof(result) == 'string')?
+                                        result:JSON.stringify(result, null, 2)
+                                }
 
-                            this.debugDetail("Message "
-                                + message.type + " , result is:\n" + strResult,
-                                "MessageDispatcher:" + this.name, "handleRecievedMessage");
+                                this.debugDetail("Message "
+                                    + message.type + " , result is:\n" + strResult,
+                                    "MessageDispatcher:" + this.name, "handleRecievedMessage");
+                            } catch (Error){}
 
                             this.send({
                                 type: message.type,
