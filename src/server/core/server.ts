@@ -41,8 +41,8 @@ export class Server {
         this.modules.push(StructureManagerModule.createManager(connection,
             astManagerModule));
 
-        this.modules.push(DetailsManagerModule.createManager(connection,
-            astManagerModule, editorManagerModule));
+        // this.modules.push(DetailsManagerModule.createManager(connection,
+        //     astManagerModule, editorManagerModule));
 
         this.modules.push(CompletionManagerModule.createManager(connection,
             astManagerModule, editorManagerModule));
