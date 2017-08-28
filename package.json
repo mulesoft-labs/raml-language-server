@@ -8,7 +8,11 @@
     "test" : "gulp test",
     "generateBrowserVersion": "npm run build && node dist/entryPoints/web_worker/packaging/webGenerator.js",
     "buildBrowserPublishNpm": "npm run build && node dist/entryPoints/web_worker/packaging/webGenerator.js --type 'npm'",
-    "lint": "tslint --project ."
+    "lint": "tslint --project .",
+    "pullall" : "dev-env-installer pullall",
+    "buildall" : "dev-env-installer buildall",
+    "testall" : "dev-env-installer testall",
+    "devInstall": "dev-env-installer install"
   },
   "repository": {
     "type": "git",
@@ -42,7 +46,7 @@
     "@types/es6-promise": "*",
     "@types/underscore": "*",
     "typescript": "^2.1.5",
-    "dev-env-installer": "0.0.5",
+    "dev-env-installer": "0.0.6",
     "rimraf": "*",
     "chai": "^2.2.0",
     "chai-as-promised": "^5.2.0",
