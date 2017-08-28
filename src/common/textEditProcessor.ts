@@ -1,26 +1,30 @@
 import {
     ITextEdit
-} from './typeInterfaces'
+} from "./typeInterfaces";
 
 /**
  * Applies single text edit to the document contents.
  * @param oldContents
  * @param edit
  */
-export function applyDocumentEdit(oldContents : string, edit: ITextEdit) : string {
+export function applyDocumentEdit(oldContents: string, edit: ITextEdit): string {
 
-    if (edit.range.end == 0) return edit.text + oldContents;
+    if (edit.range.end === 0) {
+        return edit.text + oldContents;
+    }
 
-    if (edit.range.start >= oldContents.length) return oldContents + edit.text;
+    if (edit.range.start >= oldContents.length) {
+        return oldContents + edit.text;
+    }
 
     if (edit.range.start < 0 || edit.range.end > oldContents.length) {
         throw new Error("Range of [" + edit.range.start + ":" + edit.range.end
-            +"] is not applicable to document of length " + oldContents.length);
+            + "] is not applicable to document of length " + oldContents.length);
     }
 
     if (edit.range.start >= edit.range.end) {
         throw new Error("Range of [" + edit.range.start + ":" + edit.range.end
-            +"] should have end greater than start");
+            + "] should have end greater than start");
     }
 
     let beginning = "";
@@ -42,12 +46,12 @@ export function applyDocumentEdit(oldContents : string, edit: ITextEdit) : strin
  * @param edits
  * @returns {string}
  */
-export function applyDocumentEdits(oldContents : string, edits: ITextEdit[]) : string {
+export function applyDocumentEdits(oldContents: string, edits: ITextEdit[]): string {
     if (edits.length > 1) {
-        //TODO implement this
+        // TODO implement this
         throw new Error("Unsupported application of more than 1 text editor at once to a single file");
     }
 
-    let newContents = applyDocumentEdit(oldContents, edits[0]);
+    const newContents = applyDocumentEdit(oldContents, edits[0]);
     return newContents;
 }
