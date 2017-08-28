@@ -1,11 +1,11 @@
-import outline = require("raml-outline")
-import suggestions = require("raml-suggestions")
+import outline = require("raml-outline");
+import suggestions = require("raml-suggestions");
 
 export {
     MessageSeverity,
     ILoggerSettings,
     ILogger
-} from './logger'
+} from "./logger";
 
 /**
  * Structure node JSON representation.
@@ -45,33 +45,33 @@ export interface IRange {
     /**
      * Range start position, counting from 0
      */
-    start: number
+    start: number;
 
     /**
      * Range end position, counting from 0
      */
-    end: number
+    end: number;
 }
 
 export interface IValidationIssue {
     /**
      * Error code
      */
-    code : string
+    code: string;
 
     /**
      * Error type.
      */
-    type: string
+    type: string;
 
     /**
      * To be renamed to uri.
      */
-    filePath: string
+    filePath: string;
 
-    text: string
-    range: IRange
-    trace: IValidationIssue[]
+    text: string;
+    range: IRange;
+    trace: IValidationIssue[];
 }
 
 export interface IValidationReport {
@@ -79,7 +79,7 @@ export interface IValidationReport {
      * This is the "point of view" uri, actual reported unit paths are located
      * in the particular issues.
      */
-    pointOfViewUri : string;
+    pointOfViewUri: string;
 
     /**
      * Optional document version of the point of view.
@@ -96,7 +96,7 @@ export interface IStructureReport {
     /**
      * Document uri.
      */
-    uri : string;
+    uri: string;
 
     /**
      * Optional document version.
@@ -106,19 +106,19 @@ export interface IStructureReport {
     /**
      * Document structure.
      */
-    structure: {[categoryName:string] : StructureNodeJSON};
+    structure: {[categoryName: string]: StructureNodeJSON};
 }
 
 export interface IDetailsReport {
     /**
      * Document uri.
      */
-    uri : string;
+    uri: string;
 
     /**
      * Cursor position in the document, starting from 0.
      */
-    position: number,
+    position: number;
 
     /**
      * Optional document version.
@@ -128,7 +128,7 @@ export interface IDetailsReport {
     /**
      * Details root item.
      */
-    details : DetailsItemJSON;
+    details: DetailsItemJSON;
 }
 
 export interface IOpenedDocument {
@@ -153,12 +153,12 @@ export interface ITextEdit {
      * Range to replace. Range start==end==0 => insert into the beginning of the document,
      * start==end==document end => insert into the end of the document
      */
-    range : IRange,
+    range: IRange;
 
     /**
      * Text to replace given range with.
      */
-    text: string
+    text: string;
 }
 
 export interface IChangedDocument {
@@ -181,7 +181,7 @@ export interface IChangedDocument {
      * Optional set of text edits instead of complete text replacement.
      * Is only taken into account if text is null.
      */
-    textEdits? : ITextEdit[];
+    textEdits?: ITextEdit[];
 }
 
 /**
@@ -197,29 +197,29 @@ export interface IDocumentChangeExecutor {
 }
 
 export enum StructureCategories {
-    ResourcesCategory = <any>"Resources",
-    SchemasAndTypesCategory = <any>"Schemas & Types",
-    ResourceTypesAndTraitsCategory = <any>"Resource Types & Traits",
-    OtherCategory = <any>"Other"
+    ResourcesCategory = "Resources" as any,
+    SchemasAndTypesCategory = "Schemas & Types" as any,
+    ResourceTypesAndTraitsCategory = "Resource Types & Traits" as any,
+    OtherCategory = "Other" as any
 }
 
-//TODO rename from currently used atom icons to something more meaningful/universal
+// TODO rename from currently used atom icons to something more meaningful/universal
 export enum Icons {
-    ARROW_SMALL_LEFT = <any>"ARROW_SMALL_LEFT",
-    PRIMITIVE_SQUARE = <any>"PRIMITIVE_SQUARE",
-    PRIMITIVE_DOT = <any>"PRIMITIVE_DOT",
-    FILE_SUBMODULE = <any>"FILE_SUBMODULE",
-    TAG = <any>"TAG",
-    FILE_BINARY = <any>"FILE_BINARY",
-    BOOK = <any>"BOOK"
+    ARROW_SMALL_LEFT = "ARROW_SMALL_LEFT" as any,
+    PRIMITIVE_SQUARE = "PRIMITIVE_SQUARE" as any,
+    PRIMITIVE_DOT = "PRIMITIVE_DOT" as any,
+    FILE_SUBMODULE = "FILE_SUBMODULE" as any,
+    TAG = "TAG" as any,
+    FILE_BINARY = "FILE_BINARY" as any,
+    BOOK = "BOOK" as any
 }
 
-//TODO rename from currently used atom styles to something more meaningful/universal
+// TODO rename from currently used atom styles to something more meaningful/universal
 export enum TextStyles {
-    NORMAL = <any>"NORMAL",
-    HIGHLIGHT = <any>"HIGHLIGHT",
-    WARNING = <any>"WARNING",
-    SUCCESS = <any>"SUCCESS"
+    NORMAL = "NORMAL" as any,
+    HIGHLIGHT = "HIGHLIGHT" as any,
+    WARNING = "WARNING" as any,
+    SUCCESS = "SUCCESS" as any
 }
 
 /**
@@ -230,7 +230,7 @@ export interface ILocation {
     /**
      * Document uri
      */
-    uri : string;
+    uri: string;
 
     /**
      * Optional document version.
@@ -240,7 +240,7 @@ export interface ILocation {
     /**
      * Range in the document.
      */
-    range: IRange
+    range: IRange;
 }
 
 /**
@@ -251,31 +251,31 @@ export interface IExecutableAction {
     /**
      * Unique action ID.
      */
-    id: string
+    id: string;
 
     /**
      * Displayed menu item name
      */
-    name : string
+    name: string;
 
     /**
      * Action target (like editor node, tree viewer etc).
      * The value must be recognizable by action consumers.
      * Some of the standard values are defined in this module.
      */
-    target : string
+    target: string;
 
     /**
      * Action category and potential subcategories.
      * In example, item with a name "itemName" and categories ["cat1", "cat2"]
      * will be displayed as the following menu hierarchy: cat1/cat2/itemName
      */
-    category? : string[]
+    category?: string[];
 
     /**
      * Optional label, will be used instead of name for display purpose
      */
-    label? : string
+    label?: string;
 }
 
 /**
@@ -286,15 +286,15 @@ export interface IUIDisplayRequest {
     /**
      * Action that requires UI to be displayed.
      */
-    action: IExecutableAction
+    action: IExecutableAction;
 
     /**
      * JS code displaying UI.
      */
-    uiCode: string
+    uiCode: string;
 
     /**
      * Arbitrary JSON setting up initial UI state.
      */
-    initialUIState: any
+    initialUIState: any;
 }
