@@ -12,11 +12,11 @@ export {
     IDetailsReport,
     IExecutableAction,
     IUIDisplayRequest
-} from '../common/typeInterfaces'
+} from "../common/typeInterfaces";
 
 import {
     ITextEdit
-} from '../common/typeInterfaces'
+} from "../common/typeInterfaces";
 
 export interface IOpenedDocument {
     /**
@@ -45,5 +45,5 @@ export interface IChangedDocument {
      * Optional set of text edits instead of complete text replacement.
      * Is only taken into account if text is null.
      */
-    textEdits? : ITextEdit[];
+    textEdits?: ITextEdit[];
 }
