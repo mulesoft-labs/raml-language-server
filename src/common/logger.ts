@@ -14,31 +14,29 @@ export interface ILoggerSettings {
     /**
      * If true, disables all logging.
      */
-    disabled? : boolean;
+    disabled?: boolean;
 
     /**
      * List of components, which are allowed to appear in log.
      * If empty or null, all components are allowed (except those excplicitly denied).
      */
-    allowedComponents?: string[]
+    allowedComponents?: string[];
 
     /**
      * Components, which never appear in the log
      */
-    deniedComponents?: string[]
+    deniedComponents?: string[];
 
     /**
      * Messages with lower severity will not appear in log.
      */
-    maxSeverity?: MessageSeverity
+    maxSeverity?: MessageSeverity;
 
     /**
      * Messages having more length will be cut off to this number.
      */
-    maxMessageLength?: number
+    maxMessageLength?: number;
 }
-
-
 
 export interface ILogger {
     /**
@@ -48,8 +46,8 @@ export interface ILogger {
      * @param component - component name
      * @param subcomponent - sub-component name
      */
-    log(message:string, severity: MessageSeverity,
-        component?: string, subcomponent?: string) : void
+    log(message: string, severity: MessageSeverity,
+        component?: string, subcomponent?: string): void;
 
     /**
      * Logs a DEBUG severity message.
@@ -57,8 +55,8 @@ export interface ILogger {
      * @param component - component name
      * @param subcomponent - sub-component name
      */
-    debug(message:string,
-          component?: string, subcomponent?: string) : void;
+    debug(message: string,
+          component?: string, subcomponent?: string): void;
 
     /**
      * Logs a DEBUG_DETAIL severity message.
@@ -66,8 +64,8 @@ export interface ILogger {
      * @param component - component name
      * @param subcomponent - sub-component name
      */
-    debugDetail(message:string,
-                component?: string, subcomponent?: string) : void;
+    debugDetail(message: string,
+                component?: string, subcomponent?: string): void;
 
     /**
      * Logs a DEBUG_OVERVIEW severity message.
@@ -75,8 +73,8 @@ export interface ILogger {
      * @param component - component name
      * @param subcomponent - sub-component name
      */
-    debugOverview(message:string,
-                  component?: string, subcomponent?: string) : void;
+    debugOverview(message: string,
+                  component?: string, subcomponent?: string): void;
 
     /**
      * Logs a WARNING severity message.
@@ -84,8 +82,8 @@ export interface ILogger {
      * @param component - component name
      * @param subcomponent - sub-component name
      */
-    warning(message:string,
-            component?: string, subcomponent?: string) : void;
+    warning(message: string,
+            component?: string, subcomponent?: string): void;
 
     /**
      * Logs an ERROR severity message.
@@ -93,8 +91,8 @@ export interface ILogger {
      * @param component - component name
      * @param subcomponent - sub-component name
      */
-    error(message:string,
-          component?: string, subcomponent?: string) : void;
+    error(message: string,
+          component?: string, subcomponent?: string): void;
 
     /**
      * Sets logger configuration, both for the server and for the client.
