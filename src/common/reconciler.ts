@@ -1,10 +1,10 @@
 import {
     ILogger
-} from './logger'
+} from "./logger";
 
-var PromiseConstructor = require('promise-polyfill');
-if(typeof Promise === 'undefined' && typeof window !== 'undefined') {
-    (<any>window).Promise = PromiseConstructor;
+const PromiseConstructor = require("promise-polyfill");
+if (typeof Promise === "undefined" && typeof window !== "undefined") {
+    (window as any).Promise = PromiseConstructor;
 }
 
 export interface Runnable<ResultType> {
@@ -13,10 +13,10 @@ export interface Runnable<ResultType> {
      * Performs the actual business logics.
      * Should resolve the promise when finished.
      */
-    run() : Promise<ResultType>;
+    run(): Promise<ResultType>;
 
-    //Commented out as we do not allow to run parsing synhronously any more due to the connection,
-    //which provides file system information does this only asynchronously
+    // Commented out as we do not allow to run parsing synhronously any more due to the connection,
+    // which provides file system information does this only asynchronously
     // /**
     //  * Performs the actual business logics synchronously.
     //  */
@@ -27,85 +27,85 @@ export interface Runnable<ResultType> {
      * Must work fast as its called often.
      * @param other
      */
-    conflicts(other : Runnable<any>) : boolean;
+    conflicts(other: Runnable<any>): boolean;
 
     /**
      * Cancels the runnable. run() method should do nothing if launched later,
      * if cancel is called during the run() method execution, run() should stop as soon as it can.
      */
-    cancel() : void;
+    cancel(): void;
 
     /**
      * Whether cancel() method was called at least once.
      */
-    isCanceled() : boolean;
+    isCanceled(): boolean;
 }
 
 export class Reconciler {
 
-    private waitingList : Runnable<any>[] = [];
-    private runningList : Runnable<any>[] = [];
+    private waitingList: Runnable<any>[] = [];
+    private runningList: Runnable<any>[] = [];
 
-    constructor(private logger: ILogger, private timeout : number) {
+    constructor(private logger: ILogger, private timeout: number) {
     }
 
-    public schedule<ResultType>(runnable: Runnable<ResultType>) : Promise<ResultType> {
+    public schedule<ResultType>(runnable: Runnable<ResultType>): Promise<ResultType> {
         this.addToWaitingList(runnable);
 
-        return new Promise((resolve : (value?: ResultType) => void, reject: (error?: any) => void)=>{
+        return new Promise((resolve: (value?: ResultType) => void, reject: (error?: any) => void) => {
 
-            setTimeout(()=>{
+            setTimeout(() => {
 
                 this.logger.debugDetail("Time came to execute " + runnable.toString(),
-                    "Reconciler","schedule");
+                    "Reconciler", "schedule");
 
                 if (runnable.isCanceled()) {
                     this.logger.debugDetail("Runnable " + runnable.toString() + " is cancelled, doing nothing",
-                        "Reconciler","schedule");
+                        "Reconciler", "schedule");
 
-                    this.removeFromWaitingList(runnable)
+                    this.removeFromWaitingList(runnable);
                     return;
                 }
 
-                let currentlyRunning = this.findConflictingInRunningList(runnable);
+                const currentlyRunning = this.findConflictingInRunningList(runnable);
                 if (currentlyRunning) {
-                    //TODO add an additional short timeout parameter to launch the reschedule
-                    //at the finish of the currently running task for a short time after it.
+                    // TODO add an additional short timeout parameter to launch the reschedule
+                    // at the finish of the currently running task for a short time after it.
 
                     this.logger.debugDetail("Conflicting to " + runnable.toString()
                         + " is found in the running list: " + currentlyRunning.toString()
                         + " rescheduling current one.",
-                        "Reconciler","schedule");
+                        "Reconciler", "schedule");
 
-                    this.schedule(runnable)
+                    this.schedule(runnable);
                     return;
                 }
 
-                this.removeFromWaitingList(runnable)
-                this.addToRunningList(runnable)
+                this.removeFromWaitingList(runnable);
+                this.addToRunningList(runnable);
 
                 this.logger.debugDetail("Executing " + runnable.toString(),
-                    "Reconciler","schedule");
+                    "Reconciler", "schedule");
 
                 this.run(runnable).then(
-                    (result)=>{ resolve(result); },
-                    (error)=>{ reject(error); }
-                )
+                    (result) => { resolve(result); },
+                    (error) => { reject(error); }
+                );
 
             }, this.timeout);
 
-        })
+        });
     }
 
-    private run<ResultType>(runnable: Runnable<ResultType>) : Promise<ResultType> {
+    private run<ResultType>(runnable: Runnable<ResultType>): Promise<ResultType> {
 
         return runnable.run().then(
 
-            (result):ResultType=>{
+            (result): ResultType => {
                 this.removeFromRunningList(runnable);
                 return result;
             },
-            (error):ResultType=>{
+            (error): ResultType => {
                 this.removeFromRunningList(runnable);
                 throw error;
             }
@@ -122,13 +122,13 @@ export class Reconciler {
         this.logger.debugDetail("Adding runnable " + runnable.toString() + " to waiting list",
             "Reconciler", "addToWaitingList");
 
-        this.waitingList = this.waitingList.filter(current=>{
+        this.waitingList = this.waitingList.filter((current) => {
 
             this.logger.debugDetail("Comparing existing runnable " + current.toString() +
                 " to the new " + runnable.toString(),
                 "Reconciler", "addToWaitingList");
 
-            let conflicts = runnable.conflicts(current);
+            const conflicts = runnable.conflicts(current);
             if (conflicts) {
                 this.logger.debugDetail("Runnables are conflicting, canceling existing one",
                     "Reconciler", "addToWaitingList");
@@ -137,7 +137,7 @@ export class Reconciler {
             }
 
             return !conflicts;
-        })
+        });
 
         this.waitingList.push(runnable);
     }
@@ -149,10 +149,12 @@ export class Reconciler {
     private removeFromWaitingList<ResultType>(runnable: Runnable<ResultType>) {
         this.logger.debugDetail("Removing " + runnable.toString()
             + " from waiting list",
-            "Reconciler","removeFromWaitingList");
+            "Reconciler", "removeFromWaitingList");
 
-        var index = this.waitingList.indexOf(runnable);
-        if (index != -1) this.waitingList.splice(index, 1);
+        const index = this.waitingList.indexOf(runnable);
+        if (index !== -1) {
+            this.waitingList.splice(index, 1);
+        }
     }
 
     /**
@@ -162,7 +164,7 @@ export class Reconciler {
     private addToRunningList<ResultType>(runnable: Runnable<ResultType>) {
         this.logger.debugDetail("Adding " + runnable.toString()
             + " to running list",
-            "Reconciler","removeFromWaitingList");
+            "Reconciler", "removeFromWaitingList");
 
         this.runningList.push(runnable);
     }
@@ -174,10 +176,12 @@ export class Reconciler {
     private removeFromRunningList<ResultType>(runnable: Runnable<ResultType>) {
         this.logger.debugDetail("Removing " + runnable.toString()
             + " from running list",
-            "Reconciler","removeFromWaitingList");
+            "Reconciler", "removeFromWaitingList");
 
-        var index = this.runningList.indexOf(runnable);
-        if (index != -1) this.runningList.splice(index, 1);
+        const index = this.runningList.indexOf(runnable);
+        if (index !== -1) {
+            this.runningList.splice(index, 1);
+        }
     }
 
     /**
@@ -185,9 +189,11 @@ export class Reconciler {
      * @param runnable
      * @returns {any}
      */
-    private findConflictingInRunningList<ResultType>(runnable: Runnable<ResultType>) : Runnable<ResultType> {
-        for (let current of this.runningList) {
-            if (runnable.conflicts(current)) return current;
+    private findConflictingInRunningList<ResultType>(runnable: Runnable<ResultType>): Runnable<ResultType> {
+        for (const current of this.runningList) {
+            if (runnable.conflicts(current)) {
+                return current;
+            }
         }
 
         return null;
