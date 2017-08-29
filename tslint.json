@@ -3,7 +3,13 @@
   "rules": {
     "trailing-comma": false,
     "array-type": false,
-    "interface-name": false
+    "interface-name": false,
+    "object-literal-sort-keys": false,
+    "callable-types": false,
+    "no-console": false,
+    "max-classes-per-file": false,
+    "no-empty": false,
+    "only-arrow-functions": false
   },
   "jsRules": {
   },

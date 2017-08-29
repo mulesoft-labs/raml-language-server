@@ -25,8 +25,8 @@ export type MessageToServerType =
     "EXECUTE_ACTION";
 
 export interface ProtocolMessage<MessageType extends MessageToClientType | MessageToServerType> {
-    type : MessageType
-    payload : any,
-    id? : string
-    errorMessage? : string
+    type: MessageType;
+    payload: any;
+    id?: string;
+    errorMessage?: string;
 }

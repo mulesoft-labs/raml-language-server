@@ -1,71 +1,71 @@
 import {
-    IServerConnection,
-    IRange,
-    IValidationIssue,
-    IValidationReport,
-    IOpenedDocument,
-    IChangedDocument,
-    StructureNodeJSON,
-    Suggestion,
-    ILogger,
-    MessageSeverity,
-    ILocation,
     DetailsItemJSON,
+    IChangedDocument,
     IDetailsReport,
     IExecutableAction,
-    IUIDisplayRequest
-} from '../../../server/core/connections'
+    ILocation,
+    ILogger,
+    IOpenedDocument,
+    IRange,
+    IServerConnection,
+    IUIDisplayRequest,
+    IValidationIssue,
+    IValidationReport,
+    MessageSeverity,
+    StructureNodeJSON,
+    Suggestion
+} from "../../../server/core/connections";
 
 import {
-    ProtocolMessage,
-    MessageToServerType, MessageToClientType
-} from '../../common/protocol'
+    MessageToClientType,
+    MessageToServerType, ProtocolMessage
+} from "../../common/protocol";
 
 import {
     MessageDispatcher
-} from '../../common/messageDispatcher'
+} from "../../common/messageDispatcher";
 
-import {IStructureReport, ILoggerSettings} from "../../../common/typeInterfaces";
+import {ILoggerSettings, IStructureReport} from "../../../common/typeInterfaces";
 
 import {
     filterLogMessage
-} from "../../../common/utils"
+} from "../../../common/utils";
 
-export abstract class AbstractMSServerConnection extends MessageDispatcher<MessageToClientType> implements IServerConnection {
+export abstract class AbstractMSServerConnection extends MessageDispatcher<MessageToClientType>
+    implements IServerConnection {
 
-    abstract sendMessage (message : ProtocolMessage<MessageToClientType>) : void;
+    private loggerSettings: ILoggerSettings;
 
-    private loggerSettings : ILoggerSettings;
-
-    private openDocumentListeners : {(document: IOpenedDocument):void}[] = [];
-    private changeDocumentListeners : {(document: IChangedDocument):void}[] = [];
-    private closeDocumentListeners : {(string):void}[] = [];
-    private documentStructureListeners : {(uri : string):Promise<{[categoryName:string] : StructureNodeJSON}>}[] = [];
-    private documentCompletionListeners : {(uri : string, position: number):Promise<Suggestion[]>}[] = [];
-    private openDeclarationListeners : {(uri : string, position: number):ILocation[]}[] = [];
-    private findReferencesListeners : {(uri : string, position: number):ILocation[]}[] = [];
-    private markOccurrencesListeners : {(uri : string, position: number):IRange[]}[] = [];
-    private renameListeners : {(uri : string, position: number, newName: string):IChangedDocument[]}[] = [];
-    private documentDetailsListeners : {(uri : string, position: number):Promise<DetailsItemJSON>}[] = [];
-    private changePositionListeners: {(uri : string, position: number):void}[] = [];
+    private openDocumentListeners: {(document: IOpenedDocument): void}[] = [];
+    private changeDocumentListeners: {(document: IChangedDocument): void}[] = [];
+    private closeDocumentListeners: {(string): void}[] = [];
+    private documentStructureListeners: {(uri: string): Promise<{[categoryName: string]: StructureNodeJSON}>}[] = [];
+    private documentCompletionListeners: {(uri: string, position: number): Promise<Suggestion[]>}[] = [];
+    private openDeclarationListeners: {(uri: string, position: number): ILocation[]}[] = [];
+    private findReferencesListeners: {(uri: string, position: number): ILocation[]}[] = [];
+    private markOccurrencesListeners: {(uri: string, position: number): IRange[]}[] = [];
+    private renameListeners: {(uri: string, position: number, newName: string): IChangedDocument[]}[] = [];
+    private documentDetailsListeners: {(uri: string, position: number): Promise<DetailsItemJSON>}[] = [];
+    private changePositionListeners: {(uri: string, position: number): void}[] = [];
 
     private calculateEditorContextActionsListeners:
-        {(uri: string, position?: number):Promise<IExecutableAction[]>}[] = [];
+        {(uri: string, position?: number): Promise<IExecutableAction[]>}[] = [];
 
     private executeContextActionListeners:
         {(uri: string, actionId: string,
-          position?: number):Promise<IChangedDocument[]>}[] = [];
+          position?: number): Promise<IChangedDocument[]>}[] = [];
 
-
-    constructor(name : string) {
-        super(name)
+    constructor(name: string) {
+        super(name);
     }
+
+    public abstract sendMessage(message: ProtocolMessage<MessageToClientType>): void;
 
     /**
      * Adds a listener to document open notification. Must notify listeners in order of registration.
      * @param listener
      */
-    onOpenDocument(listener: (document: IOpenedDocument)=>void) {
+    public onOpenDocument(listener: (document: IOpenedDocument) => void) {
         this.openDocumentListeners.push(listener);
     }
 
@@ -73,7 +73,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document change notification. Must notify listeners in order of registration.
      * @param listener
      */
-    onChangeDocument(listener: (document : IChangedDocument)=>void) {
+    public onChangeDocument(listener: (document: IChangedDocument) => void) {
         this.changeDocumentListeners.push(listener);
     }
 
@@ -81,7 +81,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document close notification. Must notify listeners in order of registration.
      * @param listener
      */
-    onCloseDocument(listener: (uri : string)=>void) {
+    public onCloseDocument(listener: (uri: string) => void) {
         this.closeDocumentListeners.push(listener);
     }
 
@@ -89,7 +89,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document structure request. Must notify listeners in order of registration.
      * @param listener
      */
-    onDocumentStructure(listener: (uri : string)=>Promise<{[categoryName:string] : StructureNodeJSON}>) {
+    public onDocumentStructure(listener: (uri: string) => Promise<{[categoryName: string]: StructureNodeJSON}>) {
         this.documentStructureListeners.push(listener);
     }
 
@@ -97,7 +97,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document completion request. Must notify listeners in order of registration.
      * @param listener
      */
-    onDocumentCompletion(listener: (uri : string, position: number)=>Promise<Suggestion[]>) {
+    public onDocumentCompletion(listener: (uri: string, position: number) => Promise<Suggestion[]>) {
         this.documentCompletionListeners.push(listener);
     }
 
@@ -105,7 +105,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document open declaration request.  Must notify listeners in order of registration.
      * @param listener
      */
-    onOpenDeclaration(listener: (uri: string, position: number) => ILocation[]){
+    public onOpenDeclaration(listener: (uri: string, position: number) => ILocation[]){
         this.openDeclarationListeners.push(listener);
     }
 
@@ -113,7 +113,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document find references request.  Must notify listeners in order of registration.
      * @param listener
      */
-    onFindReferences(listener: (uri: string, position: number) => ILocation[]){
+    public onFindReferences(listener: (uri: string, position: number) => ILocation[]){
         this.findReferencesListeners.push(listener);
     }
 
@@ -121,19 +121,19 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Finds the set of document (and non-document files) edits to perform the requested rename.
      * @param listener
      */
-    onRename(listener: (uri: string, position: number, newName: string) => IChangedDocument[]) {
-        this.renameListeners.push(listener)
+    public onRename(listener: (uri: string, position: number, newName: string) => IChangedDocument[]) {
+        this.renameListeners.push(listener);
     }
 
     /**
      * Reports latest validation results
      * @param report
      */
-    validated(report:IValidationReport) : void {
+    public validated(report: IValidationReport): void {
         this.send({
             type : "VALIDATION_REPORT",
             payload : report
-        })
+        });
     }
 
     /**
@@ -141,62 +141,62 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param uri - document uri
      * @param structure - structure for the document
      */
-    structureAvailable(report:IStructureReport) {
+    public structureAvailable(report: IStructureReport) {
         this.send({
             type : "STRUCTURE_REPORT",
             payload : report
-        })
+        });
     }
 
     /**
      * Returns whether path/url exists.
      * @param fullPath
      */
-    exists(path: string): Promise<boolean> {
+    public exists(path: string): Promise<boolean> {
         return this.sendWithResponse({
             type: "EXISTS",
             payload: path
-        })
+        });
     }
 
     /**
      * Returns directory content list.
      * @param fullPath
      */
-    readDir(path: string): Promise<string[]> {
+    public readDir(path: string): Promise<string[]> {
         return this.sendWithResponse({
             type: "READ_DIR",
             payload: path
-        })
+        });
     }
 
     /**
      * Returns whether path/url represents a directory
      * @param path
      */
-    isDirectory(path: string): Promise<boolean> {
+    public isDirectory(path: string): Promise<boolean> {
         return this.sendWithResponse({
             type: "IS_DIRECTORY",
             payload: path
-        })
+        });
     }
 
     /**
      * File contents by full path/url.
      * @param path
      */
-    content(path:string):Promise<string> {
+    public content(path: string): Promise<string> {
         return this.sendWithResponse({
             type: "CONTENT",
             payload: path
-        })
+        });
     }
 
     /**
      * Marks occurrences of a symbol under the cursor in the current document.
      * @param listener
      */
-    onMarkOccurrences(listener: (uri: string, position: number) => IRange[]) {
+    public onMarkOccurrences(listener: (uri: string, position: number) => IRange[]) {
         this.markOccurrencesListeners.push(listener);
     }
 
@@ -204,8 +204,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document details request. Must notify listeners in order of registration.
      * @param listener
      */
-    onDocumentDetails(listener: (uri : string, position: number)=>Promise<DetailsItemJSON>){
-        this.documentDetailsListeners.push(listener)
+    public onDocumentDetails(listener: (uri: string, position: number) => Promise<DetailsItemJSON>){
+        this.documentDetailsListeners.push(listener);
     }
 
     /**
@@ -213,7 +213,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Must notify listeners in order of registration.
      * @param listener
      */
-    onChangePosition(listener: (uri: string, position: number)=>void) {
+    public onChangePosition(listener: (uri: string, position: number) => void) {
         this.changePositionListeners.push(listener);
     }
 
@@ -221,11 +221,11 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Reports new calculated details when available.
      * @param report - details report.
      */
-    detailsAvailable(report: IDetailsReport) {
+    public detailsAvailable(report: IDetailsReport) {
         this.send({
             type : "DETAILS_REPORT",
             payload : report
-        })
+        });
     }
 
     /**
@@ -233,8 +233,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param document
      * @constructor
      */
-    OPEN_DOCUMENT(document : IOpenedDocument) : void {
-        for (let listener of this.openDocumentListeners) {
+    public OPEN_DOCUMENT(document: IOpenedDocument): void {
+        for (const listener of this.openDocumentListeners) {
             listener(document);
         }
     }
@@ -244,8 +244,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param document
      * @constructor
      */
-    CHANGE_DOCUMENT(document : IChangedDocument) : void {
-        for (let listener of this.changeDocumentListeners) {
+    public CHANGE_DOCUMENT(document: IChangedDocument): void {
+        for (const listener of this.changeDocumentListeners) {
             listener(document);
         }
     }
@@ -255,8 +255,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param uri
      * @constructor
      */
-    CLOSE_DOCUMENT(uri : string) : void {
-        for (let listener of this.closeDocumentListeners) {
+    public CLOSE_DOCUMENT(uri: string): void {
+        for (const listener of this.closeDocumentListeners) {
             listener(uri);
         }
     }
@@ -266,9 +266,10 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param uri
      * @constructor
      */
-    GET_STRUCTURE(uri : string) : Promise<{[categoryName:string] : StructureNodeJSON}> {
-        if (this.documentStructureListeners.length == 0)
+    public GET_STRUCTURE(uri: string): Promise<{[categoryName: string]: StructureNodeJSON}> {
+        if (this.documentStructureListeners.length === 0) {
             return Promise.resolve({});
+        }
 
         return this.documentStructureListeners[0](uri);
     }
@@ -279,29 +280,31 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param position - offset in the document starting from 0
      * @constructor
      */
-    GET_SUGGESTIONS(payload:{uri : string, position: number}) : Promise<Suggestion[]> {
-        if (this.documentCompletionListeners.length == 0)
+    public GET_SUGGESTIONS(payload: {uri: string, position: number}): Promise<Suggestion[]> {
+        if (this.documentCompletionListeners.length === 0) {
             return Promise.resolve([]);
-
-        let promises = []
-        for(let listener of this.documentCompletionListeners) {
-            this.debugDetail("Calling a listener",
-                "ProxyServerConnection", "getCompletion")
-
-            let listenerResult = listener(payload.uri, payload.position);
-            if (listenerResult) promises.push(listenerResult)
         }
 
-        return Promise.all(promises).then(resolvedResults => {
+        const promises = [];
+        for (const listener of this.documentCompletionListeners) {
+            this.debugDetail("Calling a listener",
+                "ProxyServerConnection", "getCompletion");
+
+            const listenerResult = listener(payload.uri, payload.position);
+            if (listenerResult) {
+                promises.push(listenerResult);
+            }
+        }
+
+        return Promise.all(promises).then((resolvedResults) => {
 
             let result = [];
-            for (let currentPromiseResult of resolvedResults) {
+            for (const currentPromiseResult of resolvedResults) {
                 result = result.concat(currentPromiseResult);
             }
 
             return result;
-        })
-
+        });
 
     }
 
@@ -311,12 +314,13 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param position - offset in the document starting from 0
      * @constructor
      */
-    OPEN_DECLARATION(payload:{uri : string, position: number}) : ILocation[]{
-        if (this.openDeclarationListeners.length == 0)
+    public OPEN_DECLARATION(payload: {uri: string, position: number}): ILocation[]{
+        if (this.openDeclarationListeners.length === 0) {
             return [];
+        }
 
         let result = [];
-        for (let listener of this.openDeclarationListeners) {
+        for (const listener of this.openDeclarationListeners) {
             result = result.concat(listener(payload.uri, payload.position));
         }
 
@@ -329,12 +333,13 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param position - offset in the document starting from 0
      * @constructor
      */
-    FIND_REFERENCES(payload:{uri : string, position: number}) : ILocation[]{
-        if (this.findReferencesListeners.length == 0)
+    public FIND_REFERENCES(payload: {uri: string, position: number}): ILocation[]{
+        if (this.findReferencesListeners.length === 0) {
             return [];
+        }
 
         let result = [];
-        for (let listener of this.findReferencesListeners) {
+        for (const listener of this.findReferencesListeners) {
             result = result.concat(listener(payload.uri, payload.position));
         }
 
@@ -347,12 +352,13 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param position - offset in the document starting from 0
      * @constructor
      */
-    MARK_OCCURRENCES(payload:{uri : string, position: number}) : IRange[]{
-        if (this.markOccurrencesListeners.length == 0)
+    public MARK_OCCURRENCES(payload: {uri: string, position: number}): IRange[]{
+        if (this.markOccurrencesListeners.length === 0) {
             return [];
+        }
 
         let result = [];
-        for (let listener of this.markOccurrencesListeners) {
+        for (const listener of this.markOccurrencesListeners) {
             result = result.concat(listener(payload.uri, payload.position));
         }
 
@@ -366,19 +372,20 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param newName - new name
      * @constructor
      */
-    RENAME(payload:{uri : string, position: number, newName: string}) : IChangedDocument[]{
-        if (this.renameListeners.length == 0)
+    public RENAME(payload: {uri: string, position: number, newName: string}): IChangedDocument[]{
+        if (this.renameListeners.length === 0) {
             return [];
+        }
 
         let result = [];
-        for (let listener of this.renameListeners) {
+        for (const listener of this.renameListeners) {
             result = result.concat(listener(payload.uri, payload.position, payload.newName));
         }
 
         return result;
     }
 
-    SET_LOGGER_CONFIGURATION(payload:ILoggerSettings) : void {
+    public SET_LOGGER_CONFIGURATION(payload: ILoggerSettings): void {
 
         this.setLoggerConfiguration(payload);
     }
@@ -388,11 +395,12 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param uri
      * @constructor
      */
-    GET_DETAILS(payload:{uri : string, position: number}) : Promise<DetailsItemJSON> {
-        if (this.documentDetailsListeners.length == 0)
+    public GET_DETAILS(payload: {uri: string, position: number}): Promise<DetailsItemJSON> {
+        if (this.documentDetailsListeners.length === 0) {
             return Promise.resolve(null);
+        }
 
-        return this.documentDetailsListeners[0](payload.uri,payload.position);
+        return this.documentDetailsListeners[0](payload.uri, payload.position);
     }
 
     /**
@@ -400,8 +408,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param payload
      * @constructor
      */
-    CHANGE_POSITION(payload:{uri : string, position: number}) : void {
-        for (let listener of this.changePositionListeners) {
+    public CHANGE_POSITION(payload: {uri: string, position: number}): void {
+        for (const listener of this.changePositionListeners) {
             listener(payload.uri, payload.position);
         }
     }
@@ -413,15 +421,15 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param component - component name
      * @param subcomponent - sub-component name
      */
-    log(message:string, severity: MessageSeverity,
-        component?: string, subcomponent?: string) : void {
+    public log(message: string, severity: MessageSeverity,
+               component?: string, subcomponent?: string): void {
 
-        let filtered = filterLogMessage({
-            message:message,
-            severity: severity,
-            component: component,
-            subcomponent: subcomponent
-        }, this.loggerSettings)
+        const filtered = filterLogMessage({
+            message,
+            severity,
+            component,
+            subcomponent
+        }, this.loggerSettings);
 
         if (filtered) {
             this.internalLog(filtered.message, filtered.severity,
@@ -429,27 +437,27 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
         }
     }
 
-    internalLog(message:string, severity: MessageSeverity,
-                component?: string, subcomponent?: string) : void {
+    public internalLog(message: string, severity: MessageSeverity,
+                       component?: string, subcomponent?: string): void {
 
         let toLog = "";
 
-        let currentDate = new Date();
+        const currentDate = new Date();
         toLog += currentDate.getHours() + ":" + currentDate.getMinutes() + ":" +
             currentDate.getSeconds() + ":" + currentDate.getMilliseconds() + " ";
 
-        if (severity != MessageSeverity.WARNING && severity != MessageSeverity.ERROR) {
-            MessageSeverity[severity];
+        if (component) {
+            toLog += (component + ": ");
         }
-
-        if (component) toLog+= (component + ": ")
-        if (subcomponent) toLog+= (subcomponent + ": ")
+        if (subcomponent) {
+            toLog += (subcomponent + ": ");
+        }
 
         toLog += message;
 
-        if (severity == MessageSeverity.WARNING) {
+        if (severity === MessageSeverity.WARNING) {
             console.warn(toLog);
-        } else if (severity == MessageSeverity.ERROR) {
+        } else if (severity === MessageSeverity.ERROR) {
             console.error(toLog);
         } else {
             console.log(toLog);
@@ -462,8 +470,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param component - component name
      * @param subcomponent - sub-component name
      */
-    debug(message:string,
-          component?: string, subcomponent?: string) : void {
+    public debug(message: string,
+                 component?: string, subcomponent?: string): void {
         this.log(message, MessageSeverity.DEBUG, component, subcomponent);
     }
 
@@ -473,8 +481,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param component - component name
      * @param subcomponent - sub-component name
      */
-    debugDetail(message:string,
-                component?: string, subcomponent?: string) : void {
+    public debugDetail(message: string,
+                       component?: string, subcomponent?: string): void {
         this.log(message, MessageSeverity.DEBUG_DETAIL, component, subcomponent);
     }
 
@@ -484,8 +492,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param component - component name
      * @param subcomponent - sub-component name
      */
-    debugOverview(message:string,
-                  component?: string, subcomponent?: string) : void {
+    public debugOverview(message: string,
+                         component?: string, subcomponent?: string): void {
         this.log(message, MessageSeverity.DEBUG_OVERVIEW, component, subcomponent);
     }
 
@@ -495,8 +503,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param component - component name
      * @param subcomponent - sub-component name
      */
-    warning(message:string,
-            component?: string, subcomponent?: string) : void {
+    public warning(message: string,
+                   component?: string, subcomponent?: string): void {
         this.log(message, MessageSeverity.WARNING, component, subcomponent);
     }
 
@@ -506,8 +514,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param component - component name
      * @param subcomponent - sub-component name
      */
-    error(message:string,
-          component?: string, subcomponent?: string) : void {
+    public error(message: string,
+                 component?: string, subcomponent?: string): void {
         this.log(message, MessageSeverity.ERROR, component, subcomponent);
     }
 
@@ -515,7 +523,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Sets connection logger configuration.
      * @param loggerSettings
      */
-    setLoggerConfiguration(loggerSettings: ILoggerSettings) {
+    public setLoggerConfiguration(loggerSettings: ILoggerSettings) {
         this.loggerSettings = loggerSettings;
     }
 
@@ -531,8 +539,9 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * for actions based on the editor state and tree viewer state.
      * "TARGET_RAML_EDITOR_NODE" is default.
      */
-    onCalculateEditorContextActions(listener:(uri: string,
-        position?: number)=>Promise<IExecutableAction[]>): void{
+    public onCalculateEditorContextActions(listener: (uri: string,
+                                                      position?: number)
+                                           => Promise<IExecutableAction[]>): void {
 
         this.calculateEditorContextActionsListeners.push(listener);
     }
@@ -545,8 +554,9 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param position - optional position in the document.
      * If not provided, the last reported by positionChanged method will be used.
      */
-    onExecuteContextAction(listener:(uri: string, actionId: string,
-        position?: number)=>Promise<IChangedDocument[]>): void {
+    public onExecuteContextAction(listener: (uri: string, actionId: string,
+                                             position?: number)
+                                  => Promise<IChangedDocument[]>): void {
 
         this.executeContextActionListeners.push(listener);
     }
@@ -556,37 +566,41 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param uiDisplayRequest - display request
      * @return final UI state.
      */
-    displayActionUI(uiDisplayRequest: IUIDisplayRequest): Promise<any> {
+    public displayActionUI(uiDisplayRequest: IUIDisplayRequest): Promise<any> {
         return this.sendWithResponse({
             type : "DISPLAY_ACTION_UI",
             payload : uiDisplayRequest
-        })
+        });
     }
 
-    CALCULATE_ACTIONS(payload:{uri: string, position?: number}) : Promise<IExecutableAction[]> {
-        if (!this.calculateEditorContextActionsListeners) return Promise.resolve([]);
-        
+    public CALCULATE_ACTIONS(payload: {uri: string, position?: number}): Promise<IExecutableAction[]> {
+        if (!this.calculateEditorContextActionsListeners) {
+            return Promise.resolve([]);
+        }
+
         return this.calculateEditorContextActionsListeners[0](payload.uri, payload.position);
     }
 
-    EXECUTE_ACTION(payload:{uri: string, actionId: string,
-                   position?: number}) : Promise<IChangedDocument[]> {
+    public EXECUTE_ACTION(payload: {uri: string, actionId: string,
+                   position?: number}): Promise<IChangedDocument[]> {
 
         this.debugDetail("Called",
-            "ProxyServerConnection", "EXECUTE_ACTION")
+            "ProxyServerConnection", "EXECUTE_ACTION");
 
-        if (!this.executeContextActionListeners) return Promise.resolve([]);
+        if (!this.executeContextActionListeners) {
+            return Promise.resolve([]);
+        }
 
         this.debugDetail("Before execution",
-            "ProxyServerConnection", "EXECUTE_ACTION")
-        
+            "ProxyServerConnection", "EXECUTE_ACTION");
+
         try {
-            let result = this.executeContextActionListeners[0](payload.uri, payload.actionId,
+            const result = this.executeContextActionListeners[0](payload.uri, payload.actionId,
                 payload.position);
             return result;
         } catch (Error) {
             this.debugDetail("Failed listener execution: " + Error.message,
-                "ProxyServerConnection", "EXECUTE_ACTION")
+                "ProxyServerConnection", "EXECUTE_ACTION");
         }
     }
 }

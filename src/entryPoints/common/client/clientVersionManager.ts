@@ -1,12 +1,12 @@
-import clientTypeInterfaces = require("../../../client/typeInterfaces")
-import commonTypeInterfaces = require("../../../common/typeInterfaces")
+import clientTypeInterfaces = require("../../../client/typeInterfaces");
 import {
     applyDocumentEdits
-} from '../../../common/textEditProcessor'
+} from "../../../common/textEditProcessor";
+import commonTypeInterfaces = require("../../../common/typeInterfaces");
 
 export class VersionedDocument {
 
-    constructor(private uri : string, private version : number, private text : string) {
+    constructor(private uri: string, private version: number, private text: string) {
         this.text = text;
     }
 
@@ -14,21 +14,21 @@ export class VersionedDocument {
      * Gets document text
      * @returns {string}
      */
-    getText() : string {
+    public getText(): string {
         return this.text;
     }
 
     /**
      * Gets document uri.
      */
-    getUri() {
+    public getUri() {
         return this.uri;
     }
 
     /**
      * Returns document version, if any.
      */
-    getVersion() : number {
+    public getVersion(): number {
         return this.version;
     }
 }
@@ -40,27 +40,29 @@ export class VersionedDocumentManager {
      *
      * @type {{}}
      */
-    private documents : {[uri:string] : VersionedDocument[]} = {};
+    private documents: {[uri: string]: VersionedDocument[]} = {};
 
-    constructor(private logger:commonTypeInterfaces.ILogger, private maxStoredVersions=1){
+    constructor(private logger: commonTypeInterfaces.ILogger, private maxStoredVersions= 1){
     }
 
     /**
      * Gets latest version of the document by uri, or null if unknown
      * @param uri
      */
-    public getLatestDocumentVersion(uri: string) : number {
+    public getLatestDocumentVersion(uri: string): number {
 
-        let latestDocument = this.getLatestDocument(uri);
+        const latestDocument = this.getLatestDocument(uri);
         if (!latestDocument) return null;
 
         return latestDocument.getVersion();
     }
 
-    public getLatestDocument(uri: string) : VersionedDocument {
-        let versionedDocuments = this.documents[uri];
+    public getLatestDocument(uri: string): VersionedDocument {
+        const versionedDocuments = this.documents[uri];
 
-        if (!versionedDocuments) return null;
+        if (!versionedDocuments) {
+            return null;
+        }
 
         return versionedDocuments[0];
     }
@@ -70,20 +72,20 @@ export class VersionedDocumentManager {
      * or the newly registered document in common format.
      * @param proposal
      */
-    public registerOpenedDocument(proposal : clientTypeInterfaces.IOpenedDocument) :
+    public registerOpenedDocument(proposal: clientTypeInterfaces.IOpenedDocument):
         commonTypeInterfaces.IOpenedDocument {
 
         this.logger.debug("Open document called for uri " + proposal.uri,
-            "VersionedDocumentManager", "registerOpenedDocument")
+            "VersionedDocumentManager", "registerOpenedDocument");
 
         this.logger.debugDetail("New text is:\n" + proposal.text,
-            "VersionedDocumentManager", "registerOpenedDocument")
+            "VersionedDocumentManager", "registerOpenedDocument");
 
-        let versionedDocuments = this.documents[proposal.uri];
+        const versionedDocuments = this.documents[proposal.uri];
 
         this.logger.debugDetail("Versioned documents for this uri found: " +
-            (versionedDocuments?"true":"false"),
-            "VersionedDocumentManager", "registerOpenedDocument")
+            (versionedDocuments ? "true" : "false"),
+            "VersionedDocumentManager", "registerOpenedDocument");
 
         if (versionedDocuments) {
 
@@ -94,14 +96,14 @@ export class VersionedDocumentManager {
             };
 
         } else {
-            let newDocument = new VersionedDocument(proposal.uri, 0, proposal.text);
+            const newDocument = new VersionedDocument(proposal.uri, 0, proposal.text);
             this.documents[proposal.uri] = [newDocument];
 
             return {
                 uri: proposal.uri,
                 text: proposal.text,
                 version: 0
-            }
+            };
         }
     }
 
@@ -110,52 +112,54 @@ export class VersionedDocumentManager {
      * or the newly registered document in common format.
      * @param proposal
      */
-    public registerChangedDocument(proposal : clientTypeInterfaces.IChangedDocument) :
+    public registerChangedDocument(proposal: clientTypeInterfaces.IChangedDocument):
         commonTypeInterfaces.IChangedDocument {
 
         this.logger.debug("Change document called for uri " + proposal.uri,
-            "VersionedDocumentManager", "registerChangedDocument")
+            "VersionedDocumentManager", "registerChangedDocument");
 
         this.logger.debugDetail("New text is:\n" + proposal.text,
-            "VersionedDocumentManager", "registerChangedDocument")
+            "VersionedDocumentManager", "registerChangedDocument");
 
-        let versionedDocuments = this.documents[proposal.uri];
+        const versionedDocuments = this.documents[proposal.uri];
 
         this.logger.debugDetail("Versioned documents for this uri found: " +
-            (versionedDocuments?"true":"false"),
-            "VersionedDocumentManager", "registerChangedDocument")
+            (versionedDocuments ? "true" : "false"),
+            "VersionedDocumentManager", "registerChangedDocument");
 
         if (versionedDocuments) {
 
-            let latestDocument = versionedDocuments[0];
+            const latestDocument = versionedDocuments[0];
 
             this.logger.debugDetail("Latest document version is " + latestDocument.getVersion(),
-                "VersionedDocumentManager", "registerChangedDocument")
+                "VersionedDocumentManager", "registerChangedDocument");
 
-            let latestText = latestDocument.getText();
+            const latestText = latestDocument.getText();
 
-            this.logger.debugDetail("Latest document text is " +latestText,
-                "VersionedDocumentManager", "registerChangedDocument")
+            this.logger.debugDetail("Latest document text is " + latestText,
+                "VersionedDocumentManager", "registerChangedDocument");
 
             let newText = proposal.text;
             if (newText == null && proposal.textEdits && latestText !== null) {
-                newText = applyDocumentEdits(latestText, proposal.textEdits)
+                newText = applyDocumentEdits(latestText, proposal.textEdits);
             }
 
-            this.logger.debugDetail("Calculated new text is: " +newText,
-                "VersionedDocumentManager", "registerChangedDocument")
+            this.logger.debugDetail("Calculated new text is: " + newText,
+                "VersionedDocumentManager", "registerChangedDocument");
 
-            if (newText == null) return null;
+            if (newText == null) {
+                return null;
+            }
 
-            if (newText == latestText) {
+            if (newText === latestText) {
 
                 this.logger.debugDetail("No changes of text found",
-                    "VersionedDocumentManager", "registerChangedDocument")
+                    "VersionedDocumentManager", "registerChangedDocument");
 
                 return null;
             }
 
-            let newDocument = new VersionedDocument(proposal.uri,
+            const newDocument = new VersionedDocument(proposal.uri,
                 latestDocument.getVersion() + 1, newText);
 
             this.documents[proposal.uri] = [newDocument];
@@ -164,20 +168,20 @@ export class VersionedDocumentManager {
                 uri: newDocument.getUri(),
                 text: newDocument.getText(),
                 version: newDocument.getVersion()
-            }
+            };
         } else {
 
-            let newDocument = new VersionedDocument(proposal.uri, 0, proposal.text);
+            const newDocument = new VersionedDocument(proposal.uri, 0, proposal.text);
             this.documents[proposal.uri] = [newDocument];
 
             this.logger.debugDetail("Registered new document, returning acceptance",
-                "VersionedDocumentManager", "registerChangedDocument")
+                "VersionedDocumentManager", "registerChangedDocument");
 
             return {
                 uri: proposal.uri,
                 text: proposal.text,
                 version: 0
-            }
+            };
         }
     }
 
@@ -185,7 +189,7 @@ export class VersionedDocumentManager {
      * Unregisters all document versions by uri.
      * @param uri
      */
-    public unregisterDocument(uri: string) : void {
+    public unregisterDocument(uri: string): void {
         delete this.documents[uri];
     }
 }

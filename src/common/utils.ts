@@ -1,8 +1,8 @@
-import URI = require("urijs")
-import path = require("path")
+import path = require("path");
+import URI = require("urijs");
 import {
-    MessageSeverity,
-    ILoggerSettings
+    ILoggerSettings,
+    MessageSeverity
 } from "./typeInterfaces";
 
 /**
@@ -10,7 +10,7 @@ import {
  * @param uri
  */
 export function pathFromURI(uri: string) {
-    return (new URI(uri)).path()
+    return (new URI(uri)).path();
 }
 
 /**
@@ -18,21 +18,21 @@ export function pathFromURI(uri: string) {
  * If URI string is not a well-formed URI, but just an FS path, returns false
  * @param uri
  */
-export function isHTTPUri(uri : string) {
-    let protocol =  (new URI(uri)).protocol();
-    return "http" == protocol || "HTTP" == protocol;
+export function isHTTPUri(uri: string) {
+    const protocol =  (new URI(uri)).protocol();
+    return "http" === protocol || "HTTP" === protocol;
 }
 
-export function isFILEUri(uri : string) {
-    let protocol =  (new URI(uri)).protocol();
-    return "file" == protocol || "FILE" == protocol;
+export function isFILEUri(uri: string) {
+    const protocol =  (new URI(uri)).protocol();
+    return "file" === protocol || "FILE" === protocol;
 }
 
-export function extName(uri : string) {
+export function extName(uri: string) {
     return path.extname(pathFromURI(uri));
 }
 
-export function resolve(path1 : string, path2: string) : string {
+export function resolve(path1: string, path2: string): string {
     return path.resolve(path1, path2);
 }
 
@@ -59,10 +59,10 @@ export function transformUriToOriginalFormat(originalUri: string, toTransform: s
 }
 
 export interface LogMessage {
-    message:string
-    severity: MessageSeverity
-    component?: string
-    subcomponent?: string
+    message: string;
+    severity: MessageSeverity;
+    component?: string;
+    subcomponent?: string;
 }
 
 /**
@@ -71,26 +71,36 @@ export interface LogMessage {
  * @param settings
  * @returns transformed message or null if it was filtered out.
  */
-export function filterLogMessage(message: LogMessage, settings: ILoggerSettings) : LogMessage {
-    if (!settings) return {
-        message: message.message,
-        severity: message.severity,
-        component: message.component,
-        subcomponent: message.subcomponent
-    };
+export function filterLogMessage(message: LogMessage, settings: ILoggerSettings): LogMessage {
+    if (!settings) {
+        return {
+            message: message.message,
+            severity: message.severity,
+            component: message.component,
+            subcomponent: message.subcomponent
+        };
+    }
 
-    if (settings.disabled) return null;
+    if (settings.disabled) {
+        return null;
+    }
 
     if (message.component && settings.allowedComponents) {
-        if (settings.allowedComponents.indexOf(message.component) == -1) return null;
+        if (settings.allowedComponents.indexOf(message.component) === -1) {
+            return null;
+        }
     }
 
     if (message.component && settings.deniedComponents) {
-        if (settings.allowedComponents.indexOf(message.component) != -1) return null;
+        if (settings.allowedComponents.indexOf(message.component) !== -1) {
+            return null;
+        }
     }
 
     if (settings.maxSeverity != null && message.severity != null) {
-        if (message.severity < settings.maxSeverity) return null;
+        if (message.severity < settings.maxSeverity) {
+            return null;
+        }
     }
 
     let text = message.message;
@@ -103,5 +113,5 @@ export function filterLogMessage(message: LogMessage, settings: ILoggerSettings)
         severity: message.severity,
         component: message.component,
         subcomponent: message.subcomponent
-    }
+    };
 }

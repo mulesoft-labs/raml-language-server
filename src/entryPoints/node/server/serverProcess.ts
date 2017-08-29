@@ -1,25 +1,25 @@
 import {
-    ProtocolMessage,
-    MessageToClientType
-} from '../../common/protocol'
+    MessageToClientType,
+    ProtocolMessage
+} from "../../common/protocol";
 
 import {
     AbstractMSServerConnection
-} from '../../common/server/abstractServer'
+} from "../../common/server/abstractServer";
 
 import {
     Server
-} from '../../../server/core/server'
+} from "../../../server/core/server";
 
-import fs = require("fs")
+import fs = require("fs");
 
 class NodeProcessServerConnection extends AbstractMSServerConnection {
 
     constructor() {
-        super("NodeProcessServerConnection")
+        super("NodeProcessServerConnection");
     }
 
-    sendMessage (message : ProtocolMessage<MessageToClientType>) : void {
+    public sendMessage(message: ProtocolMessage<MessageToClientType>): void {
         process.send(message);
     }
 
@@ -27,9 +27,9 @@ class NodeProcessServerConnection extends AbstractMSServerConnection {
      * Returns whether path/url exists.
      * @param fullPath
      */
-    exists(path: string): Promise<boolean> {
-        return new Promise(resolve => {
-            fs.exists(path, (result) => {resolve(result)})
+    public exists(path: string): Promise<boolean> {
+        return new Promise((resolve) => {
+            fs.exists(path, (result) => {resolve(result); });
         });
     }
 
@@ -37,9 +37,9 @@ class NodeProcessServerConnection extends AbstractMSServerConnection {
      * Returns directory content list.
      * @param fullPath
      */
-    readDir(path: string): Promise<string[]> {
-        return new Promise(resolve => {
-            fs.readdir(path, (err, result) => {resolve(result)})
+    public readDir(path: string): Promise<string[]> {
+        return new Promise((resolve) => {
+            fs.readdir(path, (err, result) => {resolve(result); });
         });
     }
 
@@ -47,9 +47,9 @@ class NodeProcessServerConnection extends AbstractMSServerConnection {
      * Returns whether path/url represents a directory
      * @param path
      */
-    isDirectory(path: string): Promise<boolean> {
-        return new Promise(resolve => {
-            fs.stat(path, (err, stats) => {resolve(stats.isDirectory())})
+    public isDirectory(path: string): Promise<boolean> {
+        return new Promise((resolve) => {
+            fs.stat(path, (err, stats) => {resolve(stats.isDirectory()); });
         });
     }
 
@@ -57,26 +57,26 @@ class NodeProcessServerConnection extends AbstractMSServerConnection {
      * File contents by full path/url.
      * @param path
      */
-    content(path:string):Promise<string> {
+    public content(path: string): Promise<string> {
         return new Promise(function(resolve, reject) {
 
-            fs.readFile(path,(err,data)=>{
-                if(err!=null){
+            fs.readFile(path, (err, data) => {
+                if (err != null) {
                     return reject(err);
                 }
 
-                let content = data.toString();
+                const content = data.toString();
                 resolve(content);
             });
         });
     }
 }
 
-let connection = new NodeProcessServerConnection();
+const connection = new NodeProcessServerConnection();
 
-let server = new Server(connection);
+const server = new Server(connection);
 server.listen();
 
-process.on('message', (data: ProtocolMessage<MessageToClientType>) => {
+process.on("message", (data: ProtocolMessage<MessageToClientType>) => {
     connection.handleRecievedMessage(data);
 });

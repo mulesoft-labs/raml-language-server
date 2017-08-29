@@ -5,35 +5,37 @@ import path = require("path");
 import {
     IClientConnection,
     MessageSeverity
-} from '../../../client/client'
+} from "../../../client/client";
 
 import {
     NodeProcessClientConnection
-} from './client'
+} from "./client";
 
 let clientConnection = null;
 
-export function getConnection() : IClientConnection {
-    if (!clientConnection) clientConnection = launch();
+export function getConnection(): IClientConnection {
+    if (!clientConnection) {
+        clientConnection = launch();
+    }
 
     return clientConnection;
 }
 
-function launch() : IClientConnection {
+function launch(): IClientConnection {
 
     // let serverProcess = (<any>childProcess).fork(
     //     path.resolve(__dirname, '../server/serverProcess.js'), ['--debug=6010'], {
     //     silent: true
     // });
 
-    let serverProcess = (<any>childProcess).fork(
-        path.resolve(__dirname, '../server/serverProcess.js'), [], {
+    const serverProcess = (childProcess as any).fork(
+        path.resolve(__dirname, "../server/serverProcess.js"), [], {
             silent: true
         });
 
-    let clientConnection = new NodeProcessClientConnection(serverProcess);
+    const connection = new NodeProcessClientConnection(serverProcess);
 
-    clientConnection.setLoggerConfiguration({
+    connection.setLoggerConfiguration({
         // allowedComponents: [
         //     "CompletionManagerModule"
         // ],
@@ -54,8 +56,5 @@ function launch() : IClientConnection {
     //     maxMessageLength: 5000
     // });
 
-    return clientConnection;
+    return connection;
 }
-
-
-
