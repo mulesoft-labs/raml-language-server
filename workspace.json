@@ -45,13 +45,11 @@
   "raml-xml-validation" : {
     "build" : "npm run build",
     "gitUrl" : "https://github.com/mulesoft-labs/raml-xml-validation.git",
-    "gitBranch" : "develop",
     "installTypings" : true
   },
   "raml-json-validation" : {
     "build" : "npm run build",
     "gitUrl" : "https://github.com/mulesoft-labs/raml-json-validation.git",
-    "gitBranch" : "develop",
     "installTypings" : true
   },
   "ts-structure-parser" : {
