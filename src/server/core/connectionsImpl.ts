@@ -87,7 +87,7 @@ export abstract class AbstractServerConnection {
      * Adds a listener to document open declaration request.  Must notify listeners in order of registration.
      * @param listener
      */
-    public onOpenDeclaration(listener: (uri: string, position: number) => ILocation[]){
+    public onOpenDeclaration(listener: (uri: string, position: number) => ILocation[]) {
         this.openDeclarationListeners.push(listener);
     }
 
@@ -95,7 +95,7 @@ export abstract class AbstractServerConnection {
      * Adds a listener to document find references request.  Must notify listeners in order of registration.
      * @param listener
      */
-    public onFindReferences(listener: (uri: string, position: number) => ILocation[]){
+    public onFindReferences(listener: (uri: string, position: number) => ILocation[]) {
         this.findreferencesListeners.push(listener);
     }
 
@@ -161,7 +161,7 @@ export abstract class AbstractServerConnection {
      * "TARGET_RAML_EDITOR_NODE" is default.
      */
     public onCalculateEditorContextActions(listener: (uri: string,
-                                                      position?: number) => Promise<IExecutableAction[]>): void{
+                                                      position?: number) => Promise<IExecutableAction[]>): void {
 
         this.calculateEditorContextActionsListeners.push(listener);
     }

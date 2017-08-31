@@ -38,7 +38,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
 
     private openDocumentListeners: {(document: IOpenedDocument): void}[] = [];
     private changeDocumentListeners: {(document: IChangedDocument): void}[] = [];
-    private closeDocumentListeners: {(string): void}[] = [];
+    private closeDocumentListeners: {(uri: string): void}[] = [];
     private documentStructureListeners: {(uri: string): Promise<{[categoryName: string]: StructureNodeJSON}>}[] = [];
     private documentCompletionListeners: {(uri: string, position: number): Promise<Suggestion[]>}[] = [];
     private openDeclarationListeners: {(uri: string, position: number): ILocation[]}[] = [];
@@ -105,7 +105,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document open declaration request.  Must notify listeners in order of registration.
      * @param listener
      */
-    public onOpenDeclaration(listener: (uri: string, position: number) => ILocation[]){
+    public onOpenDeclaration(listener: (uri: string, position: number) => ILocation[]) {
         this.openDeclarationListeners.push(listener);
     }
 
@@ -113,7 +113,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document find references request.  Must notify listeners in order of registration.
      * @param listener
      */
-    public onFindReferences(listener: (uri: string, position: number) => ILocation[]){
+    public onFindReferences(listener: (uri: string, position: number) => ILocation[]) {
         this.findReferencesListeners.push(listener);
     }
 
@@ -204,7 +204,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document details request. Must notify listeners in order of registration.
      * @param listener
      */
-    public onDocumentDetails(listener: (uri: string, position: number) => Promise<DetailsItemJSON>){
+    public onDocumentDetails(listener: (uri: string, position: number) => Promise<DetailsItemJSON>) {
         this.documentDetailsListeners.push(listener);
     }
 
@@ -314,7 +314,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param position - offset in the document starting from 0
      * @constructor
      */
-    public OPEN_DECLARATION(payload: {uri: string, position: number}): ILocation[]{
+    public OPEN_DECLARATION(payload: {uri: string, position: number}): ILocation[] {
         if (this.openDeclarationListeners.length === 0) {
             return [];
         }
@@ -333,7 +333,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param position - offset in the document starting from 0
      * @constructor
      */
-    public FIND_REFERENCES(payload: {uri: string, position: number}): ILocation[]{
+    public FIND_REFERENCES(payload: {uri: string, position: number}): ILocation[] {
         if (this.findReferencesListeners.length === 0) {
             return [];
         }
@@ -352,7 +352,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param position - offset in the document starting from 0
      * @constructor
      */
-    public MARK_OCCURRENCES(payload: {uri: string, position: number}): IRange[]{
+    public MARK_OCCURRENCES(payload: {uri: string, position: number}): IRange[] {
         if (this.markOccurrencesListeners.length === 0) {
             return [];
         }
@@ -372,7 +372,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param newName - new name
      * @constructor
      */
-    public RENAME(payload: {uri: string, position: number, newName: string}): IChangedDocument[]{
+    public RENAME(payload: {uri: string, position: number, newName: string}): IChangedDocument[] {
         if (this.renameListeners.length === 0) {
             return [];
         }

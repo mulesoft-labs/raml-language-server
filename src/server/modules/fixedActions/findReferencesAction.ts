@@ -1,4 +1,4 @@
-//This module provides a fixed action for finding references/usages of RAML node
+// This module provides a fixed action for finding references/usages of RAML node
 
 import {
     IServerConnection

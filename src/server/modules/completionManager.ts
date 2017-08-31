@@ -1,4 +1,4 @@
-//This module provides completion proposals
+// This module provides completion proposals
 
 import {
     IServerConnection

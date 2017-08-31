@@ -1,10 +1,10 @@
 import {
     IClientConnection
-} from './client/client'
+} from "./client/client";
 
 export {
     IClientConnection
-} from './client/client'
+} from "./client/client";
 
 export {
     IValidationReport,
@@ -20,23 +20,23 @@ export {
     DetailsItemWithOptionsJSON,
     DetailsItemType,
     IDetailsReport
-} from './common/typeInterfaces'
+} from "./common/typeInterfaces";
 
 export {
     Runnable,
     Reconciler
-} from './common/reconciler'
+} from "./common/reconciler";
 
 import {
     getConnection
-} from './entryPoints/node/client/launch'
+} from "./entryPoints/node/client/launch";
 
 /**
  * Launches node entry point (separate node server process) and returns client connection.
  * @return {IClientConnection}
  */
-export function getNodeClientConnection() : IClientConnection {
+export function getNodeClientConnection(): IClientConnection {
     return getConnection();
 }
 
-export import textEditProcessor = require("./common/textEditProcessor")
+export import textEditProcessor = require("./common/textEditProcessor");

@@ -1,4 +1,4 @@
-//This module handles contents of editors opened in IDE and provides this information to other modules
+// This module handles contents of editors opened in IDE and provides this information to other modules
 
 import {
     IServerConnection

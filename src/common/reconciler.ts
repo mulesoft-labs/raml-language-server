@@ -2,7 +2,7 @@ import {
     ILogger
 } from "./logger";
 
-const PromiseConstructor = require("promise-polyfill");
+import PromiseConstructor = require("promise-polyfill");
 if (typeof Promise === "undefined" && typeof window !== "undefined") {
     (window as any).Promise = PromiseConstructor;
 }

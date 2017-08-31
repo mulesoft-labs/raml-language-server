@@ -1,9 +1,9 @@
+import childProcess = require("child_process");
 import fs = require("fs");
 import mkdirp = require("mkdirp");
 import path = require("path");
 import rimraf = require("rimraf");
-const childProcess = require("child_process");
-const webpack = require("webpack");
+import webpack = require("webpack");
 
 const rootPath = path.join(__dirname, "../../../../");
 
@@ -119,7 +119,7 @@ export function copyDirSyncRecursive(
     to: string,
     from: string): void {
 
-    if (path.resolve(to) === path.resolve(from)){
+    if (path.resolve(to) === path.resolve(from)) {
         return;
     }
 

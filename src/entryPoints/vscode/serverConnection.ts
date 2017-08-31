@@ -42,7 +42,7 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
     private loggerSettings: ILoggerSettings;
     private documents: TextDocuments;
 
-    constructor(private vsCodeConnection: IConnection){
+    constructor(private vsCodeConnection: IConnection) {
         super();
 
         this.setLoggerConfiguration({
@@ -449,7 +449,7 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         return new Promise(function(resolve, reject) {
 
             fs.readFile(path, (err, data) => {
-                if (err != null){
+                if (err != null) {
                     return reject(err);
                 }
 
@@ -583,12 +583,16 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         this.debug("documentHighlight called for uri: " + uri,
             "ProxyServerConnection", "documentHighlight");
 
-        if (this.markOccurrencesListeners.length === 0) return [];
+        if (this.markOccurrencesListeners.length === 0) {
+            return [];
+        }
 
         const document = this.documents.get(uri);
         this.debugDetail("got document: " + (document != null),
             "ProxyServerConnection", "documentHighlight");
-        if (!document) return [];
+        if (!document) {
+            return [];
+        }
 
         const offset = document.offsetAt(position);
 
@@ -687,7 +691,7 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
                         const previousTextLength = previousText.length;
 
                         const startPosition = existingDocument.positionAt(0);
-                        const endPosition = previousTextLength == 0 ?
+                        const endPosition = previousTextLength === 0 ?
                             existingDocument.positionAt(0) :
                             existingDocument.positionAt(previousTextLength - 1);
 

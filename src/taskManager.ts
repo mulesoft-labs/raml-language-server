@@ -118,7 +118,8 @@
 // }
 //
 // export class ValidationTask extends Task {
-//     constructor(private ramlPath: string, private content: string, private done: (errors: any[]) => void, cliendId: string) {
+//     constructor(private ramlPath: string, private content: string,
+//                 private done: (errors: any[]) => void, cliendId: string) {
 //         super(cliendId);
 //     }
 //

@@ -1,4 +1,4 @@
-//This module provides RAML module structure
+// This module provides RAML module structure
 
 import {
     IServerConnection
@@ -43,7 +43,9 @@ export function createManager(connection: IServerConnection,
 class EditorProvider implements ramlActions.IEditorProvider {
 
     constructor(private editorManagerModule: IEditorManagerModule,
-                private uri: string){}
+                private uri: string) {
+
+    }
 
     public getCurrentEditor() {
         return this.editorManagerModule.getEditor(this.uri);

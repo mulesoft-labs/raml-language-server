@@ -18,7 +18,6 @@ import utils = require("../../../common/utils");
 import rp= require("raml-1-parser");
 import lowLevel= rp.ll;
 
-
 /**
  * Converts low-level node position to location
  *

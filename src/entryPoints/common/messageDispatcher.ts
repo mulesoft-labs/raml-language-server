@@ -100,14 +100,16 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
         try {
             let strPayload: string = "";
             if (message.payload != null) {
-                strPayload = (typeof(message.payload) == "string") ?
+                strPayload = (typeof(message.payload) === "string") ?
                     message.payload : JSON.stringify(message.payload, null, 2);
             }
 
             this.debugDetail("Message "
                 + message.type + " , result is:\n" + strPayload,
                 "MessageDispatcher:" + this.name, "send");
-        } catch (Error){}
+        } catch (Error) {
+
+        }
 
         this.sendMessage(message);
     }

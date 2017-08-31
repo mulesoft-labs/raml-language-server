@@ -42,7 +42,7 @@ export abstract class AbstractClientConnection extends MessageDispatcher<Message
     private onDetailsReportListeners: {(report: clientInterfaces.IDetailsReport): void}[] = [];
     private onDisplayActionUIListeners: {(uiDisplayRequest: IUIDisplayRequest): Promise<any>}[] = [];
 
-    constructor(name: string){
+    constructor(name: string) {
         super(name);
 
         this.versionManager = new VersionedDocumentManager(this);
@@ -175,7 +175,7 @@ export abstract class AbstractClientConnection extends MessageDispatcher<Message
      * @param uri - document uri
      * @param position - position in the document
      */
-    public rename(uri: string, position: number, newName: string): Promise<clientInterfaces.IChangedDocument[]>{
+    public rename(uri: string, position: number, newName: string): Promise<clientInterfaces.IChangedDocument[]> {
         return this.sendWithResponse({
             type : "RENAME",
             payload : {

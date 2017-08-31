@@ -1,4 +1,4 @@
-//This module provides a fixed action for renaming RAML node
+// This module provides a fixed action for renaming RAML node
 
 import {
     IServerConnection
@@ -277,7 +277,7 @@ class RenameActionModule implements IListeningModule {
 
         const kind = search.determineCompletionKind(text, offset);
 
-        if (kind === parserApi.search.LocationKind.KEY_COMPLETION && clearLastChar){
+        if (kind === parserApi.search.LocationKind.KEY_COMPLETION && clearLastChar) {
             text = text.substring(0, offset) + "k:" + text.substring(offset);
         }
 
@@ -312,7 +312,7 @@ class RenameActionModule implements IListeningModule {
         return astNode;
     }
 
-    private getKey(t: def.AnnotationType, n: lowLevel.ILowLevelASTNode){
+    private getKey(t: def.AnnotationType, n: lowLevel.ILowLevelASTNode) {
         const up = new def.UserDefinedProp("name", null);
 
         const ramlService: def.RAMLService = t.getAdapter(def.RAMLService);

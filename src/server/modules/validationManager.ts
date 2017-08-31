@@ -1,4 +1,4 @@
-//This module reports RAML warnings and errors
+// This module reports RAML warnings and errors
 
 import {
     IServerConnection
@@ -193,8 +193,7 @@ class ValidationManager {
 
                 tabErrors.push(tabWarning);
                 tab++;
-            }
-            else {
+            } else {
                 break;
             }
         }

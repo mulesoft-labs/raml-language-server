@@ -22,7 +22,7 @@ export interface IWorker {
 export class RAMLClientConnection extends AbstractClientConnection
     implements clientInterfaces.IClientConnection {
 
-    constructor(private worker: IWorker){
+    constructor(private worker: IWorker) {
         super("NodeProcessClientConnection");
 
         worker.onmessage = (event) => {

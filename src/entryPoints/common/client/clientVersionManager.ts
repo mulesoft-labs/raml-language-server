@@ -42,7 +42,7 @@ export class VersionedDocumentManager {
      */
     private documents: {[uri: string]: VersionedDocument[]} = {};
 
-    constructor(private logger: commonTypeInterfaces.ILogger, private maxStoredVersions= 1){
+    constructor(private logger: commonTypeInterfaces.ILogger, private maxStoredVersions= 1) {
     }
 
     /**
@@ -52,7 +52,9 @@ export class VersionedDocumentManager {
     public getLatestDocumentVersion(uri: string): number {
 
         const latestDocument = this.getLatestDocument(uri);
-        if (!latestDocument) return null;
+        if (!latestDocument) {
+            return null;
+        }
 
         return latestDocument.getVersion();
     }
