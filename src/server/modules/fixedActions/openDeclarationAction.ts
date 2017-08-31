@@ -2,42 +2,44 @@
 
 import {
     IServerConnection
-} from '../../core/connections'
+} from "../../core/connections";
 
 import {
     IASTManagerModule
-} from '../astManager'
+} from "../astManager";
 
 import {
     IEditorManagerModule
-} from '../editorManager'
+} from "../editorManager";
 
 import {
     ILocation,
     IRange
-} from '../../../common/typeInterfaces'
+} from "../../../common/typeInterfaces";
 
-import rp=require("raml-1-parser")
+import rp= require("raml-1-parser");
 import search = rp.search;
-import lowLevel=rp.ll;
-import hl=rp.hl;
+import lowLevel= rp.ll;
+import hl= rp.hl;
 
-import utils = require("../../../common/utils")
-import fixedActionCommon = require("./fixedActionsCommon")
+import {
+    IListeningModule
+} from "../../modules/commonInterfaces";
 
-export interface IOpenDeclarationActionModule extends fixedActionCommon.IFixedActionsManagerSubModule {
-    openDeclaration(uri:string,position:number): ILocation[];
+import utils = require("../../../common/utils");
+import fixedActionCommon = require("./fixedActionsCommon");
+
+export interface IOpenDeclarationActionModule extends IListeningModule {
+    openDeclaration(uri: string, position: number): ILocation[];
 }
 
-export function createManager(connection : IServerConnection,
-                              astManagerModule : IASTManagerModule,
+export function createManager(connection: IServerConnection,
+                              astManagerModule: IASTManagerModule,
                               editorManagerModule: IEditorManagerModule)
                             : IOpenDeclarationActionModule {
 
     return new OpenDeclarationActionModule(connection, astManagerModule, editorManagerModule);
 }
-
-
 
 /**
  * Handles "open declaration" action.
@@ -47,13 +49,13 @@ class OpenDeclarationActionModule implements IOpenDeclarationActionModule {
                 private editorManagerModule: IEditorManagerModule) {
     }
 
-    listen() {
-        this.connection.onOpenDeclaration((uri:string,position:number)=>{
+    public listen() {
+        this.connection.onOpenDeclaration((uri: string, position: number) => {
             return this.openDeclaration(uri, position);
-        })
+        });
     }
 
-    openDeclaration(uri:string,position:number): ILocation[] {
+    public openDeclaration(uri: string, position: number): ILocation[] {
 
         this.connection.debug("Called for uri: " + uri,
             "FixedActionsManager", "openDeclaration");
@@ -61,36 +63,43 @@ class OpenDeclarationActionModule implements IOpenDeclarationActionModule {
         this.connection.debugDetail("Uri extname: " + utils.extName(uri),
             "FixedActionsManager", "openDeclaration");
 
-        if (utils.extName(uri) != '.raml') return [];
+        if (utils.extName(uri) !== ".raml") {
+            return [];
+        }
 
-        let ast = this.astManagerModule.getCurrentAST(uri);
+        const ast = this.astManagerModule.getCurrentAST(uri);
 
-        this.connection.debugDetail("Found AST: " + (ast?"true":false),
+        this.connection.debugDetail("Found AST: " + (ast ? "true" : false),
             "FixedActionsManager", "openDeclaration");
 
-        if (!ast) return [];
+        if (!ast) {
+            return [];
+        }
 
-        let unit = ast.lowLevel().unit();
+        const unit = ast.lowLevel().unit();
 
-        var decl=search.findDeclaration(unit, position);
+        const decl = search.findDeclaration(unit, position);
 
-        this.connection.debugDetail("Found declaration: " + (decl?"true":false),
+        this.connection.debugDetail("Found declaration: " + (decl ? "true" : false),
             "FixedActionsManager", "openDeclaration");
 
-        if (!decl) return [];
+        if (!decl) {
+            return [];
+        }
 
-
-        if(!(<any>decl).absolutePath){
-            let location = fixedActionCommon.lowLevelNodeToLocation(uri,
-                (<hl.IParseResult>decl).lowLevel(),
+        if (!(decl as any).absolutePath) {
+            const location = fixedActionCommon.lowLevelNodeToLocation(uri,
+                (decl as hl.IParseResult).lowLevel(),
                 this.editorManagerModule, this.connection);
-            if (!location) return [];
+            if (!location) {
+                return [];
+            }
 
             return [location];
         } else {
-            var absolutePath = (<lowLevel.ICompilationUnit>decl).absolutePath();
+            const absolutePath = (decl as lowLevel.ICompilationUnit).absolutePath();
 
-            if(utils.isHTTPUri(absolutePath)) {
+            if (utils.isHTTPUri(absolutePath)) {
                 return [];
             }
 
@@ -100,7 +109,7 @@ class OpenDeclarationActionModule implements IOpenDeclarationActionModule {
                     start: 0,
                     end: 0
                 }
-            }]
+            }];
         }
     }
 

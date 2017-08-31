@@ -2,102 +2,110 @@
 
 import {
     IServerConnection
-} from '../core/connections'
+} from "../core/connections";
 
 import {
     IASTManagerModule
-} from './astManager'
+} from "./astManager";
 
 import {
-    IValidationIssue,
-    ILogger
-} from '../../common/typeInterfaces'
+    ILogger,
+    IValidationIssue
+} from "../../common/typeInterfaces";
 
 import {
     IListeningModule
-} from './commonInterfaces'
+} from "./commonInterfaces";
 
 import {
     IEditorManagerModule
-} from './editorManager'
+} from "./editorManager";
 
 import parser = require("raml-1-parser");
 import utils = parser.utils;
 
 type IHighLevelNode = parser.hl.IHighLevelNode;
 
-export function createManager(connection : IServerConnection,
-    astManagerModule : IASTManagerModule,
-    editorManagerModule: IEditorManagerModule) : IListeningModule {
+export function createManager(connection: IServerConnection,
+                              astManagerModule: IASTManagerModule,
+                              editorManagerModule: IEditorManagerModule): IListeningModule {
 
     return new ValidationManager(connection, astManagerModule, editorManagerModule);
 }
 
 class Acceptor extends utils.PointOfViewValidationAcceptorImpl {
-    private foundIssues : IValidationIssue[] = [];
+    public buffers: {[path: string]: any} = {};
 
-    constructor(private ramlPath: string, primaryUnit : parser.hl.IParseResult,
-        private logger: ILogger) {
-        super([], primaryUnit)
+    private foundIssues: IValidationIssue[] = [];
+
+    constructor(private ramlPath: string, primaryUnit: parser.hl.IParseResult,
+                private logger: ILogger) {
+        super([], primaryUnit);
     }
 
-    buffers:{[path:string]:any} = {}
-
-    getErrors(): IValidationIssue[] {
+    public getErrors(): IValidationIssue[] {
         return this.foundIssues;
     }
 
-    accept(issue: parser.hl.ValidationIssue) {
-        if(!issue){
+    public accept(issue: parser.hl.ValidationIssue) {
+        if (!issue) {
             return;
         }
 
         this.logger.debugDetail("Accepting issue: " + issue.message,
-            "ValidationManager", "accept")
+            "ValidationManager", "accept");
 
         this.transformIssue(issue);
 
-        var issueType = issue.isWarning ? "Warning" :"Error";
+        let issueType = issue.isWarning ? "Warning" : "Error";
 
-        var issuesArray: parser.hl.ValidationIssue[] = [];
+        const issuesArray: parser.hl.ValidationIssue[] = [];
 
-        while(issue) {
+        while (issue) {
             issuesArray.push(issue);
 
-            if(issue.extras && issue.extras.length>0){
+            if (issue.extras && issue.extras.length > 0) {
                 issue = issue.extras[0];
             } else {
                 issue = null;
             }
         }
 
-        var issues = issuesArray.reverse().map(x=>{
-            var result = this.convertParserIssue(x,issueType);
+        const issues = issuesArray.reverse().map((x) => {
+            const result = this.convertParserIssue(x, issueType);
 
             issueType = "Trace";
 
             return result;
         });
 
-        for(var i = 0 ; i < issues.length - 1; i++){
+        for (let i = 0 ; i < issues.length - 1; i++) {
             issues[0].trace.push(issues[i + 1]);
         }
 
-        var message = issues[0];
+        const message = issues[0];
 
         this.foundIssues.push(message);
     }
 
-    private convertParserIssue(originalIssue: parser.hl.ValidationIssue, issueType:string): IValidationIssue {
-        var t = originalIssue.message;
+    public acceptUnique(issue: parser.hl.ValidationIssue) {
+        this.accept(issue);
+    }
 
-        var ps = originalIssue.path;
+    public end() {
 
-        if(originalIssue.unit) {
+    }
+
+    private convertParserIssue(originalIssue: parser.hl.ValidationIssue, issueType: string): IValidationIssue {
+        const t = originalIssue.message;
+
+        let ps = originalIssue.path;
+
+        if (originalIssue.unit) {
             ps = originalIssue.unit.absolutePath();
         }
 
-        var trace = {
+        const trace = {
             code: originalIssue.code,
             type: issueType,
             filePath: originalIssue.path ? ps : null,
@@ -111,64 +119,64 @@ class Acceptor extends utils.PointOfViewValidationAcceptorImpl {
 
         return trace;
     }
-
-    acceptUnique(issue: parser.hl.ValidationIssue){
-        this.accept(issue);
-    }
-
-    end() {
-
-    }
 }
 
 class ValidationManager {
-    constructor(private connection : IServerConnection, private astManagerModule : IASTManagerModule,
+    constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {
     }
 
-    listen() {
-        this.astManagerModule.onNewASTAvailable((uri: string, version: number, ast: IHighLevelNode)=>{
+    public listen() {
+        this.astManagerModule.onNewASTAvailable((uri: string, version: number, ast: IHighLevelNode) => {
             this.newASTAvailable(uri, version, ast);
-        })
+        });
     }
 
-    newASTAvailable(uri: string, version: number, ast: IHighLevelNode):void {
+    public newASTAvailable(uri: string, version: number, ast: IHighLevelNode): void {
 
-        this.connection.debug("Got new AST:\n" + (ast!=null?ast.printDetails():null),
-            "ValidationManager", "newASTAvailable")
+        this.connection.debug("Got new AST:\n" + (ast != null ? ast.printDetails() : null),
+            "ValidationManager", "newASTAvailable");
 
-        let errors = this.gatherValidationErrors(ast, uri);
+        const errors = this.gatherValidationErrors(ast, uri);
 
-        this.connection.debug("Number of errors is:\n" + (errors?errors.length:0),
-            "ValidationManager", "newASTAvailable")
+        this.connection.debug("Number of errors is:\n" + (errors ? errors.length : 0),
+            "ValidationManager", "newASTAvailable");
 
         this.connection.validated({
             pointOfViewUri : uri,
-            version: version,
+            version,
             issues : errors
-        })
+        });
     }
 
-    gatherValidationErrors(astNode: parser.IHighLevelNode, ramlPath: string) : IValidationIssue[] {
-        if (!astNode) return;
+    public gatherValidationErrors(astNode: parser.IHighLevelNode, ramlPath: string): IValidationIssue[] {
+        if (!astNode) {
+            return;
+        }
 
-        let acceptor = new Acceptor(ramlPath, astNode.root(), this.connection);
+        const acceptor = new Acceptor(ramlPath, astNode.root(), this.connection);
 
         astNode.validate(acceptor);
 
-        let acceptedErrors = acceptor.getErrors();
+        const acceptedErrors = acceptor.getErrors();
 
-        let editor = this.editorManagerModule.getEditor(ramlPath);
-        if (!editor) return acceptedErrors;
+        const editor = this.editorManagerModule.getEditor(ramlPath);
+        if (!editor) {
+            return acceptedErrors;
+        }
 
-        let text = editor.getText();
-        if (!text) return acceptedErrors;
+        const text = editor.getText();
+        if (!text) {
+            return acceptedErrors;
+        }
 
-        let tabErrors : IValidationIssue[] = [];
+        const tabErrors: IValidationIssue[] = [];
+
+        let tab: number = 0;
         while (true) {
-            var tab:number = text.indexOf('\t',tab)
-            if (tab != -1) {
-                let tabWarning = {
+            tab = text.indexOf("\t", tab);
+            if (tab !== -1) {
+                const tabWarning = {
                     code : "TAB_WARNING",
 
                     type: "Warning",
@@ -178,15 +186,15 @@ class ValidationManager {
                     text: "Using tabs  can lead to unpredictable results",
                     range: {
                         start: tab,
-                        end: tab+1
+                        end: tab + 1
                     },
                     trace: []
-                }
+                };
 
                 tabErrors.push(tabWarning);
                 tab++;
             }
-            else{
+            else {
                 break;
             }
         }

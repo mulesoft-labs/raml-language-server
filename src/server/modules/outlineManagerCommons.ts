@@ -1,25 +1,31 @@
-import ramlOutline =require('raml-outline')
+import ramlOutline = require("raml-outline");
 
 import {
     IASTManagerModule
-} from './astManager'
+} from "./astManager";
 
 import {
     ILogger
-} from '../../common/typeInterfaces'
+} from "../../common/typeInterfaces";
 
-import rp=require("raml-1-parser")
-import hl=rp.hl;
+import rp= require("raml-1-parser");
+import hl= rp.hl;
 
 /**
  * Generates node key
  * @param node
  * @returns {any}
  */
-export function keyProvider(node: hl.IParseResult) : string {
-    if (!node) return null;
-    if (node && !node.parent()) return node.name();
-    else return node.name() + " :: " + keyProvider(node.parent());
+export function keyProvider(node: hl.IParseResult): string {
+    if (!node) {
+        return null;
+    }
+
+    if (node && !node.parent()) {
+        return node.name();
+    } else {
+        return node.name() + " :: " + keyProvider(node.parent());
+    }
 }
 
 /**
@@ -28,7 +34,7 @@ export function keyProvider(node: hl.IParseResult) : string {
 export function initialize() {
 
     ramlOutline.initialize();
-    ramlOutline.setKeyProvider(<any>keyProvider);
+    ramlOutline.setKeyProvider(keyProvider as any);
 }
 
 initialize();
@@ -41,16 +47,16 @@ class ASTProvider implements ramlOutline.IASTProvider {
                 private logger: ILogger) {
     }
 
-    getASTRoot() {
-        this.logger.debug("Asked for AST", "ASTProvider", "getASTRoot")
-        let ast = <any> this.astManagerModule.getCurrentAST(this.uri);
+    public getASTRoot() {
+        this.logger.debug("Asked for AST", "ASTProvider", "getASTRoot");
+        const ast = this.astManagerModule.getCurrentAST(this.uri) as any;
 
-        this.logger.debugDetail("AST found: " + (ast?"true":"false"), "ASTProvider", "getASTRoot")
+        this.logger.debugDetail("AST found: " + (ast ? "true" : "false"), "ASTProvider", "getASTRoot");
 
         return ast;
     }
 
-    getSelectedNode() {
+    public getSelectedNode() {
         return null;
     }
 }

@@ -2,49 +2,49 @@
 
 import {
     IServerConnection
-} from '../core/connections'
+} from "../core/connections";
 
 import {
     IASTManagerModule
-} from './astManager'
+} from "./astManager";
 
 import {
     IEditorManagerModule
-} from './editorManager'
+} from "./editorManager";
 
 import {
     IAbstractTextEditor,
     IListeningModule
-} from './commonInterfaces'
+} from "./commonInterfaces";
 
 import {
-    IValidationIssue,
-    StructureNodeJSON,
     Icons,
-    TextStyles,
+    ILogger,
+    IValidationIssue,
     StructureCategories,
+    StructureNodeJSON,
     Suggestion,
-    ILogger
-} from '../../common/typeInterfaces'
+    TextStyles
+} from "../../common/typeInterfaces";
 
-import rp=require("raml-1-parser")
-import lowLevel=rp.ll;
-import hl=rp.hl;
+import rp= require("raml-1-parser");
+import lowLevel= rp.ll;
+import hl= rp.hl;
 
 import {
-    pathFromURI,
-    dirname,
     basename,
-    resolve,
-    isFILEUri
-} from '../../common/utils'
+    dirname,
+    isFILEUri,
+    pathFromURI,
+    resolve
+} from "../../common/utils";
 
-import suggestions = require("raml-suggestions")
-import fs = require("fs")
+import fs = require("fs");
+import suggestions = require("raml-suggestions");
 
-export function createManager(connection : IServerConnection,
-                              astManagerModule : IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule) : IListeningModule {
+export function createManager(connection: IServerConnection,
+                              astManagerModule: IASTManagerModule,
+                              editorManagerModule: IEditorManagerModule): IListeningModule {
 
     return new CompletionManagerModule(connection, astManagerModule, editorManagerModule);
 }
@@ -57,21 +57,21 @@ initialize();
 
 class ASTProvider implements suggestions.IASTProvider {
     constructor(private uri: string, private astManagerModule: IASTManagerModule,
-        private logger: ILogger) {
+                private logger: ILogger) {
     }
 
-    getASTRoot() {
+    public getASTRoot() {
 
-        let result =  <any> this.astManagerModule.getCurrentAST(this.uri);
+        const result =  this.astManagerModule.getCurrentAST(this.uri) as any;
 
         this.logger.debugDetail(
-            "Got AST from AST provider: " + (result?"true":"false"),
-            "CompletionManagerModule", "ASTProvider#getASTRoot")
+            "Got AST from AST provider: " + (result ? "true" : "false"),
+            "CompletionManagerModule", "ASTProvider#getASTRoot");
 
         return result;
     }
 
-    getSelectedNode() {
+    public getSelectedNode() {
         return this.getASTRoot();
     }
 
@@ -79,16 +79,16 @@ class ASTProvider implements suggestions.IASTProvider {
      * Gets current AST root asynchronously.
      * Can return null.
      */
-    getASTRootAsync() {
-        return Promise.resolve(this.getASTRoot())
+    public getASTRootAsync() {
+        return Promise.resolve(this.getASTRoot());
     }
 
     /**
      * Gets current AST node asynchronously
      * Can return null.
      */
-    getSelectedNodeAsync() {
-        return Promise.resolve(this.getSelectedNode())
+    public getSelectedNodeAsync() {
+        return Promise.resolve(this.getSelectedNode());
     }
 }
 
@@ -96,7 +96,7 @@ class ASTProvider implements suggestions.IASTProvider {
  * Editor state provider.
  */
 class EditorStateProvider implements suggestions.IEditorStateProvider {
-    private editor : IAbstractTextEditor;
+    private editor: IAbstractTextEditor;
 
     constructor(private uri: string, private offset: number,
                 private editorManagerModule: IEditorManagerModule) {
@@ -106,8 +106,10 @@ class EditorStateProvider implements suggestions.IEditorStateProvider {
     /**
      * Text of the document opened in the editor.
      */
-    getText(): string {
-        if (!this.editor) return "";
+    public getText(): string {
+        if (!this.editor) {
+            return "";
+        }
 
         return this.editor.getText();
     }
@@ -115,13 +117,15 @@ class EditorStateProvider implements suggestions.IEditorStateProvider {
     /**
      * Full path to the document opened in the editor.
      */
-    getPath(): string {
-        if (!this.editor) return "";
+    public getPath(): string {
+        if (!this.editor) {
+            return "";
+        }
 
-        let editorPath = this.editor.getPath();
+        const editorPath = this.editor.getPath();
 
         if (isFILEUri(editorPath)) {
-            return pathFromURI(editorPath)
+            return pathFromURI(editorPath);
         } else {
             return editorPath;
         }
@@ -130,8 +134,10 @@ class EditorStateProvider implements suggestions.IEditorStateProvider {
     /**
      * File name of the document opened in the editor.
      */
-    getBaseName(): string {
-        if (!this.editor) return "";
+    public getBaseName(): string {
+        if (!this.editor) {
+            return "";
+        }
 
         return basename(this.getPath());
     }
@@ -139,8 +145,10 @@ class EditorStateProvider implements suggestions.IEditorStateProvider {
     /**
      * Editor cursor offset.
      */
-    getOffset(): number {
-        if (!this.editor) return 0;
+    public getOffset(): number {
+        if (!this.editor) {
+            return 0;
+        }
 
         return this.offset;
     }
@@ -148,7 +156,7 @@ class EditorStateProvider implements suggestions.IEditorStateProvider {
 
 class FSProvider implements suggestions.IFSProvider {
 
-    constructor(private logger: ILogger, private connection : IServerConnection) {
+    constructor(private logger: ILogger, private connection: IServerConnection) {
 
     }
 
@@ -156,12 +164,12 @@ class FSProvider implements suggestions.IFSProvider {
      * File contents by full path, synchronously.
      * @param fullPath
      */
-    content(fullPath: string): string {
+    public content(fullPath: string): string {
         this.logger.debugDetail("Request for content: " + fullPath,
-            "CompletionManagerModule", "FSProvider#content")
+            "CompletionManagerModule", "FSProvider#content");
 
         this.logger.error("Should never be called",
-            "CompletionManagerModule", "FSProvider#content")
+            "CompletionManagerModule", "FSProvider#content");
 
         return null;
     }
@@ -169,72 +177,72 @@ class FSProvider implements suggestions.IFSProvider {
      * File contents by full path, asynchronously.
      * @param fullPath
      */
-    contentAsync(fullPath: string): Promise<string> {
+    public contentAsync(fullPath: string): Promise<string> {
         return this.connection.content(fullPath);
     }
 
-    contentDirName(content: suggestions.IEditorStateProvider): string {
-        let contentPath = content.getPath();
+    public contentDirName(content: suggestions.IEditorStateProvider): string {
+        const contentPath = content.getPath();
 
-        let converted = pathFromURI(contentPath);
+        const converted = pathFromURI(contentPath);
 
-        let result = dirname(converted);
+        const result = dirname(converted);
 
         this.logger.debugDetail("contentDirName result: " + result,
-            "CompletionManagerModule", "FSProvider#contentDirName")
+            "CompletionManagerModule", "FSProvider#contentDirName");
 
         return result;
     }
 
-    dirName(childPath: string): string {
+    public dirName(childPath: string): string {
         this.logger.debugDetail("Dirname for path: " + childPath,
-            "CompletionManagerModule", "FSProvider#dirName")
+            "CompletionManagerModule", "FSProvider#dirName");
 
-        let result =  dirname(childPath);
+        const result =  dirname(childPath);
 
         this.logger.debugDetail("result: " + result,
-            "CompletionManagerModule", "FSProvider#dirName")
+            "CompletionManagerModule", "FSProvider#dirName");
 
         return result;
     }
 
-    exists(checkPath: string): boolean {
+    public exists(checkPath: string): boolean {
         this.logger.debugDetail("Request for existence: " + checkPath,
-            "CompletionManagerModule", "FSProvider#exists")
+            "CompletionManagerModule", "FSProvider#exists");
 
         this.logger.error("Should never be called",
-            "CompletionManagerModule", "FSProvider#exists")
+            "CompletionManagerModule", "FSProvider#exists");
         return false;
     }
 
-    resolve(contextPath: string, relativePath: string): string {
+    public resolve(contextPath: string, relativePath: string): string {
         return resolve(contextPath, relativePath);
     }
 
-    isDirectory(dirPath: string): boolean {
+    public isDirectory(dirPath: string): boolean {
 
         this.logger.debugDetail("Request for directory check: " + dirPath,
-            "CompletionManagerModule", "FSProvider#isDirectory")
+            "CompletionManagerModule", "FSProvider#isDirectory");
 
         this.logger.error("Should never be called",
-            "CompletionManagerModule", "FSProvider#isDirectory")
+            "CompletionManagerModule", "FSProvider#isDirectory");
 
-        return false
+        return false;
     }
 
-    readDir(dirPath: string): string[] {
+    public readDir(dirPath: string): string[] {
         this.logger.debugDetail("Request for directory content: " + dirPath,
-            "CompletionManagerModule", "FSProvider#readDir")
+            "CompletionManagerModule", "FSProvider#readDir");
 
         this.logger.error("Should never be called",
-            "CompletionManagerModule", "FSProvider#readDir")
+            "CompletionManagerModule", "FSProvider#readDir");
 
         return [];
     }
 
-    existsAsync(path: string): Promise<boolean> {
+    public existsAsync(path: string): Promise<boolean> {
         this.logger.debugDetail("Request for existence: " + path,
-            "CompletionManagerModule", "FSProvider#existsAsync")
+            "CompletionManagerModule", "FSProvider#existsAsync");
 
         return this.connection.exists(path);
     }
@@ -243,9 +251,9 @@ class FSProvider implements suggestions.IFSProvider {
      * Returns directory content list.
      * @param fullPath
      */
-    readDirAsync(path: string): Promise<string[]> {
+    public readDirAsync(path: string): Promise<string[]> {
         this.logger.debugDetail("Request for directory content: " + path,
-            "CompletionManagerModule", "FSProvider#readDirAsync")
+            "CompletionManagerModule", "FSProvider#readDirAsync");
 
         return this.connection.readDir(path);
     }
@@ -254,10 +262,10 @@ class FSProvider implements suggestions.IFSProvider {
      * Check whether the path points to a directory.
      * @param fullPath
      */
-    isDirectoryAsync(path: string): Promise<boolean> {
+    public isDirectoryAsync(path: string): Promise<boolean> {
 
         this.logger.debugDetail("Request for directory check: " + path,
-            "CompletionManagerModule", "FSProvider#isDirectoryAsync")
+            "CompletionManagerModule", "FSProvider#isDirectoryAsync");
 
         return this.connection.isDirectory(path);
     }
@@ -388,47 +396,50 @@ class CompletionManagerModule implements IListeningModule {
                 private editorManagerModule: IEditorManagerModule) {
     }
 
-    listen() {
-        this.connection.onDocumentCompletion((uri, position)=>{
+    public listen() {
+        this.connection.onDocumentCompletion((uri, position) => {
             return this.getCompletion(uri, position);
-        })
+        });
     }
 
-    getCompletion(uri: string, position: number) : Promise<Suggestion[]> {
-        this.connection.debug("Called getCompletion for position " + position, "CompletionManagerModule", "getCompletion")
+    public getCompletion(uri: string, position: number): Promise<Suggestion[]> {
+        this.connection.debug("Called getCompletion for position " + position,
+                              "CompletionManagerModule", "getCompletion")
         ;
-        let astProvider = new ASTProvider(uri, this.astManagerModule, this.connection);
-        let editorProvider = new EditorStateProvider(uri, position, this.editorManagerModule);
-        let fsProvider = new FSProvider(this.connection, this.connection);
+        const astProvider = new ASTProvider(uri, this.astManagerModule, this.connection);
+        const editorProvider = new EditorStateProvider(uri, position, this.editorManagerModule);
+        const fsProvider = new FSProvider(this.connection, this.connection);
 
-        //TODO remove after leaving prototype phase, only needed for logging
-        let editorText = editorProvider.getText();
-        this.connection.debugDetail("Current text:\n" + editorText, "CompletionManagerModule", "getCompletion")
-        let cutStart = position-10>=0?position-10:0
-        let cutEnd = position+10<editorText.length?position+10:editorText.length-1;
-        let cutText = editorText.substring(cutStart, position+1) + "I" + editorText.substring(position+1, cutEnd)
+        // TODO remove after leaving prototype phase, only needed for logging
+        const editorText = editorProvider.getText();
+        this.connection.debugDetail("Current text:\n" + editorText, "CompletionManagerModule", "getCompletion");
+        const cutStart = position - 10 >= 0 ? position - 10 : 0;
+        const cutEnd = position + 10 < editorText.length ? position + 10 : editorText.length - 1;
+        const cutText = editorText.substring(cutStart, position + 1) + "I" + editorText.substring(position + 1, cutEnd);
         this.connection.debugDetail("Completion position cutoff:" + cutText,
-            "CompletionManagerModule", "getCompletion")
+            "CompletionManagerModule", "getCompletion");
 
-        let currentAST = this.astManagerModule.getCurrentAST(uri);
-        this.connection.debugDetail("Current AST found: " + (currentAST?"true":"false"), "CompletionManagerModule", "getCompletion")
+        const currentAST = this.astManagerModule.getCurrentAST(uri);
+        this.connection.debugDetail("Current AST found: " + (currentAST ? "true" : "false"),
+                                    "CompletionManagerModule", "getCompletion");
         if (currentAST) {
             this.connection.debugDetail(currentAST.printDetails(), "CompletionManagerModule", "getCompletion");
         }
 
-
         suggestions.setDefaultASTProvider(astProvider);
 
-
-        return suggestions.suggestAsync(editorProvider, fsProvider).then(result=>{
+        return suggestions.suggestAsync(editorProvider, fsProvider).then((result) => {
             this.connection.debug("Got suggestion results: " + JSON.stringify(result));
             this.connection.debug("Got suggestion results length: "
-                + (result?result.length:0), "CompletionManagerModule", "getCompletion")
+                + (result ? result.length : 0), "CompletionManagerModule", "getCompletion");
 
-            for (let suggestion of result) {
-                this.connection.debug("Suggestion: text: " + suggestion.text, "CompletionManagerModule", "getCompletion")
-                this.connection.debug("Suggestion: displayText: " + suggestion.displayText, "CompletionManagerModule", "getCompletion")
-                this.connection.debug("Suggestion: prefix: " + suggestion.prefix, "CompletionManagerModule", "getCompletion")
+            for (const suggestion of result) {
+                this.connection.debug("Suggestion: text: " + suggestion.text,
+                                      "CompletionManagerModule", "getCompletion");
+                this.connection.debug("Suggestion: displayText: " + suggestion.displayText,
+                                      "CompletionManagerModule", "getCompletion");
+                this.connection.debug("Suggestion: prefix: " + suggestion.prefix,
+                                      "CompletionManagerModule", "getCompletion");
             }
 
             return result;

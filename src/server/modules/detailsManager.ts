@@ -2,38 +2,38 @@
 
 import {
     IServerConnection
-} from '../core/connections'
+} from "../core/connections";
 
 import {
     IASTManagerModule
-} from './astManager'
+} from "./astManager";
 
 import {
     IEditorManagerModule
-} from './editorManager'
+} from "./editorManager";
 
 import {
-    IValidationIssue,
     DetailsItemJSON,
-    ILogger
-} from '../../common/typeInterfaces'
+    ILogger,
+    IValidationIssue
+} from "../../common/typeInterfaces";
 
 import {
     IListeningModule
-} from './commonInterfaces'
+} from "./commonInterfaces";
 
-import rp=require("raml-1-parser")
-import lowLevel=rp.ll;
-import hl=rp.hl;
+import rp= require("raml-1-parser");
+import lowLevel= rp.ll;
+import hl= rp.hl;
 import utils = rp.utils;
-import ramlOutline =require('raml-outline')
-import outlineManagerCommons = require('./outlineManagerCommons')
+import ramlOutline = require("raml-outline");
+import outlineManagerCommons = require("./outlineManagerCommons");
 
-let universes=rp.universes;
+const universes = rp.universes;
 
-export function createManager(connection : IServerConnection,
-                              astManagerModule : IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule) : IListeningModule {
+export function createManager(connection: IServerConnection,
+                              astManagerModule: IASTManagerModule,
+                              editorManagerModule: IEditorManagerModule): IListeningModule {
 
     return new DetailsManager(connection, astManagerModule, editorManagerModule);
 }
@@ -43,7 +43,6 @@ export function initialize() {
 }
 
 initialize();
-
 
 class DetailsManager {
 
@@ -57,120 +56,127 @@ class DetailsManager {
      * Remembering positions for opened documents.
      * @type {{}}
      */
-    private uriToPositions : {[uri:string]:number} = {}
+    private uriToPositions: {[uri: string]: number} = {};
 
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
-        private editorManager: IEditorManagerModule) {
+                private editorManager: IEditorManagerModule) {
     }
 
-    listen() {
-        this.connection.onDocumentDetails((uri, position)=>{
+    public listen() {
+        this.connection.onDocumentDetails((uri, position) => {
             return this.getDetails(uri, position);
-        })
+        });
 
-        this.astManagerModule.onNewASTAvailable((uri: string, version:number, ast: hl.IHighLevelNode)=>{
+        this.astManagerModule.onNewASTAvailable((uri: string, version: number, ast: hl.IHighLevelNode) => {
 
             this.connection.debug("Got new AST report for uri " + uri,
                 "DetailsManager", "listen");
 
             this.calculateAndSendDetailsReport(uri, version);
-        })
+        });
 
-        this.connection.onChangePosition((uri, position)=>{
+        this.connection.onChangePosition((uri, position) => {
 
             this.connection.debug("Got new position report for uri " + uri + " : " + position,
                 "DetailsManager", "listen");
 
             this.uriToPositions[uri] = position;
 
-            let editor = this.editorManager.getEditor(uri);
+            const editor = this.editorManager.getEditor(uri);
 
-            if (!editor) return;
-            let version = editor.getVersion();
+            if (!editor) {
+                return;
+            }
+            const version = editor.getVersion();
 
             this.calculateAndSendDetailsReport(uri, version);
-        })
+        });
     }
 
-    private calculateAndSendDetailsReport(uri: string, version: number) {
-
-        //we do not want reporting while performing the calculation
-        if (this.calculatingDetailsOnDirectRequest) return;
-
-        this.connection.debug("Calculating details", "DetailsManager",
-            "calculateAndSendDetailsReport");
-
-        let knownPosition = this.uriToPositions[uri];
-        this.connection.debug("Found position: " + knownPosition, "DetailsManager",
-            "calculateAndSendDetailsReport");
-
-        if (knownPosition != null) {
-            this.calculateDetails(uri, knownPosition).then(detailsForUri=>{
-                this.connection.debug("Calculation result is not null:" + (detailsForUri!=null?"true":"false"), "DetailsManager",
-                    "calculateAndSendDetailsReport");
-
-                if (detailsForUri) {
-                    this.connection.detailsAvailable({
-                        uri: uri,
-                        position: knownPosition,
-                        version: version,
-                        details: detailsForUri
-                    })
-                }
-            })
-        }
-    }
-
-    vsCodeUriToParserUri(vsCodeUri : string) : string {
-        if (vsCodeUri.indexOf("file://") == 0) {
+    public vsCodeUriToParserUri(vsCodeUri: string): string {
+        if (vsCodeUri.indexOf("file://") === 0) {
             return vsCodeUri.substring(7);
         }
 
         return vsCodeUri;
     }
 
-    getDetails(uri : string, position: number): Promise<DetailsItemJSON> {
+    public getDetails(uri: string, position: number): Promise<DetailsItemJSON> {
         this.connection.debug("Requested details for uri " + uri + " and position " + position, "DetailsManager",
             "getDetails");
 
         this.calculatingDetailsOnDirectRequest = true;
 
-        return this.calculateDetails(uri, position).then(calculated=>{
+        return this.calculateDetails(uri, position).then((calculated) => {
 
-            this.connection.debug("Calculation result is not null:" + (calculated != null ? "true" : "false"), "DetailsManager",
+            this.connection.debug("Calculation result is not null:" +
+                (calculated != null ? "true" : "false"), "DetailsManager",
                 "getDetails");
 
             this.calculatingDetailsOnDirectRequest = false;
 
             return calculated;
 
-        }).catch(error=>{
+        }).catch((error) => {
             this.calculatingDetailsOnDirectRequest = false;
             throw error;
-        })
+        });
     }
 
-    calculateDetails(uri : string, position: number): Promise<DetailsItemJSON> {
+    public calculateDetails(uri: string, position: number): Promise<DetailsItemJSON> {
 
         this.connection.debug("Called for uri: " + uri,
             "DetailsManager", "calculateDetails");
 
-        //Forcing current AST to exist
-        return this.astManagerModule.forceGetCurrentAST(uri).then(currentAST=>{
+        // Forcing current AST to exist
+        return this.astManagerModule.forceGetCurrentAST(uri).then((currentAST) => {
 
             outlineManagerCommons.setOutlineASTProvider(uri, this.astManagerModule, this.connection);
 
-            let result = ramlOutline.getDetailsJSON(position);
+            const result = ramlOutline.getDetailsJSON(position);
 
-            this.connection.debug("Calculation result is not null:" + (result!=null?"true":"false"), "DetailsManager",
+            this.connection.debug("Calculation result is not null:" +
+                (result != null ? "true" : "false"), "DetailsManager",
                 "calculateDetails");
 
             if (result) {
                 this.connection.debugDetail("Calculation result: "
-                    + JSON.stringify(result, null, 2), "DetailsManager", "calculateDetails")
+                    + JSON.stringify(result, null, 2), "DetailsManager", "calculateDetails");
             }
 
             return result;
-        })
+        });
+    }
+
+    private calculateAndSendDetailsReport(uri: string, version: number) {
+
+        // we do not want reporting while performing the calculation
+        if (this.calculatingDetailsOnDirectRequest) {
+            return;
+        }
+
+        this.connection.debug("Calculating details", "DetailsManager",
+            "calculateAndSendDetailsReport");
+
+        const knownPosition = this.uriToPositions[uri];
+        this.connection.debug("Found position: " + knownPosition, "DetailsManager",
+            "calculateAndSendDetailsReport");
+
+        if (knownPosition != null) {
+            this.calculateDetails(uri, knownPosition).then((detailsForUri) => {
+                this.connection.debug("Calculation result is not null:" +
+                    (detailsForUri != null ? "true" : "false"), "DetailsManager",
+                    "calculateAndSendDetailsReport");
+
+                if (detailsForUri) {
+                    this.connection.detailsAvailable({
+                        uri,
+                        position: knownPosition,
+                        version,
+                        details: detailsForUri
+                    });
+                }
+            });
+        }
     }
 }

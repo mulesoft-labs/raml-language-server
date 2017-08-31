@@ -1,21 +1,21 @@
 import {
-    IRange,
-    IValidationIssue,
-    IValidationReport,
-    IStructureReport,
-    IOpenedDocument,
-    IChangedDocument,
-    StructureNodeJSON,
-    Suggestion,
-    ILogger,
-    MessageSeverity,
-    ILocation,
-    ILoggerSettings,
     DetailsItemJSON,
+    IChangedDocument,
     IDetailsReport,
     IExecutableAction,
-    IUIDisplayRequest
-} from '../../common/typeInterfaces'
+    ILocation,
+    ILogger,
+    ILoggerSettings,
+    IOpenedDocument,
+    IRange,
+    IStructureReport,
+    IUIDisplayRequest,
+    IValidationIssue,
+    IValidationReport,
+    MessageSeverity,
+    StructureNodeJSON,
+    Suggestion
+} from "../../common/typeInterfaces";
 
 export {
     IRange,
@@ -34,26 +34,26 @@ export {
     IDetailsReport,
     IExecutableAction,
     IUIDisplayRequest
-} from '../../common/typeInterfaces'
+} from "../../common/typeInterfaces";
 
 export interface IServerConnection extends ILogger {
     /**
      * Adds a listener to document open notification. Must notify listeners in order of registration.
      * @param listener
      */
-    onOpenDocument(listener: (document: IOpenedDocument)=>void);
+    onOpenDocument(listener: (document: IOpenedDocument) => void);
 
     /**
      * Adds a listener to document change notification. Must notify listeners in order of registration.
      * @param listener
      */
-    onChangeDocument(listener: (document : IChangedDocument)=>void);
+    onChangeDocument(listener: (document: IChangedDocument) => void);
 
     /**
      * Adds a listener to document close notification. Must notify listeners in order of registration.
      * @param listener
      */
-    onCloseDocument(listener: (uri : string)=>void);
+    onCloseDocument(listener: (uri: string) => void);
 
     /**
      * Adds a listener to document structure request. Must notify listeners in order of registration.
@@ -63,31 +63,31 @@ export interface IServerConnection extends ILogger {
      * Adds a listener to document completion request. Must notify listeners in order of registration.
      * @param listener
      */
-    onDocumentCompletion(listener: (uri : string, position: number)=>Promise<Suggestion[]>)
+    onDocumentCompletion(listener: (uri: string, position: number) => Promise<Suggestion[]>);
 
     /**
      * Adds a listener to document structure request. Must notify listeners in order of registration.
      * @param listener
      */
-    onDocumentStructure(listener: (uri : string)=>Promise<{[categoryName:string] : StructureNodeJSON}>)
+    onDocumentStructure(listener: (uri: string) => Promise<{[categoryName: string]: StructureNodeJSON}>);
 
     /**
      * Adds a listener to document open declaration request.  Must notify listeners in order of registration.
      * @param listener
      */
-    onOpenDeclaration(listener: (uri: string, position: number) => ILocation[])
+    onOpenDeclaration(listener: (uri: string, position: number) => ILocation[]);
 
     /**
      * Adds a listener to document find references request.  Must notify listeners in order of registration.
      * @param listener
      */
-    onFindReferences(listener: (uri: string, position: number) => ILocation[])
+    onFindReferences(listener: (uri: string, position: number) => ILocation[]);
 
     /**
      * Reports latest validation results
      * @param report
      */
-    validated(report:IValidationReport) : void;
+    validated(report: IValidationReport): void;
 
     /**
      * Reports new calculated structure when available.
@@ -99,56 +99,56 @@ export interface IServerConnection extends ILogger {
      * Marks occurrences of a symbol under the cursor in the current document.
      * @param listener
      */
-    onMarkOccurrences(listener: (uri: string, position: number) => IRange[])
+    onMarkOccurrences(listener: (uri: string, position: number) => IRange[]);
 
     /**
      * Finds the set of document (and non-document files) edits to perform the requested rename.
      * @param listener
      */
-    onRename(listener: (uri: string, position: number, newName: string) => IChangedDocument[])
+    onRename(listener: (uri: string, position: number, newName: string) => IChangedDocument[]);
 
     /**
      * Sets connection logger configuration.
      * @param loggerSettings
      */
-    setLoggerConfiguration(loggerSettings: ILoggerSettings)
+    setLoggerConfiguration(loggerSettings: ILoggerSettings);
 
     /**
      * Returns whether path/url exists.
      * @param fullPath
      */
-    exists(path: string): Promise<boolean>
+    exists(path: string): Promise<boolean>;
 
     /**
      * Returns directory content list.
      * @param fullPath
      */
-    readDir(path: string): Promise<string[]>
+    readDir(path: string): Promise<string[]>;
 
     /**
      * Returns whether path/url represents a directory
      * @param path
      */
-    isDirectory(path: string): Promise<boolean>
+    isDirectory(path: string): Promise<boolean>;
 
     /**
      * File contents by full path/url.
      * @param fullPath
      */
-    content(fullPath:string):Promise<string>
+    content(fullPath: string): Promise<string>;
 
     /**
      * Adds a listener to document details request. Must notify listeners in order of registration.
      * @param listener
      */
-    onDocumentDetails(listener: (uri : string, position: number)=>Promise<DetailsItemJSON>)
+    onDocumentDetails(listener: (uri: string, position: number) => Promise<DetailsItemJSON>);
 
     /**
      * Adds a listener to document cursor position change notification.
      * Must notify listeners in order of registration.
      * @param listener
      */
-    onChangePosition(listener: (uri: string, position: number)=>void);
+    onChangePosition(listener: (uri: string, position: number) => void);
 
     /**
      * Reports new calculated details when available.
@@ -168,8 +168,8 @@ export interface IServerConnection extends ILogger {
      * for actions based on the editor state and tree viewer state.
      * "TARGET_RAML_EDITOR_NODE" is default.
      */
-    onCalculateEditorContextActions(listener:(uri: string,
-        position?: number)=>Promise<IExecutableAction[]>): void;
+    onCalculateEditorContextActions(listener: (uri: string,
+                                               position?: number) => Promise<IExecutableAction[]>): void;
 
     /**
      * Adds a listener for specific action execution.
@@ -179,8 +179,8 @@ export interface IServerConnection extends ILogger {
      * @param position - optional position in the document.
      * If not provided, the last reported by positionChanged method will be used.
      */
-    onExecuteContextAction(listener:(uri: string, actionId: string,
-        position?: number)=>Promise<IChangedDocument[]>): void;
+    onExecuteContextAction(listener: (uri: string, actionId: string,
+                                      position?: number) => Promise<IChangedDocument[]>): void;
 
     /**
      * Adds a listener to display action UI.

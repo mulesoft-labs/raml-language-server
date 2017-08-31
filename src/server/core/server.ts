@@ -1,39 +1,39 @@
 import {
     IServerConnection
-} from './connections'
+} from "./connections";
 
 import {
     IListeningModule
-} from '../modules/commonInterfaces'
+} from "../modules/commonInterfaces";
 
-import EditorManagerModule = require("../modules/editorManager")
+import EditorManagerModule = require("../modules/editorManager");
 
-import ASTManagerModule = require('../modules/astManager')
+import ASTManagerModule = require("../modules/astManager");
 
-import ValidationManagerModule = require('../modules/validationManager')
+import ValidationManagerModule = require("../modules/validationManager");
 
-import StructureManagerModule = require('../modules/structureManager')
+import StructureManagerModule = require("../modules/structureManager");
 
-import CompletionManagerModule = require('../modules/completionManager')
+import CompletionManagerModule = require("../modules/completionManager");
 
-import FixedActionsManagerModule = require('../modules/fixedActionsManager')
+import FixedActionsManagerModule = require("../modules/fixedActionsManager");
 
-import DetailsManagerModule = require('../modules/detailsManager')
+import DetailsManagerModule = require("../modules/detailsManager");
 
-import CustomActionsManagerModule = require('../modules/customActionsManager')
+import CustomActionsManagerModule = require("../modules/customActionsManager");
 
 export class Server {
 
-    private modules : IListeningModule[] = [];
+    private modules: IListeningModule[] = [];
 
-    constructor(private connection : IServerConnection){
+    constructor(private connection: IServerConnection) {
 
-        let editorManagerModule = EditorManagerModule.createManager(connection);
-        this.modules.push(editorManagerModule)
+        const editorManagerModule = EditorManagerModule.createManager(connection);
+        this.modules.push(editorManagerModule);
 
-        let astManagerModule = ASTManagerModule.createManager(connection,
+        const astManagerModule = ASTManagerModule.createManager(connection,
             editorManagerModule);
-        this.modules.push(astManagerModule)
+        this.modules.push(astManagerModule);
 
         this.modules.push(ValidationManagerModule.createManager(connection,
             astManagerModule, editorManagerModule));
@@ -54,13 +54,13 @@ export class Server {
             astManagerModule, editorManagerModule));
     }
 
-    listen() : void {
+    public listen(): void {
         this.listenInternal();
 
-        this.modules.forEach(module=>module.listen())
+        this.modules.forEach((module) => module.listen());
     }
 
-    listenInternal() : void {
+    public listenInternal(): void {
 
     }
 

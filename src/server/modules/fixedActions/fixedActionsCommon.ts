@@ -3,27 +3,21 @@
 import {
     ILocation,
     ILogger
-} from '../../../common/typeInterfaces'
+} from "../../../common/typeInterfaces";
 
 import {
     IListeningModule
-} from '../../modules/commonInterfaces'
+} from "../../modules/commonInterfaces";
 
 import {
     IEditorManagerModule
-} from '../editorManager'
+} from "../editorManager";
 
-import utils = require("../../../common/utils")
+import utils = require("../../../common/utils");
 
-import rp=require("raml-1-parser")
-import lowLevel=rp.ll;
+import rp= require("raml-1-parser");
+import lowLevel= rp.ll;
 
-/**
- * Sub-module for fixed actions.
- */
-export interface IFixedActionsManagerSubModule extends IListeningModule {
-
-}
 
 /**
  * Converts low-level node position to location
@@ -44,27 +38,27 @@ export interface IFixedActionsManagerSubModule extends IListeningModule {
  */
 export function lowLevelNodeToLocation(
     originalUri: string,
-    node:lowLevel.ILowLevelASTNode,
-    editorManager :IEditorManagerModule,
+    node: lowLevel.ILowLevelASTNode,
+    editorManager: IEditorManagerModule,
     logger: ILogger,
-    completeReference=true) : ILocation {
+    completeReference= true): ILocation {
     logger.debugDetail("Converting low level node to location",
         "FixedActionsManager", "lowLevelNodeToLocation");
 
-    let unitNodePath = node.unit().absolutePath();
+    const unitNodePath = node.unit().absolutePath();
 
     let editor = editorManager.getEditor(unitNodePath);
-    logger.debugDetail("Editor found: " + (editor?"true":"false"),
+    logger.debugDetail("Editor found: " + (editor ? "true" : "false"),
         "FixedActionsManager", "lowLevelNodeToLocation");
 
-    let transformedPath = utils.transformUriToOriginalFormat(originalUri, unitNodePath)
+    const transformedPath = utils.transformUriToOriginalFormat(originalUri, unitNodePath);
     logger.debugDetail("Transformed path: " + transformedPath,
         "FixedActionsManager", "lowLevelNodeToLocation");
 
     if (!editor) {
         editor = editorManager.getEditor(transformedPath);
     }
-    logger.debugDetail("Editor found from transfromed path: " + (editor?"true":"false"),
+    logger.debugDetail("Editor found from transfromed path: " + (editor ? "true" : "false"),
         "FixedActionsManager", "lowLevelNodeToLocation");
 
     if (!editor || completeReference) {
@@ -74,25 +68,25 @@ export function lowLevelNodeToLocation(
                 start: node.start(),
                 end: node.end()
             }
-        }
+        };
     }
 
     logger.debugDetail("Initial declaration positions: [" + node.start() + ":" + node.end() + "]",
         "FixedActionsManager", "lowLevelNodeToLocation");
 
-    let buffer = editor.getBuffer();
-    logger.debugDetail("buffer found: " + (buffer?"true":"false"),
+    const buffer = editor.getBuffer();
+    logger.debugDetail("buffer found: " + (buffer ? "true" : "false"),
         "FixedActionsManager", "lowLevelNodeToLocation");
 
-    var p1 = buffer.positionForCharacterIndex(node.start());
-    logger.debugDetail("p1 found: " + (p1?"true":"false"),
+    const p1 = buffer.positionForCharacterIndex(node.start());
+    logger.debugDetail("p1 found: " + (p1 ? "true" : "false"),
         "FixedActionsManager", "lowLevelNodeToLocation");
 
-    var p2 = buffer.positionForCharacterIndex(node.end());
-    logger.debugDetail("p2 found: " + (p2?"true":"false"),
+    const p2 = buffer.positionForCharacterIndex(node.end());
+    logger.debugDetail("p2 found: " + (p2 ? "true" : "false"),
         "FixedActionsManager", "lowLevelNodeToLocation");
 
-    p2.column = p1.column + node.key()?node.key().length:0;
+    p2.column = p1.column + node.key() ? node.key().length : 0;
     p2.row = p1.row;
 
     logger.debugDetail("Transformed p1: [" + p1.row + ":" + p1.column + "]",
@@ -101,8 +95,8 @@ export function lowLevelNodeToLocation(
     logger.debugDetail("Transformed p2: [" + p2.row + ":" + p2.column + "]",
         "FixedActionsManager", "lowLevelNodeToLocation");
 
-    let resultStart = editor.getBuffer().characterIndexForPosition(p1);
-    let resultEnd = editor.getBuffer().characterIndexForPosition(p2);
+    const resultStart = editor.getBuffer().characterIndexForPosition(p1);
+    const resultEnd = editor.getBuffer().characterIndexForPosition(p2);
 
     logger.debugDetail("Transformed declaration positions: [" + resultStart + ":" + resultEnd + "]",
         "FixedActionsManager", "lowLevelNodeToLocation");
@@ -113,5 +107,5 @@ export function lowLevelNodeToLocation(
             start: resultStart,
             end: resultEnd
         }
-    }
+    };
 }

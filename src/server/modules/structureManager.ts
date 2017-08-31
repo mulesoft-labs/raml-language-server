@@ -2,94 +2,97 @@
 
 import {
     IServerConnection
-} from '../core/connections'
+} from "../core/connections";
 
 import {
     IASTManagerModule
-} from './astManager'
+} from "./astManager";
 
 import {
-    IValidationIssue,
-    StructureNodeJSON,
     Icons,
-    TextStyles,
+    ILogger,
+    IValidationIssue,
     StructureCategories,
-    ILogger
-} from '../../common/typeInterfaces'
+    StructureNodeJSON,
+    TextStyles
+} from "../../common/typeInterfaces";
 
 import {
     IListeningModule
-} from './commonInterfaces'
+} from "./commonInterfaces";
 
-import rp=require("raml-1-parser")
-import lowLevel=rp.ll;
-import hl=rp.hl;
+import rp= require("raml-1-parser");
+import lowLevel= rp.ll;
+import hl= rp.hl;
 import utils = rp.utils;
-import ramlOutline =require('raml-outline')
-import outlineManagerCommons = require('./outlineManagerCommons')
+import ramlOutline = require("raml-outline");
+import outlineManagerCommons = require("./outlineManagerCommons");
 
-let universes=rp.universes;
+const universes = rp.universes;
 
-export function createManager(connection : IServerConnection,
-                              astManagerModule : IASTManagerModule) : IListeningModule {
+export function createManager(connection: IServerConnection,
+                              astManagerModule: IASTManagerModule): IListeningModule {
 
     return new StructureManager(connection, astManagerModule);
 }
 
-
-var prohibit={
-    resources:true,
-    schemas:true,
-    types:true,
-    resourceTypes:true,
-    traits:true
-}
+const prohibit = {
+    resources: true,
+    schemas: true,
+    types: true,
+    resourceTypes: true,
+    traits: true
+};
 
 export function isResource(p: hl.IHighLevelNode) {
-    return (p.definition().key()===universes.Universe08.Resource||p.definition().key()===universes.Universe10.Resource);
+    return (p.definition().key() === universes.Universe08.Resource ||
+            p.definition().key() === universes.Universe10.Resource);
 }
 
 export function isOther(p: hl.IHighLevelNode) {
-    if (p.property()){
-        var nm=p.property().nameId();
-        if (prohibit[nm]){
+    if (p.property()) {
+        const nm = p.property().nameId();
+        if (prohibit[nm]) {
             return false;
         }
     }
     return true;
 }
 export function isResourceTypeOrTrait(p: hl.IHighLevelNode) {
-    var pc=p.definition().key();
+    const pc = p.definition().key();
 
-    return (pc ===universes.Universe08.ResourceType
-    ||pc===universes.Universe10.ResourceType||
+    return (pc === universes.Universe08.ResourceType
+    || pc === universes.Universe10.ResourceType ||
     pc === universes.Universe08.Trait
     ||
-    pc===universes.Universe10.Trait);
+    pc === universes.Universe10.Trait);
 }
 
 export function isSchemaOrType(p: hl.IHighLevelNode) {
 
     if (p.parent() && p.parent().parent() == null) {
-        var property = p.property();
+        const property = p.property();
 
-        return property.nameId() == universes.Universe10.LibraryBase.properties.types.name ||
-            property.nameId() == universes.Universe10.LibraryBase.properties.schemas.name ||
-            property.nameId() == universes.Universe08.Api.properties.schemas.name;
+        return property.nameId() === universes.Universe10.LibraryBase.properties.types.name ||
+            property.nameId() === universes.Universe10.LibraryBase.properties.schemas.name ||
+            property.nameId() === universes.Universe08.Api.properties.schemas.name;
     }
 
     return false;
 }
 
-
-function createCategories() : void {
-    ramlOutline.addCategoryFilter(StructureCategories[StructureCategories.ResourcesCategory], <any>isResource);
-    ramlOutline.addCategoryFilter(StructureCategories[StructureCategories.SchemasAndTypesCategory], <any>isSchemaOrType);
-    ramlOutline.addCategoryFilter(StructureCategories[StructureCategories.ResourceTypesAndTraitsCategory], <any>isResourceTypeOrTrait);
-    ramlOutline.addCategoryFilter(StructureCategories[StructureCategories.OtherCategory], <any>isOther);
+function createCategories(): void {
+    ramlOutline.addCategoryFilter(
+        StructureCategories[StructureCategories.ResourcesCategory], isResource as any);
+    ramlOutline.addCategoryFilter(
+        StructureCategories[StructureCategories.SchemasAndTypesCategory], isSchemaOrType as any);
+    ramlOutline.addCategoryFilter(
+        StructureCategories[StructureCategories.ResourceTypesAndTraitsCategory], isResourceTypeOrTrait as any);
+    ramlOutline.addCategoryFilter(
+        StructureCategories[StructureCategories.OtherCategory], isOther as any);
 }
 
-function createDecorations() : void {
+function createDecorations(): void {
     ramlOutline.addDecoration(ramlOutline.NodeType.ATTRIBUTE, {
         icon: Icons[Icons.ARROW_SMALL_LEFT],
         textStyle: TextStyles[TextStyles.NORMAL]
@@ -140,72 +143,80 @@ class StructureManager {
 
     private calculatingStructureOnDirectRequest = false;
 
-    private cachedStructures: {[uri:string] : {[categoryName:string] : StructureNodeJSON}} = {};
+    private cachedStructures: {[uri: string]: {[categoryName: string]: StructureNodeJSON}} = {};
 
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule) {
     }
 
-    listen() {
-        this.connection.onDocumentStructure(uri=>{
+    public listen() {
+        this.connection.onDocumentStructure((uri) => {
             return this.getStructure(uri);
-        })
+        });
 
-        this.astManagerModule.onNewASTAvailable((uri: string, version:number, ast: hl.IHighLevelNode)=>{
+        this.astManagerModule.onNewASTAvailable((uri: string, version: number, ast: hl.IHighLevelNode) => {
 
-            //we do not want reporting while performing the calculation
-            if (this.calculatingStructureOnDirectRequest) return;
+            // we do not want reporting while performing the calculation
+            if (this.calculatingStructureOnDirectRequest) {
+                return;
+            }
 
             this.connection.debug("Calculating structure due to new AST available", "StructureManager",
                 "listen");
 
-            this.calculateStructure(uri).then(structureForUri=>{
-                this.connection.debug("Calculation result is not null:" + (structureForUri!=null?"true":"false"), "StructureManager",
+            this.calculateStructure(uri).then((structureForUri) => {
+                this.connection.debug("Calculation result is not null:" +
+                    (structureForUri != null ? "true" : "false"), "StructureManager",
                     "listen");
 
                 if (structureForUri) {
                     this.cachedStructures[uri] = structureForUri;
 
                     this.connection.structureAvailable({
-                        uri: uri,
-                        version: version,
+                        uri,
+                        version,
                         structure: structureForUri
-                    })
+                    });
                 }
-            })
+            });
 
-        })
+        });
 
-        this.connection.onCloseDocument(uri=>delete this.cachedStructures[uri]);
+        this.connection.onCloseDocument((uri) => delete this.cachedStructures[uri]);
     }
 
-    vsCodeUriToParserUri(vsCodeUri : string) : string {
-        if (vsCodeUri.indexOf("file://") == 0) {
+    public vsCodeUriToParserUri(vsCodeUri: string): string {
+        if (vsCodeUri.indexOf("file://") === 0) {
             return vsCodeUri.substring(7);
         }
 
         return vsCodeUri;
     }
 
-    getStructure(uri : string): Promise<{[categoryName:string] : StructureNodeJSON}> {
+    public getStructure(uri: string): Promise<{[categoryName: string]: StructureNodeJSON}> {
         this.connection.debug("Requested structure for uri " + uri, "StructureManager",
             "getStructure");
 
-        let cached = this.cachedStructures[uri];
+        const cached = this.cachedStructures[uri];
 
         this.connection.debug("Found cached structure: " + (cached ? "true" : "false"), "StructureManager",
             "getStructure");
 
-        if (cached) return Promise.resolve(cached);
+        if (cached) {
+            return Promise.resolve(cached);
+        }
 
-        this.connection.debug("Calculating structure due to getStructure request and no cached version found", "StructureManager",
+        this.connection.debug(
+            "Calculating structure due to getStructure request and no cached version found",
+            "StructureManager",
             "getStructure");
 
         this.calculatingStructureOnDirectRequest = true;
 
-        return this.calculateStructure(uri).then(calculated=>{
+        return this.calculateStructure(uri).then((calculated) => {
             try {
 
-                this.connection.debug("Calculation result is not null:" + (calculated != null ? "true" : "false"), "StructureManager",
+                this.connection.debug("Calculation result is not null:" +
+                    (calculated != null ? "true" : "false"), "StructureManager",
                     "getStructure");
 
                 this.cachedStructures[uri] = calculated;
@@ -215,42 +226,45 @@ class StructureManager {
             } finally {
                 this.calculatingStructureOnDirectRequest = false;
             }
-        }).catch(error=>{
+        }).catch((error) => {
             this.calculatingStructureOnDirectRequest = false;
             throw error;
-        })
+        });
     }
 
-    calculateStructure(uri : string): Promise<{[categoryName:string] : StructureNodeJSON}> {
+    public calculateStructure(uri: string): Promise<{[categoryName: string]: StructureNodeJSON}> {
 
         this.connection.debug("Called for uri: " + uri,
             "StructureManager", "calculateStructure");
 
-        //Forcing current AST to exist
-        return this.astManagerModule.forceGetCurrentAST(uri).then(currentAST=>{
+        // Forcing current AST to exist
+        return this.astManagerModule.forceGetCurrentAST(uri).then((currentAST) => {
 
             outlineManagerCommons.setOutlineASTProvider(uri, this.astManagerModule, this.connection);
 
-            let result = ramlOutline.getStructureForAllCategories();
+            const result = ramlOutline.getStructureForAllCategories();
 
-            let jsonResult = {};
+            const jsonResult = {};
             if (result) {
-                for (let categoryName in result) {
-                    let categoryJSON = result[categoryName];
+                for (const categoryName in result) {
+                    if (result.hasOwnProperty(categoryName)) {
+                        const categoryJSON = result[categoryName];
 
-                    jsonResult[categoryName] = categoryJSON.toJSON();
+                        jsonResult[categoryName] = categoryJSON.toJSON();
 
-                    if (categoryJSON) {
-                        this.connection.debugDetail("Structure for category " + categoryName +"\n"
-                            + JSON.stringify(categoryJSON, null, 2), "StructureManager", "calculateStructure")
+                        if (categoryJSON) {
+                            this.connection.debugDetail("Structure for category " + categoryName + "\n"
+                                + JSON.stringify(categoryJSON, null, 2), "StructureManager", "calculateStructure");
+                        }
                     }
                 }
             }
 
-            this.connection.debug("Calculation result is not null:" + (result!=null?"true":"false"), "StructureManager",
+            this.connection.debug("Calculation result is not null:" +
+                (result != null ? "true" : "false"), "StructureManager",
                 "calculateStructure");
 
             return jsonResult;
-        })
+        });
     }
 }

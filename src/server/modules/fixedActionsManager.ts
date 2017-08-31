@@ -1,40 +1,38 @@
-//This manager handles fixed actions as opposed to dynamic context-depended actions
-
+// This manager handles fixed actions as opposed to dynamic context-depended actions
 
 import {
     IServerConnection
-} from '../core/connections'
+} from "../core/connections";
 
 import {
     IASTManagerModule
-} from './astManager'
+} from "./astManager";
 
 import {
     IEditorManagerModule
-} from './editorManager'
+} from "./editorManager";
 
 import {
     IListeningModule
-} from './commonInterfaces'
+} from "./commonInterfaces";
 
-import openDeclarationModule = require("./fixedActions/openDeclarationAction")
-import findReferencesModule = require("./fixedActions/findReferencesAction")
-import markOccurrencesModule = require("./fixedActions/markOccurrencesAction")
-import renameModule = require("./fixedActions/renameAction")
+import findReferencesModule = require("./fixedActions/findReferencesAction");
+import markOccurrencesModule = require("./fixedActions/markOccurrencesAction");
+import openDeclarationModule = require("./fixedActions/openDeclarationAction");
+import renameModule = require("./fixedActions/renameAction");
 
-import fixedActionsCommon = require("./fixedActions/fixedActionsCommon")
+import fixedActionsCommon = require("./fixedActions/fixedActionsCommon");
 
-
-export function createManager(connection : IServerConnection,
-                              astManagerModule : IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule) : IListeningModule {
+export function createManager(connection: IServerConnection,
+                              astManagerModule: IASTManagerModule,
+                              editorManagerModule: IEditorManagerModule): IListeningModule {
 
     return new FixedActionsManager(connection, astManagerModule, editorManagerModule);
 }
 
 class FixedActionsManager {
 
-    private subModules : fixedActionsCommon.IFixedActionsManagerSubModule[] = []
+    private subModules: IListeningModule[] = [];
 
     constructor(
         private connection: IServerConnection,
@@ -58,7 +56,7 @@ class FixedActionsManager {
         ));
     }
 
-    listen() {
-        this.subModules.forEach(subModule=>subModule.listen());
+    public listen() {
+        this.subModules.forEach((subModule) => subModule.listen());
     }
 }

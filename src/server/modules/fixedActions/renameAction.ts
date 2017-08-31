@@ -2,49 +2,53 @@
 
 import {
     IServerConnection
-} from '../../core/connections'
+} from "../../core/connections";
 
 import {
     IASTManagerModule
-} from '../astManager'
+} from "../astManager";
 
 import {
     IEditorManagerModule
-} from '../editorManager'
+} from "../editorManager";
 
 import {
+    IChangedDocument,
     ILocation,
-    IRange,
-    IChangedDocument
-} from '../../../common/typeInterfaces'
+    IRange
+} from "../../../common/typeInterfaces";
 
-import parserApi=require("raml-1-parser")
+import parserApi= require("raml-1-parser");
 import search = parserApi.search;
-import lowLevel=parserApi.ll;
-import hl=parserApi.hl;
-import universes=parserApi.universes;
-import def=parserApi.ds;
-import stubs=parserApi.stubs;
+import lowLevel= parserApi.ll;
+import hl= parserApi.hl;
+import universes= parserApi.universes;
+import def= parserApi.ds;
+import stubs= parserApi.stubs;
 
-import utils = require("../../../common/utils")
-import fixedActionCommon = require("./fixedActionsCommon")
+import {
+    IListeningModule
+} from "../../modules/commonInterfaces";
 
-export function createManager(connection : IServerConnection,
-                              astManagerModule : IASTManagerModule,
+import utils = require("../../../common/utils");
+import fixedActionCommon = require("./fixedActionsCommon");
+
+export function createManager(connection: IServerConnection,
+                              astManagerModule: IASTManagerModule,
                               editorManagerModule: IEditorManagerModule)
-                        : fixedActionCommon.IFixedActionsManagerSubModule {
+                        : IListeningModule {
 
     return new RenameActionModule(connection, astManagerModule, editorManagerModule);
 }
 
-class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubModule {
+class RenameActionModule implements IListeningModule {
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {
     }
 
-    listen() {
+    public listen() {
         this.connection.onRename((uri: string, position: number, newName: string) => {
-            let result = this.rename(uri, position, newName);
+            const result = this.rename(uri, position, newName);
 
             this.connection.debugDetail("Renaming result for uri: " + uri,
                 "RenameActionModule", "onRename");
@@ -55,39 +59,40 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
             }
 
             return result;
-        })
+        });
     }
 
-    private rename(uri: string, position: number, newName: string) : IChangedDocument[] {
+    private rename(uri: string, position: number, newName: string): IChangedDocument[] {
         this.connection.debug("Called for uri: " + uri,
             "RenameActionModule", "rename");
 
-
-        var editor = this.editorManagerModule.getEditor(uri);
-        this.connection.debugDetail("Got editor: " + (editor?"true":"false"),
+        const editor = this.editorManagerModule.getEditor(uri);
+        this.connection.debugDetail("Got editor: " + (editor ? "true" : "false"),
             "RenameActionModule", "rename");
 
-        if (!editor) return [];
+        if (!editor) {
+            return [];
+        }
 
-        var node = this.getAstNode(uri, editor.getText(), position, false);
+        const node = this.getAstNode(uri, editor.getText(), position, false);
 
-        this.connection.debugDetail("Got node: " + (node?"true":"false"),
+        this.connection.debugDetail("Got node: " + (node ? "true" : "false"),
             "RenameActionModule", "rename");
 
         if (!node) {
             return [];
         }
 
-        var kind = search.determineCompletionKind(editor.getText(), position);
+        const kind = search.determineCompletionKind(editor.getText(), position);
 
         this.connection.debugDetail("Determined completion kind: " + kind,
             "RenameActionModule", "rename");
 
-        if (kind == search.LocationKind.VALUE_COMPLETION) {
-            var hlnode = <hl.IHighLevelNode>node;
+        if (kind === search.LocationKind.VALUE_COMPLETION) {
+            const hlnode = node as hl.IHighLevelNode;
 
-            var attr = null;
-            for (let attribute of hlnode.attrs()) {
+            let attr = null;
+            for (const attribute of hlnode.attrs()) {
                 if (attribute.lowLevel().start() < position
                     && attribute.lowLevel().end() >= position
                     && !attribute.property().getAdapter(def.RAMLPropertyService).isKey()) {
@@ -100,7 +105,7 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
                 }
             }
 
-            this.connection.debugDetail("Found attribute: " + (attr?"true":"false"),
+            this.connection.debugDetail("Found attribute: " + (attr ? "true" : "false"),
                 "RenameActionModule", "rename");
 
             if (attr) {
@@ -111,13 +116,13 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
                     "RenameActionModule", "rename");
 
                 if (attr.value()) {
-                    var p:hl.IProperty = attr.property();
+                    const p: hl.IProperty = attr.property();
 
-                    var v = attr.value();
-                    var targets = search.referenceTargets(p,hlnode);
-                    var t:hl.IHighLevelNode = null;
-                    for (let target of targets) {
-                        if (target.name() == attr.value()) {
+                    const v = attr.value();
+                    const targets = search.referenceTargets(p, hlnode);
+                    let t: hl.IHighLevelNode = null;
+                    for (const target of targets) {
+                        if (target.name() === attr.value()) {
                             t = target;
                             break;
                         }
@@ -127,26 +132,26 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
                         this.connection.debugDetail("Found target: " + t.printDetails(),
                             "RenameActionModule", "rename");
 
-                        let findUsagesResult = search.findUsages(node.lowLevel().unit(), position);
+                        const findUsagesResult = search.findUsages(node.lowLevel().unit(), position);
                         if (findUsagesResult) {
-                            let usages = findUsagesResult.results;
+                            const usages = findUsagesResult.results;
 
-                            usages.reverse().forEach(usageAttribute=> {
+                            usages.reverse().forEach((usageAttribute) => {
 
                                 this.connection.debugDetail("Renaming usage attribute: "
                                     + usageAttribute.name() + " of node:\n"
                                     + usageAttribute.parent().printDetails(),
                                     "RenameActionModule", "rename");
 
-                                usageAttribute.asAttr().setValue(newName)
-                            })
+                                usageAttribute.asAttr().setValue(newName);
+                            });
 
                             t.attr(
                                 hlnode.definition().getAdapter(def.RAMLService).getKeyProp().nameId()
                             ).setValue(newName);
 
                             return [{
-                                uri: uri,
+                                uri,
                                 text: hlnode.lowLevel().unit().contents()
                             }];
                         }
@@ -154,31 +159,35 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
                 }
             }
         }
-        if (kind == search.LocationKind.KEY_COMPLETION || kind == search.LocationKind.SEQUENCE_KEY_COPLETION) {
-            var hlnode = <hl.IHighLevelNode>node;
+        if (kind === search.LocationKind.KEY_COMPLETION || kind === search.LocationKind.SEQUENCE_KEY_COPLETION) {
+            const hlnode = node as hl.IHighLevelNode;
 
-            let findUsagesResult = search.findUsages(node.lowLevel().unit(), position);
+            const findUsagesResult = search.findUsages(node.lowLevel().unit(), position);
             if (findUsagesResult) {
-                var oldValue = hlnode.attrValue(
-                    hlnode.definition().getAdapter(def.RAMLService).getKeyProp().nameId())
+                const oldValue = hlnode.attrValue(
+                    hlnode.definition().getAdapter(def.RAMLService).getKeyProp().nameId());
 
-                let filtered : hl.IParseResult[] = [];
-                findUsagesResult.results.reverse().forEach(usage=> {
+                const filtered: hl.IParseResult[] = [];
+                findUsagesResult.results.reverse().forEach((usage) => {
 
                     let hasConflicting = false;
 
-                    for (let current of filtered) {
-                        let currentLowLevel = current.lowLevel();
-                        if (!currentLowLevel) continue;
+                    for (const current of filtered) {
+                        const currentLowLevel = current.lowLevel();
+                        if (!currentLowLevel) {
+                            continue;
+                        }
 
-                        let currentStart = currentLowLevel.start();
-                        let currentEnd = currentLowLevel.end();
+                        const currentStart = currentLowLevel.start();
+                        const currentEnd = currentLowLevel.end();
 
-                        let usageLowLevel = usage.lowLevel();
-                        if (!usageLowLevel) continue;
+                        const usageLowLevel = usage.lowLevel();
+                        if (!usageLowLevel) {
+                            continue;
+                        }
 
-                        let usageStart = usageLowLevel.start();
-                        let usageEnd = usageLowLevel.end();
+                        const usageStart = usageLowLevel.start();
+                        const usageEnd = usageLowLevel.end();
 
                         if (usageStart <= currentEnd && usageEnd >= currentStart) {
                             hasConflicting = true;
@@ -186,18 +195,20 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
                         }
                     }
 
-                    if (!hasConflicting) filtered.push(usage);
-                })
+                    if (!hasConflicting) {
+                        filtered.push(usage);
+                    }
+                });
 
-                filtered.forEach(x=> {
-                    this.renameInProperty(x.asAttr(), oldValue, newName)
-                })
+                filtered.forEach((x) => {
+                    this.renameInProperty(x.asAttr(), oldValue, newName);
+                });
                 hlnode.attr(
                     hlnode.definition().getAdapter(def.RAMLService).getKeyProp().nameId()
                 ).setValue(newName);
 
                 return [{
-                    uri: uri,
+                    uri,
                     text: hlnode.lowLevel().unit().contents()
                 }];
             }
@@ -206,45 +217,46 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
         return [];
     }
 
-    private renameInProperty(property : hl.IAttribute, contentToReplace : string, replaceWith : string) {
-        var oldPropertyValue = property.value();
-        if (typeof oldPropertyValue == 'string') {
+    private renameInProperty(property: hl.IAttribute, contentToReplace: string, replaceWith: string) {
+        const oldPropertyValue = property.value();
+        if (typeof oldPropertyValue === "string") {
 
-            var oldPropertyStringValue = <string> oldPropertyValue;
+            const oldPropertyStringValue = oldPropertyValue as string;
 
-            var newPropertyStringValue = oldPropertyStringValue.replace(contentToReplace, replaceWith)
-            property.setValue(newPropertyStringValue)
-            if (oldPropertyStringValue.indexOf(contentToReplace) == -1) {
-                if (property.name().indexOf(contentToReplace)!=-1){
-                    var newValue = (<string>property.name()).replace(contentToReplace, replaceWith);
+            const newPropertyStringValue = oldPropertyStringValue.replace(contentToReplace, replaceWith);
+            property.setValue(newPropertyStringValue);
+            if (oldPropertyStringValue.indexOf(contentToReplace) === -1) {
+                if (property.name().indexOf(contentToReplace) !== -1) {
+                    const newValue = (property.name() as string).replace(contentToReplace, replaceWith);
                     property.setKey(newValue);
                 }
             }
             return;
-        } else if (oldPropertyValue && (typeof oldPropertyValue ==="object")) {
-            var structuredValue = <hl.IStructuredValue> oldPropertyValue;
+        } else if (oldPropertyValue && (typeof oldPropertyValue === "object")) {
+            const structuredValue = oldPropertyValue as hl.IStructuredValue;
 
-            var oldPropertyStringValue = structuredValue.valueName();
-            if (oldPropertyStringValue.indexOf(contentToReplace) != -1) {
-                var convertedHighLevel = structuredValue.toHighLevel();
+            const oldPropertyStringValue = structuredValue.valueName();
+            if (oldPropertyStringValue.indexOf(contentToReplace) !== -1) {
+                const convertedHighLevel = structuredValue.toHighLevel();
 
-                if(convertedHighLevel) {
-                    var found=false;
-                    if (convertedHighLevel.definition().isAnnotationType()){
-                        var prop=this.getKey((<def.AnnotationType>convertedHighLevel.definition()),structuredValue.lowLevel())
-                        prop.setValue("("+replaceWith+")");
+                if (convertedHighLevel) {
+                    let found = false;
+                    if (convertedHighLevel.definition().isAnnotationType()) {
+                        const prop = this.getKey(
+                            (convertedHighLevel.definition() as def.AnnotationType), structuredValue.lowLevel());
+                        prop.setValue("(" + replaceWith + ")");
                         return;
                     }
-                    convertedHighLevel.attrs().forEach(attribute => {
-                        if(attribute.property().getAdapter(def.RAMLPropertyService).isKey()) {
-                            var oldValue = attribute.value();
-                            if (typeof oldValue == 'string') {
-                                found=true;
-                                var newValue = (<string>oldValue).replace(contentToReplace, replaceWith);
+                    convertedHighLevel.attrs().forEach((attribute) => {
+                        if (attribute.property().getAdapter(def.RAMLPropertyService).isKey()) {
+                            const oldValue = attribute.value();
+                            if (typeof oldValue === "string") {
+                                found = true;
+                                const newValue = (oldValue as string).replace(contentToReplace, replaceWith);
                                 attribute.setValue(newValue);
                             }
                         }
-                    })
+                    });
 
                     return;
                 }
@@ -252,33 +264,33 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
             }
         }
 
-        //default case
-        property.setValue(replaceWith)
+        // default case
+        property.setValue(replaceWith);
     }
 
-    private getAstNode(uri: string, text : string, offset: number,
+    private getAstNode(uri: string, text: string, offset: number,
                        clearLastChar: boolean = true): parserApi.hl.IParseResult {
-        let unitPath = utils.pathFromURI(uri);
-        var newProjectId: string = utils.dirname(unitPath);
+        const unitPath = utils.pathFromURI(uri);
+        const newProjectId: string = utils.dirname(unitPath);
 
-        var project = parserApi.project.createProject(newProjectId);
+        const project = parserApi.project.createProject(newProjectId);
 
-        var kind = search.determineCompletionKind(text, offset);
+        const kind = search.determineCompletionKind(text, offset);
 
-        if(kind === parserApi.search.LocationKind.KEY_COMPLETION && clearLastChar){
+        if (kind === parserApi.search.LocationKind.KEY_COMPLETION && clearLastChar){
             text = text.substring(0, offset) + "k:" + text.substring(offset);
         }
 
-        var unit = project.setCachedUnitContent(unitPath, text);
+        const unit = project.setCachedUnitContent(unitPath, text);
 
-        var ast = <parserApi.hl.IHighLevelNode>unit.highLevel();
+        const ast = unit.highLevel() as parserApi.hl.IHighLevelNode;
 
-        var actualOffset = offset;
+        let actualOffset = offset;
 
-        for(var currentOffset = offset - 1; currentOffset >= 0; currentOffset--){
-            var symbol = text[currentOffset];
+        for (let currentOffset = offset - 1; currentOffset >= 0; currentOffset--) {
+            const symbol = text[currentOffset];
 
-            if(symbol === ' ' || symbol === '\t') {
+            if (symbol === " " || symbol === "\t") {
                 actualOffset = currentOffset - 1;
 
                 continue;
@@ -287,12 +299,12 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
             break;
         }
 
-        var astNode=ast.findElementAtOffset(actualOffset);
+        let astNode = ast.findElementAtOffset(actualOffset);
 
-        if(astNode && search.isExampleNode(astNode)) {
-            var exampleEnd = astNode.lowLevel().end();
+        if (astNode && search.isExampleNode(astNode)) {
+            const exampleEnd = astNode.lowLevel().end();
 
-            if(exampleEnd === actualOffset && text[exampleEnd] === '\n') {
+            if (exampleEnd === actualOffset && text[exampleEnd] === "\n") {
                 astNode = astNode.parent();
             }
         }
@@ -300,17 +312,15 @@ class RenameActionModule implements fixedActionCommon.IFixedActionsManagerSubMod
         return astNode;
     }
 
-    private getKey(t: def.AnnotationType,n:lowLevel.ILowLevelASTNode){
-        var up=new def.UserDefinedProp("name", null);
+    private getKey(t: def.AnnotationType, n: lowLevel.ILowLevelASTNode){
+        const up = new def.UserDefinedProp("name", null);
 
-        let ramlService : def.RAMLService = t.getAdapter(def.RAMLService)
+        const ramlService: def.RAMLService = t.getAdapter(def.RAMLService);
 
         up.withRange(ramlService.universe().type(universes.Universe10.StringType.name));
         up.withFromParentKey(true);
-        var node=ramlService.getDeclaringNode();
-        //node:ll.ILowLevelASTNode, parent:hl.IHighLevelNode, private _def:hl.IValueTypeDefinition, private _prop:hl.IProperty, private fromKey:boolean = false
-        return stubs.createASTPropImpl(n,node,up.range(),up,true);
-        //rs.push(up);
+        const node = ramlService.getDeclaringNode();
+        return stubs.createASTPropImpl(n, node, up.range(), up, true);
     }
 
 }
