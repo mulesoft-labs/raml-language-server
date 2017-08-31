@@ -32,34 +32,35 @@
 //     return clientConnection;
 // }
 
-
 import {
     IClientConnection,
     MessageSeverity
-} from '../../../client/client'
+} from "../../../client/client";
 
 import {
     RAMLClientConnection
-} from './client'
+} from "./client";
 
-var clientConnection = null;
+let clientConnection = null;
 
-export function getConnection() : IClientConnection {
-    if (!clientConnection) clientConnection = launch();
+export function getConnection(): IClientConnection {
+    if (!clientConnection) {
+        clientConnection = launch();
+    }
 
     return clientConnection;
 }
 
 function loadExternalJSAsWorker( url ) {
-    var ajax = new XMLHttpRequest();
-    ajax.open( 'GET', url, false ); // <-- the 'false' makes it synchronous
+    const ajax = new XMLHttpRequest();
+    ajax.open( "GET", url, false ); // <-- the 'false' makes it synchronous
     let worker = null;
-    ajax.onreadystatechange = function () {
-        var script = ajax.response || ajax.responseText;
+    ajax.onreadystatechange = function() {
+        const script = ajax.response || ajax.responseText;
         if (ajax.readyState === 4) {
-            switch( ajax.status) {
+            switch ( ajax.status) {
                 case 200:
-                    worker = new Worker(URL.createObjectURL(new Blob([script.toString()], {type: 'text/javascript'})));
+                    worker = new Worker(URL.createObjectURL(new Blob([script.toString()], {type: "text/javascript"})));
                 default:
                     console.log("ERROR: script not loaded: ", url);
             }
@@ -70,10 +71,10 @@ function loadExternalJSAsWorker( url ) {
     return worker;
 }
 
-export function launch(workerFilePath = "./worker.bundle.js") : IClientConnection {
+export function launch(workerFilePath = "./worker.bundle.js"): IClientConnection {
 
-    let worker = loadExternalJSAsWorker(workerFilePath)
-    //let worker = new Worker(workerFilePath);
+    const worker = loadExternalJSAsWorker(workerFilePath);
+    // let worker = new Worker(workerFilePath);
 
     clientConnection = new RAMLClientConnection(worker);
 

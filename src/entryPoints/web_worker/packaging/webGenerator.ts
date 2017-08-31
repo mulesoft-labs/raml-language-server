@@ -1,22 +1,22 @@
 import fs = require("fs");
-import path = require("path");
 import mkdirp = require("mkdirp");
+import path = require("path");
 import rimraf = require("rimraf");
-var childProcess = require('child_process');
-var webpack = require("webpack");
+const childProcess = require("child_process");
+const webpack = require("webpack");
 
-var rootPath = path.join(__dirname, "../../../../");
+const rootPath = path.join(__dirname, "../../../../");
 
 function createBrowserPackage(minify = false) {
     console.log("Minify: " + minify);
 
-    var sourceClientFile = path.join(rootPath, "/dist/entryPoints/web_worker/client/launch.js");
-    var sourceWorkerFile = path.join(rootPath, "/dist/entryPoints/web_worker/server/ramlServerWorker.js");
+    const sourceClientFile = path.join(rootPath, "/dist/entryPoints/web_worker/client/launch.js");
+    const sourceWorkerFile = path.join(rootPath, "/dist/entryPoints/web_worker/server/ramlServerWorker.js");
 
-    var targetFolder = path.join(rootPath, "browserVersion");
+    const targetFolder = path.join(rootPath, "browserVersion");
 
-    var targetClientFile = path.join(targetFolder, "ramlServerClient.js");
-    var targetWorkerFile = path.join(targetFolder, "ramlServerWorker.js");
+    const targetClientFile = path.join(targetFolder, "ramlServerClient.js");
+    const targetWorkerFile = path.join(targetFolder, "ramlServerWorker.js");
 
     mkdirp.sync(targetFolder);
 
@@ -30,11 +30,11 @@ function createBrowserPackage(minify = false) {
  * @param targetFileName
  * @param callback
  */
-function webPackForBrowser(parserRootFolder: string, sourceClientFile : string, sourceWorkerFile: string,
-    targetClientFile : string, targetWorkerFile: string, minify: boolean) {
+function webPackForBrowser(parserRootFolder: string, sourceClientFile: string, sourceWorkerFile: string,
+                           targetClientFile: string, targetWorkerFile: string, minify: boolean) {
     console.log("Preparing to Webpack browser bundle: client.js");
 
-    var plugins = [];
+    const plugins = [];
     if (minify) {
         plugins.push(new webpack.optimize.UglifyJsPlugin({
             minimize: true,
@@ -42,17 +42,17 @@ function webPackForBrowser(parserRootFolder: string, sourceClientFile : string, 
         }));
     }
 
-    var relativeSourceClientFile = path.relative(parserRootFolder, sourceClientFile);
-    relativeSourceClientFile = "./"+relativeSourceClientFile;
+    let relativeSourceClientFile = path.relative(parserRootFolder, sourceClientFile);
+    relativeSourceClientFile = "./" + relativeSourceClientFile;
 
-    var relativeSourceWorkerFile = path.relative(parserRootFolder, sourceWorkerFile);
-    relativeSourceWorkerFile = "./"+relativeSourceWorkerFile;
+    let relativeSourceWorkerFile = path.relative(parserRootFolder, sourceWorkerFile);
+    relativeSourceWorkerFile = "./" + relativeSourceWorkerFile;
 
-    var targetFolder = path.dirname(targetClientFile);
-    var baseTargetClientFileName = path.basename(relativeSourceClientFile);
-    var baseTargetWorkerFileName = path.basename(relativeSourceWorkerFile);
+    const targetFolder = path.dirname(targetClientFile);
+    const baseTargetClientFileName = path.basename(relativeSourceClientFile);
+    const baseTargetWorkerFileName = path.basename(relativeSourceWorkerFile);
 
-    var config = {
+    const config = {
         context: parserRootFolder,
 
         entry: {
@@ -63,14 +63,14 @@ function webPackForBrowser(parserRootFolder: string, sourceClientFile : string, 
         output: {
             path: targetFolder,
 
-            library: ['RAML', 'Server'],
+            library: ["RAML", "Server"],
 
             filename: "[name].bundle.js",
 
             libraryTarget: "umd"
         },
 
-        plugins: plugins,
+        plugins,
         resolve: {
             alias: {
                 fs: path.resolve(__dirname, "../../../../web-tools/emptyFS.js")
@@ -103,7 +103,7 @@ function webPackForBrowser(parserRootFolder: string, sourceClientFile : string, 
     };
 
     webpack(config, function(err, stats) {
-        if(err) {
+        if (err) {
             console.log(err.message);
 
             return;
@@ -116,52 +116,52 @@ function webPackForBrowser(parserRootFolder: string, sourceClientFile : string, 
 }
 
 export function copyDirSyncRecursive(
-    to:string,
-    from:string):void{
+    to: string,
+    from: string): void {
 
-    if(path.resolve(to)==path.resolve(from)){
+    if (path.resolve(to) === path.resolve(from)){
         return;
     }
 
-    if(!fs.lstatSync(from).isDirectory()){
+    if (!fs.lstatSync(from).isDirectory()) {
 
         mkdirp.sync(path.dirname(to));
 
-        var buffer = fs.readFileSync(from);
+        const buffer = fs.readFileSync(from);
 
         fs.writeFileSync(to, buffer);
 
         return;
     }
 
-    fs.readdirSync(from).forEach(x=>{
+    fs.readdirSync(from).forEach((x) => {
 
-        var fromChild = path.resolve(from,x);
+        const fromChild = path.resolve(from, x);
 
-        var toChild = path.resolve(to,x);
-        copyDirSyncRecursive(toChild,fromChild);
+        const toChild = path.resolve(to, x);
+        copyDirSyncRecursive(toChild, fromChild);
     });
 }
 
 function generateBrowserNpmJSON() {
-    let targetNPMPath = path.join(rootPath, "./browser_version_npm");
+    const targetNPMPath = path.join(rootPath, "./browser_version_npm");
 
-    let targetPackageJSONPath = path.resolve(targetNPMPath, "./package.json");
-    var sourcePackageJsonPath = path.resolve(rootPath, "./package.json");
+    const targetPackageJSONPath = path.resolve(targetNPMPath, "./package.json");
+    const sourcePackageJsonPath = path.resolve(rootPath, "./package.json");
 
-    let packageJson = JSON.parse(fs.readFileSync(sourcePackageJsonPath).toString());
+    const packageJson = JSON.parse(fs.readFileSync(sourcePackageJsonPath).toString());
 
-    let targetJson : any = {};
+    const targetJson: any = {};
     targetJson.version = packageJson.version;
-    targetJson.name = packageJson.name + '-browser';
+    targetJson.name = packageJson.name + "-browser";
     targetJson.main = "client.bundle.js";
 
-    fs.writeFileSync(targetPackageJSONPath, JSON.stringify(targetJson, null, '\t'));
+    fs.writeFileSync(targetPackageJSONPath, JSON.stringify(targetJson, null, "\t"));
 }
 
 function createBrowserNPM() {
-    let browserVersionPath = path.join(rootPath, "./browserVersion")
-    let browserNpmPath = path.join(rootPath, "./browser_version_npm")
+    const browserVersionPath = path.join(rootPath, "./browserVersion");
+    const browserNpmPath = path.join(rootPath, "./browser_version_npm");
 
     rimraf.sync(browserNpmPath);
 
@@ -173,8 +173,8 @@ function createBrowserNPM() {
 }
 
 function publishBrowserNPM() {
-    let browserNpmPath = path.join(rootPath, "./browser_version_npm")
-    childProcess.execSync('cd ' + browserNpmPath + ' && npm publish');
+    const browserNpmPath = path.join(rootPath, "./browser_version_npm");
+    childProcess.execSync("cd " + browserNpmPath + " && npm publish");
 }
 
 function createAndPublishBrowserNPM() {
@@ -186,7 +186,7 @@ function createAndPublishBrowserNPM() {
 createBrowserPackage();
 
 declare var process: any;
-var isNpm = process.argv[process.argv.indexOf("--type") + 1] === 'npm';
+const isNpm = process.argv[process.argv.indexOf("--type") + 1] === "npm";
 
 if (isNpm) {
     createAndPublishBrowserNPM();

@@ -1,42 +1,41 @@
-import clientInterfaces = require("../../../client/client")
-import commonInterfaces = require("../../../common/typeInterfaces")
+import clientInterfaces = require("../../../client/client");
+import commonInterfaces = require("../../../common/typeInterfaces");
 
 import {
-    ProtocolMessage,
-    MessageToServerType
-} from '../../common/protocol'
+    MessageToServerType,
+    ProtocolMessage
+} from "../../common/protocol";
 
 import {
     AbstractClientConnection
-} from '../../common/client/abstractClient'
+} from "../../common/client/abstractClient";
 
 export interface IWorker {
 
-    postMessage(message: any): void
+    onmessage: {(event: any): void};
 
-    onmessage : {(event:any) : void}
+    postMessage(message: any): void;
 
-    terminate() : void
+    terminate(): void;
 }
 
 export class RAMLClientConnection extends AbstractClientConnection
     implements clientInterfaces.IClientConnection {
 
-    constructor(private worker : IWorker){
+    constructor(private worker: IWorker){
         super("NodeProcessClientConnection");
 
-        worker.onmessage = (event)=>{
-            this.handleRecievedMessage(event.data)
-        }
+        worker.onmessage = (event) => {
+            this.handleRecievedMessage(event.data);
+        };
     }
 
-    stop() : void {
+    public stop(): void {
         this.worker.terminate();
     }
 
-    sendMessage (message : ProtocolMessage<MessageToServerType>) : void {
+    public sendMessage(message: ProtocolMessage<MessageToServerType>): void {
 
         this.worker.postMessage(message);
     }
 }
-
