@@ -391,12 +391,24 @@ function testErrorsSync(receivedErrors, expectedErrors=[]){
         }
     }
 
+    if (hasUnexpectedErr || receivedErrors.length !== expectedErrors.length) {
+        errorMsg += "\nActual errors:\n";
+        for (const currentError of receivedErrors) {
+            errorMsg += (currentError.message ? currentError.message : "") + "\n";
+        }
+
+        errorMsg += "\nExpected errors:\n";
+        for (const currentError of expectedErrors) {
+            errorMsg += currentError + "\n";
+        }
+    }
+
     assert.equal(hasUnexpectedErr, false, "Unexpected errors found\n"+errorMsg);
     assert.equal(receivedErrors.length, expectedErrors.length, "Wrong number of errors\n"+errorMsg);
 }
 
 function validateErrors(realErrors:any, expectedErrors:string[]){
-    var errors = {'unexpected': [], 'lostExpected': []};
+    var errors = {unexpected: [], lostExpected: []};
     if (realErrors.length > 0){
         realErrors.forEach(error=>{
             var realError: string;
