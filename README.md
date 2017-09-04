@@ -3,9 +3,6 @@
 A Language Server that exposes smart [RAML](http://raml.org/) language support for various IDEs
 using the new [Language Server Protocol standard](https://github.com/Microsoft/language-server-protocol).
 
-## Status
-
-Currently, the RAML Language Server is in beta. 
 
 ## Architecture
 
@@ -15,17 +12,17 @@ RAML Server joins all the services and provides them as an interface with maximu
 
 The supported clients are divided into 3 types, by the type of the way the client launches the server and the environment, the server is executed in. For each type of the launch/environment we add its own supporting code, which should only care about the details of launch/transport. No business logics of how to handle RAML is located in there.
 
-**Node-based** 
+**Node-based**
 
 This type of launch expects the client and the server to be running in node.js. An example is the API Worbench.
 
-**Web worker-based** 
+**Web worker-based**
 
-This type of launch expects the client to be running in the browser, and the server to be running in web worker. An example might be any web editor.
+This type of launch expects the client to be running in the browser, and the server to be running in web worker. An example is the Monaco-based editor.
 
-**MS LSP** 
+**MS LSP**
 
-This type of launch expects the client to be running in the unknown environment, which supports MS LSP, and the server to be running in node.js. This allows to potentially support lots of current IDEs. Note: each additional LSP client requires its own code, but that code is thin.
+This type of launch expects the client to be running in the unknown environment, which supports MS LSP, and the server to be running in node.js. This allows to potentially support lots of current IDEs. An example is the VS Code plug-in. Note: each additional LSP client requires its own code, but that code is thin.
 
 ![Modules](images/Modules.png)
 
@@ -51,6 +48,8 @@ The current list of modules, which is going to expand:
 * Validation Manager - handles RAML validation reports.
 * Structure Manager - handles RAML structure requests.
 * Completion Manager - handles RAML suggestions.
+* Details Manager - handles details of RAML element.
+* Custom Actions manager - handles custom context-dependent actions.
 * Fixed Actions Manager - central point to register fixed actions sub-modules.
     * Find References Action - provides the respective fixed action.
     * Open Declaration Action - provides the respective fixed action.
@@ -96,6 +95,8 @@ Or finding references by calling:
  */
 findReferences(uri: string, position: number) : Promise<ILocation[]>
 ```
+
+To get client connection, the index of the module provides `getNodeClientConnection` method. `stop` method shuts the server down.
 
 It is possible that further along the road some data interfaces will change by receiving new fields, but the simplicity should be preserved.
 
@@ -160,6 +161,250 @@ onFindReferences(listener: (uri: string, position: number) => ILocation[])
 ```
 
 In the current implementation prototype server interface is located in `src/server/core/connections.ts` file `IServerConnection` interface, implementation is located in `src/server/core` folder.
+
+### Document management
+
+Editor Manager module provides following methods to let server know, which documents the client operates with:
+
+```js
+/**
+ * Notifies the server that document is opened.
+ * @param document
+ */
+documentOpened(document: IOpenedDocument);
+```
+
+```js
+/**
+ * Notified the server that document is closed.
+ * @param uri
+ */
+documentClosed(uri: string);
+```
+
+```js
+/**
+ * Notifies the server that document is changed.
+ * @param document
+ */
+documentChanged(document: IChangedDocument);
+```
+
+The client may also notify the server regarding cursor position by calling
+
+```js
+/**
+ * Reports to the server the position (cursor) change on the client.
+ * @param uri - document uri.
+ * @param position - cursor position, starting from 0.
+ */
+positionChanged(uri: string, position: number): void;
+```
+
+Cursor position is being used to calculate context-dependent reports (actions, details, etc).
+
+### Validation
+
+Validation is being performed automatically by the server when the client reports content changes. It is not guaranteed that each change will cause re-validation, instead server for the pause in a chain of rapid changes before launching the validation.
+
+As soon as the new validation report is available, it is being sent to the client, which may listen to the report by calling
+
+```js
+/**
+ * Adds a listener for validation report coming from the server.
+ * @param listener
+ */
+onValidationReport(listener: (report: IValidationReport) => void);
+```
+
+### Structure
+
+RAML file structure can be obtained by calling
+
+```js
+/**
+ * Requests server for the document structure.
+ * @param uri
+ */
+getStructure(uri: string): Promise<{[categoryName: string]: StructureNodeJSON}>;
+```
+
+Instead of asking the server for the structure repeatedly, it is more efficient to subscribe to the structure reports that are calculated on real content changes and AST re-calculations:
+
+```js
+/**
+ * Instead of calling getStructure to get immediate structure report for the document,
+ * this method allows to listen to the new structure reports when those are available.
+ * @param listener
+ */
+onStructureReport(listener: (report: IStructureReport) => void);
+```
+
+### Code completion
+
+To get current suggestions the following should be called:
+
+```js
+/**
+ * Requests server for the suggestions.
+ * @param uri - document uri
+ * @param position - offset in the document, starting from 0
+ */
+getSuggestions(uri: string, position: number): Promise<Suggestion[]>;
+```
+
+### Details
+
+To request details directly, call:
+
+```js
+/**
+ * Requests server for the document+position details.
+ * @param uri
+ */
+getDetails(uri: string, position: number): Promise<DetailsItemJSON>;
+```
+
+Instead of asking the server for the details repeatedly, it is more efficient to subscribe to the details reports that are calculated on real content changes and AST re-calculations:
+
+
+```js
+/**
+ * Report from the server that the new details are calculated
+ * for particular document and position.
+ * @param listener
+ */
+onDetailsReport(listener: (IDetailsReport) => void);
+```
+
+### Fixed Actions
+
+To rename an element at position:
+
+```js
+/**
+ * Requests server for rename of the element
+ * at the given document position.
+ * @param uri - document uri
+ * @param position - position in the document
+ */
+rename(uri: string, position: number, newName: string): Promise<IChangedDocument[]>;
+```
+
+To find the location of the declaration of an element at position:
+
+```js
+/**
+ * Requests server for the positions of the declaration of the element defined
+ * at the given document position.
+ * @param uri - document uri
+ * @param position - position in the document
+ */
+openDeclaration(uri: string, position: number): Promise<ILocation[]>;
+```
+
+To find reference of an element at position:
+
+```js
+/**
+ * Requests server for the positions of the references of the element defined
+ * at the given document position.
+ * @param uri - document uri
+ * @param position - position in the document
+ */
+findReferences(uri: string, position: number): Promise<ILocation[]>;
+```
+
+To find occurrences of the element at position:
+
+```js
+/**
+ * Requests server for the occurrences of the element defined
+ * at the given document position.
+ * @param uri - document uri
+ * @param position - position in the document
+ */
+markOccurrences(uri: string, position: number): Promise<IRange[]>;
+```
+
+### Custom Actions
+
+To calculate the list of the custom actions avilable in the current context, call:
+
+```js
+/**
+ * Calculates the list of executable actions avilable in the current context.
+ *
+ * @param uri - document uri.
+ * @param position - optional position in the document.
+ * If not provided, the last reported by positionChanged method will be used.
+ */
+calculateEditorContextActions(uri: string,
+                              position?: number): Promise<IExecutableAction[]>;
+```
+
+After user makes decision, whether/which action to execute, call `executeContextAction`, providing the action obtained on the call of `calculateEditorContextActions`:
+
+```js
+/**
+ * Executes the specified action. If action has UI, causes a consequent
+ * server->client UI message resulting in onDisplayActionUI listener call.
+ * @param uri - document uri
+ * @param action - action to execute.
+ * @param position - optional position in the document.
+ * If not provided, the last reported by positionChanged method will be used.
+ */
+executeContextAction(uri: string,
+                     action: IExecutableAction, position?: number): Promise<IChangedDocument[]>;
+```
+
+If custom action has UI to display on the client side, in-between the `executeContextAction` promise resolving, server will come back to the client and ask to display the UI, so the client should subscribe to:
+
+```js
+/**
+ * Adds a listener to display action UI.
+ * @param listener - accepts UI display request, should result in a promise
+ * returning final UI state to be transferred to the server.
+ */
+onDisplayActionUI(
+    listener: (uiDisplayRequest: IUIDisplayRequest) => Promise<any>
+);
+```
+
+### Providing client file system
+
+For the server to know not only the content of RAML files, opened in the editors, but also other fragments and libraries, the client should be ready to answer to the following server's requests:
+
+```js
+/**
+ * Listens to the server requests for FS path existence, answering whether
+ * a particular path exists on FS.
+ */
+onExists(listener: (path: string) => Promise<boolean>): void;
+```
+
+```js
+/**
+ * Listens to the server requests for directory contents, answering with a list
+ * of files in a directory.
+ */
+onReadDir(listener: (path: string) => Promise<string[]>): void;
+```
+
+```js
+/**
+ * Listens to the server requests for directory check, answering whether
+ * a particular path is a directory.
+ */
+onIsDirectory(listener: (path: string) => Promise<boolean>): void;
+```
+
+```js
+/**
+ * Listens to the server requests for file contents, answering what contents file has.
+ */
+onContent(listener: (path: string) => Promise<string>): void;
+```
 
 ## Contribution
 
