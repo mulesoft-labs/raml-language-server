@@ -23,8 +23,8 @@ export function getConnection(): IClientConnection {
 
 function launch(): IClientConnection {
 
-    // let serverProcess = (<any>childProcess).fork(
-    //     path.resolve(__dirname, '../server/serverProcess.js'), ['--debug=6010'], {
+    // const serverProcess = (childProcess as any).fork(
+    //     path.resolve(__dirname, "../server/serverProcess.js"), ["--inspect=6010"], {
     //     silent: true
     // });
 

@@ -178,6 +178,10 @@ class FSProvider implements suggestions.IFSProvider {
      * @param fullPath
      */
     public contentAsync(fullPath: string): Promise<string> {
+
+        this.logger.debugDetail("Request for content: " + fullPath,
+            "CompletionManagerModule", "FSProvider#contentAsync");
+
         return this.connection.content(fullPath);
     }
 
@@ -419,30 +423,39 @@ class CompletionManagerModule implements IListeningModule {
         this.connection.debugDetail("Completion position cutoff:" + cutText,
             "CompletionManagerModule", "getCompletion");
 
-        const currentAST = this.astManagerModule.getCurrentAST(uri);
-        this.connection.debugDetail("Current AST found: " + (currentAST ? "true" : "false"),
-                                    "CompletionManagerModule", "getCompletion");
-        if (currentAST) {
-            this.connection.debugDetail(currentAST.printDetails(), "CompletionManagerModule", "getCompletion");
-        }
+        const connection = this.connection;
+        return this.astManagerModule.forceGetCurrentAST(uri).then((currentAST) => {
 
-        suggestions.setDefaultASTProvider(astProvider);
-
-        return suggestions.suggestAsync(editorProvider, fsProvider).then((result) => {
-            this.connection.debug("Got suggestion results: " + JSON.stringify(result));
-            this.connection.debug("Got suggestion results length: "
-                + (result ? result.length : 0), "CompletionManagerModule", "getCompletion");
-
-            for (const suggestion of result) {
-                this.connection.debug("Suggestion: text: " + suggestion.text,
-                                      "CompletionManagerModule", "getCompletion");
-                this.connection.debug("Suggestion: displayText: " + suggestion.displayText,
-                                      "CompletionManagerModule", "getCompletion");
-                this.connection.debug("Suggestion: prefix: " + suggestion.prefix,
-                                      "CompletionManagerModule", "getCompletion");
+            connection.debugDetail("Current AST found: " + (currentAST ? "true" : "false"),
+                "CompletionManagerModule", "getCompletion");
+            if (currentAST) {
+                connection.debugDetail(currentAST.printDetails(), "CompletionManagerModule", "getCompletion");
             }
 
-            return result;
+            suggestions.setDefaultASTProvider(astProvider);
+            suggestions.setLogger(connection);
+
+            return suggestions.suggestAsync(editorProvider, fsProvider).then((result) => {
+                connection.debug("Got suggestion results: " + JSON.stringify(result));
+                connection.debug("Got suggestion results length: "
+                    + (result ? result.length : 0), "CompletionManagerModule", "getCompletion");
+
+                for (const suggestion of result) {
+                    connection.debug("Suggestion: text: " + suggestion.text,
+                        "CompletionManagerModule", "getCompletion");
+                    connection.debug("Suggestion: displayText: " + suggestion.displayText,
+                        "CompletionManagerModule", "getCompletion");
+                    connection.debug("Suggestion: prefix: " + suggestion.prefix,
+                        "CompletionManagerModule", "getCompletion");
+                }
+
+                return result;
+            }, (error) => {
+                connection.error("Failed to find suggestions: " + error,
+                    "CompletionManagerModule", "getCompletion");
+
+                throw error;
+            });
         });
 
     }

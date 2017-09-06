@@ -8,7 +8,7 @@ describe("Suggestion tests", function() {
     it("test0", function (done) {
         this.timeout(30000);
 
-        testCompletionByEntryEnd('basic/LibraryExample/slack.raml', done, 'CH11\n    ', 'queryParameters, headers, queryString, responses, body, protocols, is, securedBy, displayName, properties, get, put, post, delete, options, head, patch');
+        testCompletionByEntryEnd('basic/LibraryExample/slack.raml', done, 'CH11\n    ', 'queryParameters, headers, queryString, responses, body, protocols, is, securedBy, displayName');
     });
 
     it("test1", function (done) {
@@ -86,7 +86,7 @@ describe("Suggestion tests", function() {
 
     //this test contains impossible suggestions
     it("User-defined types reference completion for a property shortcut inheritance definition. BUG#2611. FIXME", function (done) {
-        testCompletionByEntryEnd('basic/test10.raml', done, '\n      property: [PartOne, Tes', 'TestTypeObject, TestType, TestTypeUnion, TestTypePrimitive, TestType1, TestTypeWithInheritance, TestType2, TestType3');
+        testCompletionByEntryEnd('basic/test10.raml', done, '\n      property: [PartOne, Tes', 'TestTypeObject, TestType1, TestType2, TestType3, TestTypeWithInheritance');
     });
 
     //this test contains impossible suggestions
@@ -160,7 +160,7 @@ describe("Suggestion tests", function() {
     });
 
     it("Completion for include path", function (done) {
-        testCompletionByEntryEnd('basic/test17.raml', done, '\n  comic: !include ./XKCD/s', 'schemas');
+        testCompletionByEntryEnd('basic/test17.raml', done, '\n  comic: !include ./XKCD/s', 'schemas/');
     });
 
     it("Completion for include files", function (done) {
@@ -588,7 +588,7 @@ describe("Suggestion tests", function() {
     });
 
     it("test43", function (done) {
-        testCompletionByEntryEnd('basic/test43.raml', done, 'X', 'XKCD');
+        testCompletionByEntryEnd('basic/test43.raml', done, 'X', 'XKCD/');
     });
 });
 
@@ -610,14 +610,14 @@ export function completionByUniqueEntryAsync(filePath: string, entry: string, be
 
     connection = index.getNodeClientConnection();
 
-    //(<any>connection).loggingEnabled = false;
     connection.setLoggerConfiguration({
         allowedComponents: [
             "NodeProcessServerConnection",
-            "CompletionManagerModule"
+            "CompletionManagerModule",
+            "completionProvider"
         ],
-        maxSeverity: 0,
-        maxMessageLength: 50
+        maxSeverity: 4,
+        maxMessageLength: 500
     });
 
     connection.documentOpened({
