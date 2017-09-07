@@ -5,6 +5,10 @@ import {
 } from "./astManager";
 
 import {
+    IEditorManagerModule
+} from "./editorManager";
+
+import {
     ILogger
 } from "../../common/typeInterfaces";
 
@@ -44,6 +48,7 @@ initialize();
  */
 class ASTProvider implements ramlOutline.IASTProvider {
     constructor(private uri: string, private astManagerModule: IASTManagerModule,
+                private editorManagerModule: IEditorManagerModule,
                 private logger: ILogger) {
     }
 
@@ -57,7 +62,39 @@ class ASTProvider implements ramlOutline.IASTProvider {
     }
 
     public getSelectedNode() {
-        return null;
+        this.logger.debug("Asked for selected node", "ASTProvider", "getSelectedNode");
+
+        const editor = this.editorManagerModule.getEditor(this.uri);
+
+        this.logger.debugDetail("Got editor" + (editor ? "true" : "false"),
+                                "ASTProvider", "getSelectedNode");
+        if (!editor) {
+            return null;
+        }
+
+        const position = editor.getCursorPosition();
+
+        this.logger.debugDetail("Got position: " + position,
+            "ASTProvider", "getSelectedNode");
+
+        if (position === null) {
+            return null;
+        }
+
+        if (position === 0) {
+            return this.getASTRoot();
+        }
+
+        const result = this.getASTRoot().findElementAtOffset(position);
+        if (result) {
+            this.logger.debugDetail("Result type is: " + (result.definition() ? result.definition().nameId() : ""),
+                "ASTProvider", "getSelectedNode");
+        } else {
+            this.logger.debugDetail("Result not found",
+                "ASTProvider", "getSelectedNode");
+        }
+
+        return result;
     }
 }
 
@@ -67,6 +104,8 @@ class ASTProvider implements ramlOutline.IASTProvider {
  * @param astManagerModule
  * @param logger
  */
-export function setOutlineASTProvider(uri: string, astManagerModule: IASTManagerModule, logger: ILogger) {
-    ramlOutline.setASTProvider(new ASTProvider(uri, astManagerModule, logger));
+export function setOutlineASTProvider(uri: string, astManagerModule: IASTManagerModule,
+                                      editorManagerModule: IEditorManagerModule,
+                                      logger: ILogger) {
+    ramlOutline.setASTProvider(new ASTProvider(uri, astManagerModule, editorManagerModule, logger));
 }

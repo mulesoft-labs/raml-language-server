@@ -131,7 +131,8 @@ class DetailsManager {
         // Forcing current AST to exist
         return this.astManagerModule.forceGetCurrentAST(uri).then((currentAST) => {
 
-            outlineManagerCommons.setOutlineASTProvider(uri, this.astManagerModule, this.connection);
+            outlineManagerCommons.setOutlineASTProvider(uri, this.astManagerModule,
+                                                        this.editorManager, this.connection);
 
             const result = ramlOutline.getDetailsJSON(position);
 

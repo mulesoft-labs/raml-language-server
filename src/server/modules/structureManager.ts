@@ -9,6 +9,10 @@ import {
 } from "./astManager";
 
 import {
+    IEditorManagerModule
+} from "./editorManager";
+
+import {
     Icons,
     ILogger,
     IValidationIssue,
@@ -31,9 +35,10 @@ import outlineManagerCommons = require("./outlineManagerCommons");
 const universes = rp.universes;
 
 export function createManager(connection: IServerConnection,
-                              astManagerModule: IASTManagerModule): IListeningModule {
+                              astManagerModule: IASTManagerModule,
+                              editorManagerModule: IEditorManagerModule): IListeningModule {
 
-    return new StructureManager(connection, astManagerModule);
+    return new StructureManager(connection, astManagerModule, editorManagerModule);
 }
 
 const prohibit = {
@@ -145,7 +150,9 @@ class StructureManager {
 
     private cachedStructures: {[uri: string]: {[categoryName: string]: StructureNodeJSON}} = {};
 
-    constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule) {
+    constructor(private connection: IServerConnection,
+                private astManagerModule: IASTManagerModule,
+                private editorManagerModule: IEditorManagerModule) {
     }
 
     public listen() {
@@ -240,7 +247,9 @@ class StructureManager {
         // Forcing current AST to exist
         return this.astManagerModule.forceGetCurrentAST(uri).then((currentAST) => {
 
-            outlineManagerCommons.setOutlineASTProvider(uri, this.astManagerModule, this.connection);
+            outlineManagerCommons.setOutlineASTProvider(uri, this.astManagerModule,
+                                                        this.editorManagerModule,
+                                                        this.connection);
 
             const result = ramlOutline.getStructureForAllCategories();
 

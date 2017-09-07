@@ -164,13 +164,16 @@ function getOutlineJSONAsync(apiPath:string, callback: (result: Object, error: a
     connection = index.getNodeClientConnection();
 
     connection.setLoggerConfiguration({
-        disabled: true
+        // disabled: true
+        allowedComponents: ["ASTProvider"]
     });
 
     connection.documentOpened({
         uri: apiPath,
         text: content
     });
+
+    connection.positionChanged(apiPath, 0);
 
     connection.getStructure(apiPath).then(result=>{
         connection.documentClosed(apiPath);
