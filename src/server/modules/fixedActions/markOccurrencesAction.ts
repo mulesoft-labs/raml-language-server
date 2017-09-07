@@ -73,6 +73,21 @@ class MarkOccurrencesActionModule implements IListeningModule {
 
         // TODO both search and declaration unit filtering is better to be moved directly to the search module
         // in order to save CPU by not checking external units and just be flagged here
+
+        const node = ast.findElementAtOffset(position);
+        if (!node) {
+            return [];
+        }
+
+        // this.connection.debugDetail("Found node: \n" + node.printDetails(),
+        //     "FixedActionsManager", "markOccurrences");
+
+        const name = node.attrValue("name");
+        const type = node.attrValue("type");
+        if (!name && !type) {
+            return [];
+        }
+
         const findUsagesResult = search.findUsages(unit, position);
 
         this.connection.debugDetail("Found usages: " + (findUsagesResult ? "true" : false),

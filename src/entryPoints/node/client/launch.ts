@@ -36,21 +36,13 @@ function launch(): IClientConnection {
     const connection = new NodeProcessClientConnection(serverProcess);
 
     connection.setLoggerConfiguration({
-        // allowedComponents: [
-        //     "CompletionManagerModule"
-        // ],
         maxSeverity: MessageSeverity.ERROR,
         maxMessageLength: 50
     });
 
-    // clientConnection.setLoggerConfiguration({
+    // connection.setLoggerConfiguration({
     //     allowedComponents: [
-    //         "MessageDispatcher:NodeProcessClientConnection",
-    //         "MessageDispatcher:NodeProcessServerConnection",
-    //         "NodeProcessClientConnection",
-    //         "NodeProcessServerConnection",
-    //         "CustomActionsManager",
-    //         "EditorManager"
+    //         "FixedActionsManager"
     //     ],
     //     maxSeverity: MessageSeverity.DEBUG_DETAIL,
     //     maxMessageLength: 5000
