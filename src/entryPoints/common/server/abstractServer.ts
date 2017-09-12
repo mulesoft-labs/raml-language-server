@@ -50,7 +50,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
 
     private calculateEditorContextActionsListeners:
         {(uri: string, position?: number): Promise<IExecutableAction[]>}[] = [];
-
+    private getAllEditorContextActionsListeners: {() : Promise<IExecutableAction[]>}[] = [];
+    
     private executeContextActionListeners:
         {(uri: string, actionId: string,
           position?: number): Promise<IChangedDocument[]>}[] = [];
@@ -547,6 +548,13 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
     }
 
     /**
+     * Calculates the list of all available executable actions.
+     */
+    public onAllEditorContextActions(listener: () => Promise<IExecutableAction[]>): void {
+        this.getAllEditorContextActionsListeners.push(listener);
+    }
+
+    /**
      * Adds a listener for specific action execution.
      * If action has UI, causes a consequent displayActionUI call.
      * @param uri - document uri
@@ -579,6 +587,12 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
         }
 
         return this.calculateEditorContextActionsListeners[0](payload.uri, payload.position);
+    }
+
+    public ALL_ACTIONS(payload:{uri: string, position?: number}) : Promise<IExecutableAction[]> {
+        if (!this.getAllEditorContextActionsListeners) return Promise.resolve([]);
+
+        return this.getAllEditorContextActionsListeners[0]();
     }
 
     public EXECUTE_ACTION(payload: {uri: string, actionId: string,

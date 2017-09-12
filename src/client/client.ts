@@ -173,8 +173,12 @@ export interface IClientConnection extends ILogger {
      * @param position - optional position in the document.
      * If not provided, the last reported by positionChanged method will be used.
      */
-    calculateEditorContextActions(uri: string,
-                                  position?: number): Promise<IExecutableAction[]>;
+    calculateEditorContextActions(uri: string, position?: number) : Promise<IExecutableAction[]>;
+
+    /**
+     * Calculates the list of all available actions.
+     */
+    allAvailableActions() : Promise<IExecutableAction[]>;
 
     /**
      * Executes the specified action. If action has UI, causes a consequent
