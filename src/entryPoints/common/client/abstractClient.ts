@@ -26,6 +26,10 @@ import {
     filterLogMessage
 } from "../../../common/utils";
 
+import {
+    IServerConfiguration
+} from "../../../common/configuration";
+
 export abstract class AbstractClientConnection extends MessageDispatcher<MessageToServerType>
     implements clientInterfaces.IClientConnection {
 
@@ -58,6 +62,19 @@ export abstract class AbstractClientConnection extends MessageDispatcher<Message
      * Stops the server.
      */
     public abstract stop(): void;
+
+    /**
+     * Sets server configuration.
+     * @param serverSettings
+     */
+    public setServerConfiguration(serverSettings: IServerConfiguration): void {
+
+        // changing server configuration
+        this.send({
+            type : "SET_SERVER_CONFIGURATION",
+            payload : serverSettings
+        });
+    }
 
     public onValidationReport(listener: (report: clientInterfaces.IValidationReport) => void) {
         this.validationReportListeners.push(listener);

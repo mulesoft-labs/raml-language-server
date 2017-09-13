@@ -23,6 +23,11 @@ export {
 } from "./common/typeInterfaces";
 
 export {
+    IServerConfiguration,
+    IActionsConfiguration
+} from "./common/configuration";
+
+export {
     Runnable,
     Reconciler
 } from "./common/reconciler";

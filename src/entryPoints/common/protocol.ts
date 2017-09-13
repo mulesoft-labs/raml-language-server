@@ -23,7 +23,8 @@ export type MessageToServerType =
     "CHANGE_POSITION" |
     "CALCULATE_ACTIONS" |
     "EXECUTE_ACTION" |
-    "ALL_ACTIONS";
+    "ALL_ACTIONS" |
+    "SET_SERVER_CONFIGURATION";
 
 export interface ProtocolMessage<MessageType extends MessageToClientType | MessageToServerType> {
     type: MessageType;

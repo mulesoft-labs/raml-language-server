@@ -21,6 +21,7 @@ import {
 } from "../../common/typeInterfaces";
 
 import utils = require("../../common/utils");
+import {IServerConfiguration} from "../../common/configuration";
 
 export abstract class AbstractServerConnection {
 
@@ -35,6 +36,7 @@ export abstract class AbstractServerConnection {
     protected renameListeners: {(uri: string, position: number, newName: string): IChangedDocument[]}[] = [];
     protected documentDetailsListeners: {(uri: string, position: number): Promise<DetailsItemJSON>}[] = [];
     private changePositionListeners: {(uri: string, position: number): void}[] = [];
+    private serverConfigurationListeners: {(configuration: IServerConfiguration): void}[] = [];
 
     private calculateEditorContextActionsListeners:
         {(uri: string, position?: number): Promise<IExecutableAction[]>}[] = [];
@@ -186,6 +188,14 @@ export abstract class AbstractServerConnection {
                                              position?: number) => Promise<IChangedDocument[]>): void {
 
         this.executeContextActionListeners.push(listener);
+    }
+
+    /**
+     * Sets server configuration.
+     * @param loggerSettings
+     */
+    public onSetServerConfiguration(listener: (configuration: IServerConfiguration) => void) {
+        this.serverConfigurationListeners.push(listener);
     }
 
     /**

@@ -30,6 +30,7 @@ import {ILoggerSettings, IStructureReport} from "../../../common/typeInterfaces"
 import {
     filterLogMessage
 } from "../../../common/utils";
+import {IServerConfiguration} from "../../../common/configuration";
 
 export abstract class AbstractMSServerConnection extends MessageDispatcher<MessageToClientType>
     implements IServerConnection {
@@ -47,6 +48,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
     private renameListeners: {(uri: string, position: number, newName: string): IChangedDocument[]}[] = [];
     private documentDetailsListeners: {(uri: string, position: number): Promise<DetailsItemJSON>}[] = [];
     private changePositionListeners: {(uri: string, position: number): void}[] = [];
+    private serverConfigurationListeners: {(configuration: IServerConfiguration): void}[] = [];
 
     private calculateEditorContextActionsListeners:
         {(uri: string, position?: number): Promise<IExecutableAction[]>}[] = [];
@@ -227,6 +229,14 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
             type : "DETAILS_REPORT",
             payload : report
         });
+    }
+
+    /**
+     * Sets server configuration.
+     * @param loggerSettings
+     */
+    public onSetServerConfiguration(listener: (configuration: IServerConfiguration) => void) {
+        this.serverConfigurationListeners.push(listener);
     }
 
     /**
@@ -412,6 +422,18 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
     public CHANGE_POSITION(payload: {uri: string, position: number}): void {
         for (const listener of this.changePositionListeners) {
             listener(payload.uri, payload.position);
+        }
+    }
+
+    /**
+     * Handler for SET_SERVER_CONFIGURATION message.
+     * @param payload
+     * @constructor
+     */
+    public SET_SERVER_CONFIGURATION(payload: IServerConfiguration): void {
+
+        for (const listener of this.serverConfigurationListeners) {
+            listener(payload);
         }
     }
 

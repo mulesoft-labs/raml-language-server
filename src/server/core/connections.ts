@@ -17,6 +17,10 @@ import {
     Suggestion
 } from "../../common/typeInterfaces";
 
+import {
+    IServerConfiguration
+} from "../../common/configuration";
+
 export {
     IRange,
     IValidationIssue,
@@ -35,6 +39,10 @@ export {
     IExecutableAction,
     IUIDisplayRequest
 } from "../../common/typeInterfaces";
+
+export {
+    IServerConfiguration
+} from "../../common/configuration";
 
 export interface IServerConnection extends ILogger {
     /**
@@ -193,4 +201,10 @@ export interface IServerConnection extends ILogger {
      * @return final UI state.
      */
     displayActionUI(uiDisplayRequest: IUIDisplayRequest): Promise<any>;
+
+    /**
+     * Sets server configuration.
+     * @param loggerSettings
+     */
+    onSetServerConfiguration(listener: (configuration: IServerConfiguration) => void);
 }

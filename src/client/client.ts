@@ -16,6 +16,11 @@ import {
     Suggestion
 } from "./typeInterfaces";
 
+import {
+    IActionsConfiguration,
+    IServerConfiguration
+} from "../common/configuration";
+
 export {
     IValidationReport,
     IStructureReport,
@@ -33,6 +38,11 @@ export {
     IExecutableAction,
     IUIDisplayRequest
 } from "./typeInterfaces";
+
+export {
+    IServerConfiguration,
+    IActionsConfiguration
+} from "../common/configuration";
 
 export interface IClientConnection extends ILogger {
 
@@ -178,7 +188,7 @@ export interface IClientConnection extends ILogger {
     /**
      * Calculates the list of all available actions.
      */
-    allAvailableActions() : Promise<IExecutableAction[]>;
+    allAvailableActions(): Promise<IExecutableAction[]>;
 
     /**
      * Executes the specified action. If action has UI, causes a consequent
@@ -199,4 +209,10 @@ export interface IClientConnection extends ILogger {
     onDisplayActionUI(
         listener: (uiDisplayRequest: IUIDisplayRequest) => Promise<any>
     );
+
+    /**
+     * Sets server configuration.
+     * @param serverSettings
+     */
+    setServerConfiguration(serverSettings: IServerConfiguration): void;
 }

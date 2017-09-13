@@ -150,6 +150,7 @@ initialize();
 class CustomActionsManager {
 
     private changeExecutor = null;
+    private enableUIActions: boolean = true;
 
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManager: IEditorManagerModule) {
@@ -175,6 +176,14 @@ class CustomActionsManager {
                 return this.executeAction(uri, actionId, position);
             }
         );
+
+        this.connection.onSetServerConfiguration((configuration) => {
+            if (configuration.actionsConfiguration) {
+                if (configuration.actionsConfiguration.enableUIActions !== null) {
+                    this.enableUIActions = configuration.actionsConfiguration.enableUIActions;
+                }
+            }
+        });
     }
 
     public vsCodeUriToParserUri(vsCodeUri: string): string {
@@ -186,7 +195,13 @@ class CustomActionsManager {
     }
 
     private getAllActions(): Promise<IExecutableAction[]> {
-        var result = ramlActions.allAvailableActions().map(action => ({
+        const result = ramlActions.allAvailableActions().filter((action) => {
+            if (!this.enableUIActions && action.hasUI) {
+                return false;
+            }
+
+            return true;
+        }).map((action) => ({
             id: action.id,
             name : action.name,
             target : action.target,
@@ -194,7 +209,7 @@ class CustomActionsManager {
             label : action.label,
             hasUI: action.hasUI
         }));
-        
+
         return Promise.resolve(result);
     }
 
@@ -223,7 +238,13 @@ class CustomActionsManager {
             connection.debugDetail("Calculated actions: " + actions ? actions.length.toString() : "0",
                 "CustomActionsManager", "calculateEditorActions");
 
-            return actions.map((action) => {
+            return actions.filter((action) => {
+                if (!this.enableUIActions && action.hasUI) {
+                    return false;
+                }
+
+                return true;
+            }).map((action) => {
                 return {
                     id: action.id,
 
