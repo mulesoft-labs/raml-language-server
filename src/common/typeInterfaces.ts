@@ -266,6 +266,11 @@ export interface IExecutableAction {
     target: string;
 
     /**
+     * Whether action has client-side UI part.
+     */
+    hasUI : boolean;
+
+    /**
      * Action category and potential subcategories.
      * In example, item with a name "itemName" and categories ["cat1", "cat2"]
      * will be displayed as the following menu hierarchy: cat1/cat2/itemName

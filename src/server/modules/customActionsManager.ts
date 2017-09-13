@@ -218,6 +218,8 @@ class CustomActionsManager {
 
                     category : action.category,
 
+                    hasUI: action.hasUI,
+
                     label : action.label
                 };
             });
