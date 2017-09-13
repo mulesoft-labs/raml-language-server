@@ -38,6 +38,7 @@ export abstract class AbstractServerConnection {
 
     private calculateEditorContextActionsListeners:
         {(uri: string, position?: number): Promise<IExecutableAction[]>}[] = [];
+    private getAllEditorContextActionsListeners: {():Promise<IExecutableAction[]>}[] = [];
 
     private executeContextActionListeners:
         {(uri: string, actionId: string,
@@ -164,6 +165,13 @@ export abstract class AbstractServerConnection {
                                                       position?: number) => Promise<IExecutableAction[]>): void {
 
         this.calculateEditorContextActionsListeners.push(listener);
+    }
+
+    /**
+     * Calculates the list of all available executable actions.
+     */
+    public onAllEditorContextActions(listener: () => Promise<IExecutableAction[]>): void {
+        this.getAllEditorContextActionsListeners.push(listener);
     }
 
     /**

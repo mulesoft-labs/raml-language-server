@@ -479,6 +479,16 @@ export abstract class AbstractClientConnection extends MessageDispatcher<Message
     }
 
     /**
+     * Calculates the list of all available executable actions.
+     */
+    allAvailableActions(): Promise<IExecutableAction[]> {
+        return this.sendWithResponse({
+            type : "ALL_ACTIONS",
+            payload : {}
+        });
+    }
+
+    /**
      * Executes the specified action. If action has UI, causes a consequent
      * server->client UI message resulting in onDisplayActionUI listener call.
      * @param uri - document uri
