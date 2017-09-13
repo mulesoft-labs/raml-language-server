@@ -191,7 +191,8 @@ class CustomActionsManager {
             name : action.name,
             target : action.target,
             category : action.category,
-            label : action.label
+            label : action.label,
+            hasUI: action.hasUI
         }));
         
         return Promise.resolve(result);
