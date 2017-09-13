@@ -164,6 +164,8 @@ class CustomActionsManager {
             }
         );
 
+        this.connection.onAllEditorContextActions(() => this.getAllActions());
+
         this.connection.onExecuteContextAction(
             (uri, actionId, position?) => {
                 this.connection.debug("onExecuteContextAction for uri " + uri,
@@ -181,6 +183,18 @@ class CustomActionsManager {
         }
 
         return vsCodeUri;
+    }
+
+    private getAllActions(): Promise<IExecutableAction[]> {
+        var result = ramlActions.allAvailableActions().map(action => ({
+            id: action.id,
+            name : action.name,
+            target : action.target,
+            category : action.category,
+            label : action.label
+        }));
+        
+        return Promise.resolve(result);
     }
 
     public calculateEditorActions(uri: string, position?: number):

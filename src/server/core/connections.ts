@@ -172,6 +172,11 @@ export interface IServerConnection extends ILogger {
                                                position?: number) => Promise<IExecutableAction[]>): void;
 
     /**
+     * Calculates the list of all available executable actions.
+     */
+    onAllEditorContextActions(listener: () => Promise<IExecutableAction[]>): void;
+
+    /**
      * Adds a listener for specific action execution.
      * If action has UI, causes a consequent displayActionUI call.
      * @param uri - document uri
