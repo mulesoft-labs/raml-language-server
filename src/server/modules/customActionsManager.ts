@@ -333,9 +333,12 @@ class CustomActionsManager {
 
             editorManager.setDocumentChangeExecutor(null);
 
-            const changes = this.changeExecutor.getChanges();
+            const changes = this.getChangeExecutor().getChanges();
 
-            connection.debugDetail("Collected changes: " + changes ? changes.length.toString() : "0",
+            connection.debugDetail("Collected changes",
+                "CustomActionsManager", "executeAction");
+
+            connection.debugDetail("Number of changes: " + changes ? changes.length.toString() : "0",
                 "CustomActionsManager", "executeAction");
 
             return changes;
@@ -361,5 +364,11 @@ class CustomActionsManager {
         ramlActions.setDocumentChangeExecutor(this.changeExecutor);
 
         this.editorManager.setDocumentChangeExecutor(this.changeExecutor);
+
+        ramlActions.setLogger(this.connection);
+    }
+
+    private getChangeExecutor(): CollectingDocumentChangeExecutor {
+        return this.changeExecutor;
     }
 }

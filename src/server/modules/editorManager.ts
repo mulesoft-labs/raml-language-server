@@ -242,6 +242,20 @@ class TextBufferInfo implements IEditorTextBuffer {
     public setText(text: string): void {
         this.text = text != null ? text : "";
         this.initMapping();
+
+        // reporting the change to the client, if possible.
+        if (this.editorManager && this.editorManager.getDocumentChangeExecutor()) {
+            this.editorManager.getDocumentChangeExecutor().changeDocument({
+
+                uri: this.uri,
+
+                text: this.text
+            });
+        } else {
+            this.logger.error(
+                "Can not report document change to the client as there is no executor",
+                "EditorManager", "TextBufferInfo#setText");
+        }
     }
 
     public initMapping() {
