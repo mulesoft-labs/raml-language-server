@@ -102,7 +102,7 @@ Note the an emitter of an event can be both client and server. In example, clien
 
 Server implements node-based launching, a transport that transfers client/server calls via node messages and provides a single simple method, which launches the server and returns an instance of client connection.
 
-More details of how to use the client are [here](#./documentation/node_client.md)
+More details of how to use the client are [here](./documentation/node_client.md)
 
 ### Web worker-based client
 
@@ -112,7 +112,7 @@ Launching should handle web-worker related functionality and contain a simple me
 
 This is also the place where the “universal” server data like structure is converted to this particular client’s terms like outline if needed.
 
-More details of how to use the client are [here](#./documentation/web_client.md)
+More details of how to use the client are [here](./documentation/web_client.md)
 
 ### MS LSP client
 
@@ -160,7 +160,7 @@ onFindReferences(listener: (uri: string, position: number) => ILocation[])
 
 In the current implementation prototype server interface is located in `src/server/core/connections.ts` file `IServerConnection` interface, implementation is located in `src/server/core` folder.
 
-More details of how add to develop the server side are [here](#./documentation/server.md)
+More details of how add to develop the server side are [here](./documentation/server.md)
 
 ## Contribution
 
