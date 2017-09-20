@@ -274,7 +274,7 @@ export function testErrors(done, fullPath, errors?, ignoreWarnings?) {
             var receivedErrors: any = prepareErrors(result, ignoreWarnings);
 
             try {
-                testErrorsSync(receivedErrors, errors);
+                testErrorsSync(receivedErrors, errors, fullPath);
 
                 done();
             } catch(assertErr) {
@@ -318,8 +318,13 @@ function prepareErrors(result, ignoreWarnings): any[] {
     receivedErrors = removeDuplicates(receivedErrors);
 
     receivedErrors = receivedErrors.map(err =>  {
+
         return {
-            message: err.text
+            message: err.text,
+            range: {
+                start: err.range.start,
+                end: err.range.end
+            }
         }
     });
 
@@ -362,7 +367,7 @@ function testErrorsByNumberSync(errors, count:number=0,deviations:number=0){
     }
 }
 
-function testErrorsSync(receivedErrors, expectedErrors=[]){
+function testErrorsSync(receivedErrors, expectedErrors=[], fullFilePath?: string){
     var testErrors;
 
     var hasUnexpectedErr = false;
@@ -391,10 +396,24 @@ function testErrorsSync(receivedErrors, expectedErrors=[]){
         }
     }
 
+    let fileContents = null;
+
+    if (fullFilePath) {
+        try {
+            fileContents = fs.readFileSync(fullFilePath).toString();
+        } catch (Error) {
+
+        }
+    }
+
     if (hasUnexpectedErr || receivedErrors.length !== expectedErrors.length) {
         errorMsg += "\nActual errors:\n";
         for (const currentError of receivedErrors) {
             errorMsg += (currentError.message ? currentError.message : "") + "\n";
+
+            if (fileContents) {
+                errorMsg += "---------\n" + unitCutOffForError(currentError, fileContents) + "\n-----------\n";
+            }
         }
 
         errorMsg += "\nExpected errors:\n";
@@ -405,6 +424,20 @@ function testErrorsSync(receivedErrors, expectedErrors=[]){
 
     assert.equal(hasUnexpectedErr, false, "Unexpected errors found\n"+errorMsg);
     assert.equal(receivedErrors.length, expectedErrors.length, "Wrong number of errors\n"+errorMsg);
+}
+
+function unitCutOffForError(issue, unitContents: string) : string {
+    let start = issue.range.start;
+    if (start < 0) {
+        start = 0;
+    }
+
+    let end = issue.range.end;
+    if (end > unitContents.length) {
+        end = unitContents.length;
+    }
+
+    return "[" + start + ":" + end + "]\n" + unitContents.substring(start, end);
 }
 
 function validateErrors(realErrors:any, expectedErrors:string[]){

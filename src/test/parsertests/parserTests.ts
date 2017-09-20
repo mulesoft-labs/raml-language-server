@@ -55,11 +55,6 @@ describe('Parser integration tests', function() {
     it ("application monitoring",function(done){
         util.testErrors(done, util.data("../example-ramls/application-monitoring/api.raml"),
             [
-                "Unrecognized schema: 'appmonitor-rule.schema'",
-                "Invalid JSON schema: Reference has not been resolved during compilation: appmonitor-rule",
-                "Unrecognized schema: 'appmonitor-rule.schema'",
-                "Invalid JSON schema: Reference has not been resolved during compilation: appmonitor-action",
-                "Invalid JSON schema: Reference has not been resolved during compilation: appmonitor-action",
                 "Unrecognized schema: 'appmonitor'"
             ]);
     });
@@ -573,10 +568,10 @@ describe('Parser regression tests', function() {
         util.testErrors(done, util.data("parser/facets/f3.raml"),["redefining a built in type: datetime"]);
     })
     it ("custom facets validator" ,function(done){
-        util.testErrors(done, util.data("commonLibrary/api.raml"), ["Expected type 'string' but got 'number'","Expected type 'string' but got 'number'","Expected type 'object' but got 'string'"]);
+        util.testErrors(done, util.data("commonLibrary/api.raml"), ["Expected type 'string' but got 'number'","Expected type 'string' but got 'number'"]);
     })
     it ("custom facets validator2" ,function(done){
-        util.testErrors(done, util.data("commonLibrary/api2.raml"),["Expected type 'object' but got 'string'"]);
+        util.testErrors(done, util.data("commonLibrary/api2.raml"),[]);
     })
     it ("overloading1" ,function(done){
         util.testErrors(done, util.data("parser/overloading/o1.raml"),["Method 'get' already exists","Method 'get' already exists"]);
@@ -800,7 +795,7 @@ describe('XML parsing tests', function() {
         util.testErrorsByNumber(done, util.data("parser/xmlfacets/test1/apiInvalid3.raml"), 1);
     })
     it("XML parsing tests 5" ,function(done) {
-        util.testErrorsByNumber(done, util.data("parser/xmlfacets/test1/apiInvalid4.raml"), 1);
+        util.testErrorsByNumber(done, util.data("parser/xmlfacets/test1/apiInvalid4.raml"), 0);
     })
 
 
