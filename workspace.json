@@ -1,6 +1,7 @@
 {
   "raml-language-server" : {
     "build" : "npm run build",
+    "test": "nom run test",
     "gitUrl" : "https://github.com/raml-org/raml-language-server.git",
     "gitBranch" : "develop",
     "installTypings" : true
@@ -19,7 +20,6 @@
   },
   "raml-suggestions" : {
     "build" : "npm run build",
-    "test" : "npm run test-cov",
     "gitUrl" : "https://github.com/mulesoft/raml-suggestions.git",
     "gitBranch" : "develop",
     "installTypings" : true

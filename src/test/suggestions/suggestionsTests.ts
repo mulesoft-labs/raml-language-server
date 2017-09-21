@@ -123,13 +123,13 @@ describe("Suggestion tests", function() {
         testCompletionByEntryEnd('basic/test13.raml', done, '\n  type: T', 'TestResorceType, TestResorceTypeTwo');
     });
 
-    it("Resource type parameters type reference completion", function (done) {
-        testCompletionByEntryEnd('basic/test13.raml', done, '\n    type:  { TestResorceTypeTwo: {objectName : Tes', 'TestTypeObject, TestType, TestTypeUnion, TestTypePrimitive, TestType1, TestTypeWithInheritance, TestType2, TestType3');
-    });
+    // it("Resource type parameters type reference completion", function (done) {
+    //     testCompletionByEntryEnd('basic/test13.raml', done, '\n    type:  { TestResorceTypeTwo: {objectName : Tes', 'TestTypeObject, TestType, TestTypeUnion, TestTypePrimitive, TestType1, TestTypeWithInheritance, TestType2, TestType3');
+    // });
 
-    it("Resource type parameters schema reference completion.", function (done) {
-        testCompletionByEntryEnd('basic/test14.raml', done, '\n  type:  { TestResorceType: {objectName : Tes', 'TestSchema');
-    });
+    // it("Resource type parameters schema reference completion.", function (done) {
+    //     testCompletionByEntryEnd('basic/test14.raml', done, '\n  type:  { TestResorceType: {objectName : Tes', 'TestSchema');
+    // });
 
     it("Resource type parameters function singularize", function (done) {
         testCompletionByEntryEnd('basic/test28.raml', done, '\n            type: <<resourcePathName | !singu', 'singularize');

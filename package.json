@@ -6,6 +6,7 @@
   "scripts": {
     "build": "rimraf dist && tsc",
     "test" : "gulp test",
+    "testComplete" : "gulp testComplete",
     "generateBrowserVersion": "npm run build && node dist/entryPoints/web_worker/packaging/webGenerator.js",
     "buildBrowserPublishNpm": "npm run build && node dist/entryPoints/web_worker/packaging/webGenerator.js --type 'npm'",
     "lint": "tslint \"src/**/*.ts\" -e \"src/test/**\"",

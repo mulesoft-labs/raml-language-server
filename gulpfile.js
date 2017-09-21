@@ -9,8 +9,15 @@ var testFiles = [
     "dist/test/suggestions/suggestionsTests.js",
     "dist/test/parsertests/parserTests.js",
     "dist/test/structure/structureTests.js",
+    "dist/test/parsertests/parserTests2.js"
+];
+
+var testFilesComplete = [
+    "dist/test/suggestions/suggestionsTests.js",
+    "dist/test/parsertests/parserTests.js",
+    "dist/test/structure/structureTests.js",
     "dist/test/parsertests/parserTests2.js",
-    //TODO uncomment ast reuse tests
+    "dist/test/parsertests/parserTests3.js",
     "dist/test/parsertests/astReuseTestsBasicTyping.js"
 ];
 
@@ -18,6 +25,17 @@ gulp.task('test', function() {
     global.isExpanded = null;
     
     return gulp.src(testFiles, {
+        read: false
+    }).pipe(mocha({
+        bail: true,
+        reporter: 'spec'
+    }));
+});
+
+gulp.task('testComplete', function() {
+    global.isExpanded = null;
+
+    return gulp.src(testFilesComplete, {
         read: false
     }).pipe(mocha({
         bail: true,
