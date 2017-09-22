@@ -61,7 +61,7 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         // supports full document sync only
         this.documents = new TextDocuments();
 
-        // Make the text document manager listen on the connection
+        // Make the text document manager launch on the connection
         // for open, change and close text document events
         this.documents.listen(this.vsCodeConnection);
 

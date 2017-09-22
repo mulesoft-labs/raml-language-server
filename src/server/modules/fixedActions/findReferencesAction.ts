@@ -18,7 +18,7 @@ import {
 } from "../../../common/typeInterfaces";
 
 import {
-    IListeningModule
+    IServerModule
 } from "../../modules/commonInterfaces";
 
 import rp= require("raml-1-parser");
@@ -32,20 +32,27 @@ import fixedActionCommon = require("./fixedActionsCommon");
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
                               editorManagerModule: IEditorManagerModule)
-                        : IListeningModule {
+                        : IServerModule {
 
     return new FindReferencesActionModule(connection, astManagerModule, editorManagerModule);
 }
 
-class FindReferencesActionModule implements IListeningModule {
+class FindReferencesActionModule implements IServerModule {
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {
     }
 
-    public listen() {
+    public launch() {
         this.connection.onFindReferences((uri: string, position: number) => {
             return this.findReferences(uri, position);
         });
+    }
+
+    /**
+     * Returns unique module name.
+     */
+    public getModuleName(): string {
+        return "FIND_REFERENCES_ACTION";
     }
 
     public findReferences(uri: string, position: number): ILocation[] {

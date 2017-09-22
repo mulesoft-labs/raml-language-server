@@ -168,6 +168,38 @@ export interface IEditorProvider {
 /**
  * Listens to whatever connections and events this module subscribes to.
  */
-export interface IListeningModule {
-    listen(): void;
+export interface IServerModule {
+
+    /**
+     * Enables the module and makes it listening to the connection.
+     */
+    launch(): void;
+
+    /**
+     * Returns unique module name.
+     */
+    getModuleName(): string;
+}
+
+/**
+ * Module that can be disposed.
+ */
+export interface IDisposableModule extends IServerModule {
+
+    /**
+     * Disposes whatever resources this module allocated.
+     * Including any listeners that were previously contributed.
+     *
+     * After this method is called no external links for the module or its parts
+     * should exist except as in module registry.
+     */
+    dispose();
+}
+
+/**
+ * instanceof for IDisposableModule.
+ * @param module
+ */
+export function isDisposableModule(module: IServerModule): module is IDisposableModule {
+    return (module as any).dispose && typeof((module as any).dispose) === "function";
 }

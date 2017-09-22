@@ -59,7 +59,7 @@ export interface IClientConnection extends ILogger {
 
     /**
      * Instead of calling getStructure to get immediate structure report for the document,
-     * this method allows to listen to the new structure reports when those are available.
+     * this method allows to launch to the new structure reports when those are available.
      * @param listener
      */
     onStructureReport(listener: (report: IStructureReport) => void);

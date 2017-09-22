@@ -53,7 +53,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
     private calculateEditorContextActionsListeners:
         {(uri: string, position?: number): Promise<IExecutableAction[]>}[] = [];
     private getAllEditorContextActionsListeners: {() : Promise<IExecutableAction[]>}[] = [];
-    
+
     private executeContextActionListeners:
         {(uri: string, actionId: string,
           position?: number): Promise<IChangedDocument[]>}[] = [];
@@ -68,64 +68,77 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document open notification. Must notify listeners in order of registration.
      * @param listener
      */
-    public onOpenDocument(listener: (document: IOpenedDocument) => void) {
-        this.openDocumentListeners.push(listener);
+    public onOpenDocument(listener: (document: IOpenedDocument) => void, unsubsribe = false) {
+
+        this.addListener(this.openDocumentListeners, listener, unsubsribe);
     }
 
     /**
      * Adds a listener to document change notification. Must notify listeners in order of registration.
      * @param listener
      */
-    public onChangeDocument(listener: (document: IChangedDocument) => void) {
-        this.changeDocumentListeners.push(listener);
+    public onChangeDocument(listener: (document: IChangedDocument) => void, unsubsribe = false) {
+
+        this.addListener(this.changeDocumentListeners, listener, unsubsribe);
     }
 
     /**
      * Adds a listener to document close notification. Must notify listeners in order of registration.
      * @param listener
      */
-    public onCloseDocument(listener: (uri: string) => void) {
-        this.closeDocumentListeners.push(listener);
+    public onCloseDocument(listener: (uri: string) => void, unsubsribe = false) {
+
+        this.addListener(this.closeDocumentListeners, listener, unsubsribe);
     }
 
     /**
      * Adds a listener to document structure request. Must notify listeners in order of registration.
      * @param listener
      */
-    public onDocumentStructure(listener: (uri: string) => Promise<{[categoryName: string]: StructureNodeJSON}>) {
-        this.documentStructureListeners.push(listener);
+    public onDocumentStructure(listener: (uri: string) => Promise<{[categoryName: string]: StructureNodeJSON}>,
+                               unsubsribe = false) {
+
+        this.addListener(this.documentStructureListeners, listener, unsubsribe);
     }
 
     /**
      * Adds a listener to document completion request. Must notify listeners in order of registration.
      * @param listener
      */
-    public onDocumentCompletion(listener: (uri: string, position: number) => Promise<Suggestion[]>) {
-        this.documentCompletionListeners.push(listener);
+    public onDocumentCompletion(listener: (uri: string, position: number) => Promise<Suggestion[]>,
+                                unsubsribe = false) {
+
+        this.addListener(this.documentCompletionListeners, listener, unsubsribe);
     }
 
     /**
      * Adds a listener to document open declaration request.  Must notify listeners in order of registration.
      * @param listener
      */
-    public onOpenDeclaration(listener: (uri: string, position: number) => ILocation[]) {
-        this.openDeclarationListeners.push(listener);
+    public onOpenDeclaration(listener: (uri: string, position: number) => ILocation[],
+                             unsubsribe = false) {
+
+        this.addListener(this.openDeclarationListeners, listener, unsubsribe);
     }
 
     /**
      * Adds a listener to document find references request.  Must notify listeners in order of registration.
      * @param listener
      */
-    public onFindReferences(listener: (uri: string, position: number) => ILocation[]) {
-        this.findReferencesListeners.push(listener);
+    public onFindReferences(listener: (uri: string, position: number) => ILocation[],
+                            unsubsribe = false) {
+
+        this.addListener(this.findReferencesListeners, listener, unsubsribe);
     }
 
     /**
      * Finds the set of document (and non-document files) edits to perform the requested rename.
      * @param listener
      */
-    public onRename(listener: (uri: string, position: number, newName: string) => IChangedDocument[]) {
-        this.renameListeners.push(listener);
+    public onRename(listener: (uri: string, position: number, newName: string) => IChangedDocument[],
+                    unsubsribe = false) {
+
+        this.addListener(this.renameListeners, listener, unsubsribe);
     }
 
     /**
@@ -199,7 +212,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Marks occurrences of a symbol under the cursor in the current document.
      * @param listener
      */
-    public onMarkOccurrences(listener: (uri: string, position: number) => IRange[]) {
+    public onMarkOccurrences(listener: (uri: string, position: number) => IRange[],
+                             unsubsribe = false) {
         this.markOccurrencesListeners.push(listener);
     }
 
@@ -207,7 +221,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document details request. Must notify listeners in order of registration.
      * @param listener
      */
-    public onDocumentDetails(listener: (uri: string, position: number) => Promise<DetailsItemJSON>) {
+    public onDocumentDetails(listener: (uri: string, position: number) => Promise<DetailsItemJSON>,
+                             unsubsribe = false) {
         this.documentDetailsListeners.push(listener);
     }
 
@@ -216,7 +231,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Must notify listeners in order of registration.
      * @param listener
      */
-    public onChangePosition(listener: (uri: string, position: number) => void) {
+    public onChangePosition(listener: (uri: string, position: number) => void,
+                            unsubsribe = false) {
         this.changePositionListeners.push(listener);
     }
 
@@ -235,8 +251,10 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Sets server configuration.
      * @param loggerSettings
      */
-    public onSetServerConfiguration(listener: (configuration: IServerConfiguration) => void) {
-        this.serverConfigurationListeners.push(listener);
+    public onSetServerConfiguration(listener: (configuration: IServerConfiguration) => void,
+                                    unsubsribe = false) {
+
+        this.addListener(this.serverConfigurationListeners, listener, unsubsribe);
     }
 
     /**
@@ -564,16 +582,19 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      */
     public onCalculateEditorContextActions(listener: (uri: string,
                                                       position?: number)
-                                           => Promise<IExecutableAction[]>): void {
+                                           => Promise<IExecutableAction[]>,
+                                           unsubsribe = false): void {
 
-        this.calculateEditorContextActionsListeners.push(listener);
+        this.addListener(this.calculateEditorContextActionsListeners, listener, unsubsribe);
     }
 
     /**
      * Calculates the list of all available executable actions.
      */
-    public onAllEditorContextActions(listener: () => Promise<IExecutableAction[]>): void {
-        this.getAllEditorContextActionsListeners.push(listener);
+    public onAllEditorContextActions(listener: () => Promise<IExecutableAction[]>,
+                                     unsubsribe = false): void {
+
+        this.addListener(this.getAllEditorContextActionsListeners, listener, unsubsribe);
     }
 
     /**
@@ -586,9 +607,10 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      */
     public onExecuteContextAction(listener: (uri: string, actionId: string,
                                              position?: number)
-                                  => Promise<IChangedDocument[]>): void {
+                                  => Promise<IChangedDocument[]>,
+                                  unsubsribe = false): void {
 
-        this.executeContextActionListeners.push(listener);
+        this.addListener(this.executeContextActionListeners, listener, unsubsribe);
     }
 
     /**
@@ -612,7 +634,9 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
     }
 
     public ALL_ACTIONS(payload:{uri: string, position?: number}) : Promise<IExecutableAction[]> {
-        if (!this.getAllEditorContextActionsListeners) return Promise.resolve([]);
+        if (!this.getAllEditorContextActionsListeners) {
+            return Promise.resolve([]);
+        }
 
         return this.getAllEditorContextActionsListeners[0]();
     }
@@ -637,6 +661,23 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
         } catch (Error) {
             this.debugDetail("Failed listener execution: " + Error.message,
                 "ProxyServerConnection", "EXECUTE_ACTION");
+        }
+    }
+
+    /**
+     * Adds listener.
+     * @param memberListeners - member containing array of listeners
+     * @param listener - listener to add
+     * @param unsubscribe - whether to unsubscribe this listener
+     */
+    private addListener<T>(memberListeners: T[], listener: T, unsubscribe = false): void {
+        if (unsubscribe) {
+            const index = memberListeners.indexOf(listener);
+            if (index !== -1) {
+                memberListeners.splice(index, 1);
+            }
+        } else {
+            memberListeners.push(listener);
         }
     }
 }

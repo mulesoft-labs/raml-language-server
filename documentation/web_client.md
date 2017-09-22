@@ -178,7 +178,7 @@ Instead of asking the server for the structure repeatedly, it is more efficient 
 ```js
 /**
  * Instead of calling getStructure to get immediate structure report for the document,
- * this method allows to listen to the new structure reports when those are available.
+ * this method allows to launch to the new structure reports when those are available.
  * @param listener
  */
 onStructureReport(listener: (report: IStructureReport) => void);

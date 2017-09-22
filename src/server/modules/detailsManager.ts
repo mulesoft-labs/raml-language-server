@@ -19,7 +19,8 @@ import {
 } from "../../common/typeInterfaces";
 
 import {
-    IListeningModule
+    IDisposableModule,
+    IServerModule
 } from "./commonInterfaces";
 
 import rp= require("raml-1-parser");
@@ -33,7 +34,7 @@ const universes = rp.universes;
 
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule): IListeningModule {
+                              editorManagerModule: IEditorManagerModule): IServerModule {
 
     return new DetailsManager(connection, astManagerModule, editorManagerModule);
 }
@@ -44,13 +45,17 @@ export function initialize() {
 
 initialize();
 
-class DetailsManager {
+class DetailsManager implements IDisposableModule {
 
     /**
      * Whether direct calculation is on.
      * @type {boolean}
      */
     private calculatingDetailsOnDirectRequest = false;
+
+    private onDocumentDetailsListener;
+    private onNewASTAvailableListener;
+    private onChangePositionListener;
 
     /**
      * Remembering positions for opened documents.
@@ -62,20 +67,23 @@ class DetailsManager {
                 private editorManager: IEditorManagerModule) {
     }
 
-    public listen() {
-        this.connection.onDocumentDetails((uri, position) => {
-            return this.getDetails(uri, position);
-        });
+    public launch() {
 
-        this.astManagerModule.onNewASTAvailable((uri: string, version: number, ast: hl.IHighLevelNode) => {
+        this.onDocumentDetailsListener = (uri, position) => {
+            return this.getDetails(uri, position);
+        };
+        this.connection.onDocumentDetails(this.onDocumentDetailsListener);
+
+        this.onNewASTAvailableListener = (uri: string, version: number, ast: hl.IHighLevelNode) => {
 
             this.connection.debug("Got new AST report for uri " + uri,
                 "DetailsManager", "listen");
 
             this.calculateAndSendDetailsReport(uri, version);
-        });
+        };
+        this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener);
 
-        this.connection.onChangePosition((uri, position) => {
+        this.onChangePositionListener = (uri, position) => {
 
             this.connection.debug("Got new position report for uri " + uri + " : " + position,
                 "DetailsManager", "listen");
@@ -90,7 +98,21 @@ class DetailsManager {
             const version = editor.getVersion();
 
             this.calculateAndSendDetailsReport(uri, version);
-        });
+        };
+        this.connection.onChangePosition(this.onChangePositionListener);
+    }
+
+    public dispose(): void {
+        this.connection.onDocumentDetails(this.onDocumentDetailsListener, false);
+        this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener, false);
+        this.connection.onChangePosition(this.onChangePositionListener, false);
+    }
+
+    /**
+     * Returns unique module name.
+     */
+    public getModuleName(): string {
+        return "DETAILS_MANAGER";
     }
 
     public vsCodeUriToParserUri(vsCodeUri: string): string {

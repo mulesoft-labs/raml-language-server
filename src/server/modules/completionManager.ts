@@ -14,7 +14,7 @@ import {
 
 import {
     IAbstractTextEditor,
-    IListeningModule
+    IServerModule
 } from "./commonInterfaces";
 
 import {
@@ -44,7 +44,7 @@ import suggestions = require("raml-suggestions");
 
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule): IListeningModule {
+                              editorManagerModule: IEditorManagerModule): IServerModule {
 
     return new CompletionManagerModule(connection, astManagerModule, editorManagerModule);
 }
@@ -395,15 +395,22 @@ class FSProvider implements suggestions.IFSProvider {
 //     }
 // }
 
-class CompletionManagerModule implements IListeningModule {
+class CompletionManagerModule implements IServerModule {
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {
     }
 
-    public listen() {
+    public launch() {
         this.connection.onDocumentCompletion((uri, position) => {
             return this.getCompletion(uri, position);
         });
+    }
+
+    /**
+     * Returns unique module name.
+     */
+    public getModuleName(): string {
+        return "COMPLETION_MANAGER";
     }
 
     public getCompletion(uri: string, position: number): Promise<Suggestion[]> {

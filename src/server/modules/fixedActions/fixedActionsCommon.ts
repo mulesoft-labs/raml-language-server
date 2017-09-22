@@ -6,7 +6,7 @@ import {
 } from "../../../common/typeInterfaces";
 
 import {
-    IListeningModule
+    IServerModule
 } from "../../modules/commonInterfaces";
 
 import {

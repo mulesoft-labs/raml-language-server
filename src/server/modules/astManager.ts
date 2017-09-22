@@ -23,7 +23,7 @@ import {
 } from "./editorManager";
 
 import {
-    IListeningModule
+    IServerModule
 } from "./commonInterfaces";
 
 export type IHighLevelNode = parser.hl.IHighLevelNode;
@@ -42,12 +42,12 @@ export interface IASTListener {
 /**
  * Manager of AST states.
  */
-export interface IASTManagerModule extends IListeningModule {
+export interface IASTManagerModule extends IServerModule {
 
     /**
      * Start listening to the connection.
      */
-    listen();
+    launch();
 
     /**
      * Returns currently available AST for the document, if any
@@ -65,8 +65,9 @@ export interface IASTManagerModule extends IListeningModule {
     /**
      * Adds listener for new ASTs being parsed.
      * @param listener
+     * @param unsubscribe - if true, existing listener will be removed. False by default.
      */
-    onNewASTAvailable(listener: IASTListener);
+    onNewASTAvailable(listener: IASTListener, unsubscribe?: boolean);
 }
 
 /**
@@ -325,7 +326,7 @@ class ASTManager implements IASTManagerModule {
         this.reconciler = new Reconciler(connection, 250);
     }
 
-    public listen(): void {
+    public launch(): void {
         this.connection.onOpenDocument(
             (document: IOpenedDocument) => {this.onOpenDocument(document); }
         );
@@ -337,6 +338,13 @@ class ASTManager implements IASTManagerModule {
         this.connection.onCloseDocument(
             (uri: string) => {this.onCloseDocument(uri); }
         );
+    }
+
+    /**
+     * Returns unique module name.
+     */
+    public getModuleName(): string {
+        return "AST_MANAGER";
     }
 
     public getCurrentAST(uri: string): IHighLevelNode {
@@ -371,8 +379,10 @@ class ASTManager implements IASTManagerModule {
     }
 
     public onNewASTAvailable(listener: (uri: string, version: number,
-                                        ast: IHighLevelNode, error?: Error) => void) {
-        this.astListeners.push(listener);
+                                        ast: IHighLevelNode, error?: Error) => void,
+                             unsubscribe = false) {
+
+        this.addListener(this.astListeners, listener, unsubscribe);
     }
 
     public onOpenDocument(document: IOpenedDocument): void {
@@ -440,6 +450,23 @@ class ASTManager implements IASTManagerModule {
 
         for (const listener of this.astListeners) {
             listener(uri, version, ast);
+        }
+    }
+
+    /**
+     * Adds listener.
+     * @param memberListeners - member containing array of listeners
+     * @param listener - listener to add
+     * @param unsubscribe - whether to unsubscribe this listener
+     */
+    private addListener<T>(memberListeners: T[], listener: T, unsubscribe = false): void {
+        if (unsubscribe) {
+            const index = memberListeners.indexOf(listener);
+            if (index !== -1) {
+                memberListeners.splice(index, 1);
+            }
+        } else {
+            memberListeners.push(listener);
         }
     }
 }

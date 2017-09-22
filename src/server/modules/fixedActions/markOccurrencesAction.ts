@@ -23,7 +23,7 @@ import lowLevel= rp.ll;
 import hl= rp.hl;
 
 import {
-    IListeningModule
+    IServerModule
 } from "../../modules/commonInterfaces";
 
 import utils = require("../../../common/utils");
@@ -33,20 +33,27 @@ import openDeclarationsModule = require("./openDeclarationAction");
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
                               editorManagerModule: IEditorManagerModule)
-                        : IListeningModule {
+                        : IServerModule {
 
     return new MarkOccurrencesActionModule(connection, astManagerModule, editorManagerModule);
 }
 
-class MarkOccurrencesActionModule implements IListeningModule {
+class MarkOccurrencesActionModule implements IServerModule {
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {
     }
 
-    public listen() {
+    public launch() {
         this.connection.onMarkOccurrences((uri: string, position: number) => {
             return this.markOccurrences(uri, position);
         });
+    }
+
+    /**
+     * Returns unique module name.
+     */
+    public getModuleName(): string {
+        return "MARK_OCCURRENCES_ACTION";
     }
 
     public markOccurrences(uri: string, position: number): IRange[] {

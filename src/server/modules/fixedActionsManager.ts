@@ -13,7 +13,7 @@ import {
 } from "./editorManager";
 
 import {
-    IListeningModule
+    IServerModule
 } from "./commonInterfaces";
 
 import findReferencesModule = require("./fixedActions/findReferencesAction");
@@ -25,14 +25,14 @@ import fixedActionsCommon = require("./fixedActions/fixedActionsCommon");
 
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule): IListeningModule {
+                              editorManagerModule: IEditorManagerModule): IServerModule {
 
     return new FixedActionsManager(connection, astManagerModule, editorManagerModule);
 }
 
-class FixedActionsManager {
+class FixedActionsManager implements IServerModule {
 
-    private subModules: IListeningModule[] = [];
+    private subModules: IServerModule[] = [];
 
     constructor(
         private connection: IServerConnection,
@@ -56,7 +56,14 @@ class FixedActionsManager {
         ));
     }
 
-    public listen() {
-        this.subModules.forEach((subModule) => subModule.listen());
+    public launch() {
+        this.subModules.forEach((subModule) => subModule.launch());
+    }
+
+    /**
+     * Returns unique module name.
+     */
+    public getModuleName(): string {
+        return "FIXED_ACTIONS_MANAGER";
     }
 }

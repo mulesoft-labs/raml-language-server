@@ -3,7 +3,9 @@ import {
 } from "./connections";
 
 import {
-    IListeningModule
+    IDisposableModule,
+    isDisposableModule,
+    IServerModule
 } from "../modules/commonInterfaces";
 
 import EditorManagerModule = require("../modules/editorManager");
@@ -24,44 +26,100 @@ import CustomActionsManagerModule = require("../modules/customActionsManager");
 
 export class Server {
 
-    private modules: IListeningModule[] = [];
+    /**
+     * Map from module name to module.
+     */
+    private modules: {[moduleName: string]: IServerModule} = {};
+
+    /**
+     * Map from module name to its enablement state.
+     */
+    private modulesEnablementState: {[moduleName: string]: boolean} = {}
 
     constructor(private connection: IServerConnection) {
 
         const editorManagerModule = EditorManagerModule.createManager(connection);
-        this.modules.push(editorManagerModule);
+        this.registerModule(editorManagerModule);
 
         const astManagerModule = ASTManagerModule.createManager(connection,
             editorManagerModule);
-        this.modules.push(astManagerModule);
+        this.registerModule(astManagerModule);
 
-        this.modules.push(ValidationManagerModule.createManager(connection,
+        this.registerModule(ValidationManagerModule.createManager(connection,
             astManagerModule, editorManagerModule));
 
-        this.modules.push(StructureManagerModule.createManager(connection,
+        this.registerModule(StructureManagerModule.createManager(connection,
             astManagerModule, editorManagerModule));
 
-        // this.modules.push(DetailsManagerModule.createManager(connection,
-        //     astManagerModule, editorManagerModule));
+        this.registerModule(DetailsManagerModule.createManager(connection,
+            astManagerModule, editorManagerModule), false);
 
-        this.modules.push(CompletionManagerModule.createManager(connection,
+        this.registerModule(CompletionManagerModule.createManager(connection,
             astManagerModule, editorManagerModule));
 
-        this.modules.push(FixedActionsManagerModule.createManager(connection,
+        this.registerModule(FixedActionsManagerModule.createManager(connection,
             astManagerModule, editorManagerModule));
 
-        this.modules.push(CustomActionsManagerModule.createManager(connection,
-            astManagerModule, editorManagerModule));
+        this.registerModule(CustomActionsManagerModule.createManager(connection,
+            astManagerModule, editorManagerModule), false);
+    }
+
+    public registerModule(module: IServerModule, defaultEnablementState = true): void {
+        const moduleName = module.getModuleName();
+
+        if (!moduleName) {
+            this.connection.error("No name for module!", "server", "registerModule");
+        }
+
+        this.modules[moduleName] = module;
+        this.modulesEnablementState[moduleName] = defaultEnablementState;
+    }
+
+    public enableModule(moduleName: string): void {
+        if (this.modulesEnablementState[moduleName]) {
+            return;
+        }
+
+        const module = this.modules[moduleName];
+        if (!module) {
+            this.connection.error("Cant not enable unknown module " + moduleName,
+                "server", "enableModule");
+        }
+
+        module.launch();
+        this.modulesEnablementState[moduleName] = true;
+    }
+
+    public disableModule(moduleName: string): void {
+        if (!this.modulesEnablementState[moduleName]) {
+            return;
+        }
+
+        const module = this.modules[moduleName];
+        if (!module) {
+            this.connection.error("Cant not enable unknown module " + moduleName,
+                "server", "disableModule");
+        }
+
+        if (isDisposableModule(module)) {
+            module.dispose();
+        } else {
+            this.connection.warning("Attempt to disable non-disposable module " + moduleName,
+                "server", "disableModule");
+        }
+
+        this.modulesEnablementState[moduleName] = true;
     }
 
     public listen(): void {
-        this.listenInternal();
 
-        this.modules.forEach((module) => module.listen());
-    }
-
-    public listenInternal(): void {
-
+        for (const moduleName in this.modules) {
+            if (this.modules.hasOwnProperty(moduleName)) {
+                if (this.modulesEnablementState[moduleName]) {
+                    this.modules[moduleName].launch();
+                }
+            }
+        }
     }
 
 }

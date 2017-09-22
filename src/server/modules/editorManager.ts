@@ -15,13 +15,13 @@ import {
     IAbstractTextEditor,
     IAbstractTextEditorWithCursor,
     IEditorTextBuffer,
-    IListeningModule,
+    IServerModule,
     IPoint,
     IRange
 } from "./commonInterfaces";
 
-export interface IEditorManagerModule extends IListeningModule {
-    listen(): void;
+export interface IEditorManagerModule extends IServerModule {
+    launch(): void;
     getEditor(uri: string): IAbstractTextEditorWithCursor;
     onChangeDocument(listener: (document: IChangedDocument) => void);
 
@@ -371,7 +371,7 @@ class EditorManager implements IEditorManagerModule {
     constructor(private connection: IServerConnection) {
     }
 
-    public listen(): void {
+    public launch(): void {
         this.connection.onOpenDocument(
             (document: IOpenedDocument) => {this.onOpenDocument(document); }
         );
@@ -392,6 +392,13 @@ class EditorManager implements IEditorManagerModule {
         this.connection.onCloseDocument(
             (uri: string) => {this.onCloseDocument(uri); }
         );
+    }
+
+    /**
+     * Returns unique module name.
+     */
+    public getModuleName(): string {
+        return "EDITOR_MANAGER";
     }
 
     public onChangeDocument(listener: (document: IChangedDocument) => void) {

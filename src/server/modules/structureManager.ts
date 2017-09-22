@@ -22,7 +22,7 @@ import {
 } from "../../common/typeInterfaces";
 
 import {
-    IListeningModule
+    IServerModule
 } from "./commonInterfaces";
 
 import rp= require("raml-1-parser");
@@ -36,7 +36,7 @@ const universes = rp.universes;
 
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule): IListeningModule {
+                              editorManagerModule: IEditorManagerModule): IServerModule {
 
     return new StructureManager(connection, astManagerModule, editorManagerModule);
 }
@@ -144,7 +144,7 @@ export function initialize() {
 
 initialize();
 
-class StructureManager {
+class StructureManager implements IServerModule {
 
     private calculatingStructureOnDirectRequest = false;
 
@@ -155,7 +155,7 @@ class StructureManager {
                 private editorManagerModule: IEditorManagerModule) {
     }
 
-    public listen() {
+    public launch() {
         this.connection.onDocumentStructure((uri) => {
             return this.getStructure(uri);
         });
@@ -189,6 +189,13 @@ class StructureManager {
         });
 
         this.connection.onCloseDocument((uri) => delete this.cachedStructures[uri]);
+    }
+
+    /**
+     * Returns unique module name.
+     */
+    public getModuleName(): string {
+        return "STRUCTURE_MANAGER";
     }
 
     public vsCodeUriToParserUri(vsCodeUri: string): string {

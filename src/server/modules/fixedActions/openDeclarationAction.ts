@@ -23,13 +23,13 @@ import lowLevel= rp.ll;
 import hl= rp.hl;
 
 import {
-    IListeningModule
+    IServerModule
 } from "../../modules/commonInterfaces";
 
 import utils = require("../../../common/utils");
 import fixedActionCommon = require("./fixedActionsCommon");
 
-export interface IOpenDeclarationActionModule extends IListeningModule {
+export interface IOpenDeclarationActionModule extends IServerModule {
     openDeclaration(uri: string, position: number): ILocation[];
 }
 
@@ -49,10 +49,17 @@ class OpenDeclarationActionModule implements IOpenDeclarationActionModule {
                 private editorManagerModule: IEditorManagerModule) {
     }
 
-    public listen() {
+    public launch() {
         this.connection.onOpenDeclaration((uri: string, position: number) => {
             return this.openDeclaration(uri, position);
         });
+    }
+
+    /**
+     * Returns unique module name.
+     */
+    public getModuleName(): string {
+        return "OPEN_DECLARATION_ACTION";
     }
 
     public openDeclaration(uri: string, position: number): ILocation[] {

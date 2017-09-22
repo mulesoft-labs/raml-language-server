@@ -27,7 +27,7 @@ import def= parserApi.ds;
 import stubs= parserApi.stubs;
 
 import {
-    IListeningModule
+    IServerModule
 } from "../../modules/commonInterfaces";
 
 import utils = require("../../../common/utils");
@@ -36,17 +36,17 @@ import fixedActionCommon = require("./fixedActionsCommon");
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
                               editorManagerModule: IEditorManagerModule)
-                        : IListeningModule {
+                        : IServerModule {
 
     return new RenameActionModule(connection, astManagerModule, editorManagerModule);
 }
 
-class RenameActionModule implements IListeningModule {
+class RenameActionModule implements IServerModule {
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {
     }
 
-    public listen() {
+    public launch() {
         this.connection.onRename((uri: string, position: number, newName: string) => {
             const result = this.rename(uri, position, newName);
 
@@ -60,6 +60,13 @@ class RenameActionModule implements IListeningModule {
 
             return result;
         });
+    }
+
+    /**
+     * Returns unique module name.
+     */
+    public getModuleName(): string {
+        return "RENAME_ACTION";
     }
 
     private rename(uri: string, position: number, newName: string): IChangedDocument[] {

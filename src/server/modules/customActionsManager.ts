@@ -22,7 +22,8 @@ import {
 } from "../../common/typeInterfaces";
 
 import {
-    IListeningModule
+    IDisposableModule,
+    IServerModule
 } from "./commonInterfaces";
 
 import rp= require("raml-1-parser");
@@ -35,7 +36,7 @@ const universes = rp.universes;
 
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule): IListeningModule {
+                              editorManagerModule: IEditorManagerModule): IServerModule {
 
     return new CustomActionsManager(connection, astManagerModule, editorManagerModule);
 }
@@ -147,10 +148,14 @@ class ASTModifier implements ramlActions.IASTModifier {
 
 initialize();
 
-class CustomActionsManager {
+class CustomActionsManager implements IDisposableModule {
 
     private changeExecutor = null;
     private enableUIActions: boolean = true;
+    private onCalculateEditorContextActionsListener;
+    private getAllActionsListener;
+    private onExecuteContextActionListener;
+    private onSetServerConfigurationListener;
 
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManager: IEditorManagerModule) {
@@ -158,32 +163,62 @@ class CustomActionsManager {
         this.changeExecutor = new CollectingDocumentChangeExecutor(connection);
     }
 
-    public listen() {
+    public launch() {
+
+        this.onCalculateEditorContextActionsListener = (uri, position?) => {
+            return this.calculateEditorActions(uri, position);
+        }
         this.connection.onCalculateEditorContextActions(
-            (uri, position?) => {
-                return this.calculateEditorActions(uri, position);
-            }
+            this.onCalculateEditorContextActionsListener
         );
 
-        this.connection.onAllEditorContextActions(() => this.getAllActions());
+        this.getAllActionsListener = () => this.getAllActions();
+        this.connection.onAllEditorContextActions(this.getAllActionsListener);
 
+        this.onExecuteContextActionListener = (uri, actionId, position?) => {
+            this.connection.debug("onExecuteContextAction for uri " + uri,
+                "CustomActionsManager",
+                "calculateEditorActions");
+
+            return this.executeAction(uri, actionId, position);
+        }
         this.connection.onExecuteContextAction(
-            (uri, actionId, position?) => {
-                this.connection.debug("onExecuteContextAction for uri " + uri,
-                    "CustomActionsManager",
-                    "calculateEditorActions");
-
-                return this.executeAction(uri, actionId, position);
-            }
+            this.onExecuteContextActionListener
         );
 
-        this.connection.onSetServerConfiguration((configuration) => {
+        this.onSetServerConfigurationListener = (configuration) => {
             if (configuration.actionsConfiguration) {
                 if (configuration.actionsConfiguration.enableUIActions !== null) {
                     this.enableUIActions = configuration.actionsConfiguration.enableUIActions;
                 }
             }
-        });
+        }
+        this.connection.onSetServerConfiguration(
+            this.onSetServerConfigurationListener
+        );
+    }
+
+    public dispose(): void {
+        this.connection.onCalculateEditorContextActions(
+            this.onCalculateEditorContextActionsListener, false
+        );
+
+        this.connection.onAllEditorContextActions(this.getAllActionsListener, false);
+
+        this.connection.onExecuteContextAction(
+            this.onExecuteContextActionListener, false
+        );
+
+        this.connection.onSetServerConfiguration(
+            this.onSetServerConfigurationListener, false
+        );
+    }
+
+    /**
+     * Returns unique module name.
+     */
+    public getModuleName(): string {
+        return "CUSTOM_ACTIONS_MANAGER";
     }
 
     public vsCodeUriToParserUri(vsCodeUri: string): string {
