@@ -8,16 +8,18 @@ var istanbul = require('gulp-istanbul');
 var testFiles = [
     "dist/test/suggestions/suggestionsTests.js",
     "dist/test/parsertests/parserTests.js",
+    "dist/test/parsertests/parserTests2.js",
     "dist/test/structure/structureTests.js",
-    "dist/test/parsertests/parserTests2.js"
+    "dist/test/structure/detailsTests.js"
 ];
 
 var testFilesComplete = [
     "dist/test/suggestions/suggestionsTests.js",
     "dist/test/parsertests/parserTests.js",
-    "dist/test/structure/structureTests.js",
     "dist/test/parsertests/parserTests2.js",
     "dist/test/parsertests/parserTests3.js",
+    "dist/test/structure/structureTests.js",
+    "dist/test/structure/detailsTests.js",
     "dist/test/parsertests/astReuseTestsBasicTyping.js"
 ];
 

@@ -163,11 +163,6 @@ function getOutlineJSONAsync(apiPath:string, callback: (result: Object, error: a
 
     connection = index.getNodeClientConnection();
 
-    connection.setLoggerConfiguration({
-        // disabled: true
-        allowedComponents: ["ASTProvider"]
-    });
-
     connection.documentOpened({
         uri: apiPath,
         text: content
@@ -695,15 +690,20 @@ function getDetailsJSONAsync(apiPath:string, callback: (result: Object, error: a
 
     connection = index.getNodeClientConnection();
 
-    connection.setLoggerConfiguration({
+    // connection.setLoggerConfiguration({
+    //
+    //     allowedComponents: [
+    //         "NodeProcessServerConnection",
+    //         "DetailsManager",
+    //         "server"
+    //     ],
+    //     maxSeverity: 0,
+    //     maxMessageLength: 500
+    // });
 
-        allowedComponents: [
-            "NodeProcessServerConnection",
-            "DetailsManager",
-            "server"
-        ],
-        maxSeverity: 0,
-        maxMessageLength: 500
+    connection.setLoggerConfiguration({
+        maxSeverity: 4,
+        maxMessageLength: 50
     });
 
     connection.setServerConfiguration({
@@ -711,11 +711,6 @@ function getDetailsJSONAsync(apiPath:string, callback: (result: Object, error: a
             enableDetailsModule: true
         }
     })
-
-    // connection.setLoggerConfiguration({
-    //     maxSeverity: 4,
-    //     maxMessageLength: 50
-    // });
 
     connection.documentOpened({
         uri: apiPath,
