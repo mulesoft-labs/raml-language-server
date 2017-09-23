@@ -695,20 +695,27 @@ function getDetailsJSONAsync(apiPath:string, callback: (result: Object, error: a
 
     connection = index.getNodeClientConnection();
 
-    // connection.setLoggerConfiguration({
-    //
-    //     allowedComponents: [
-    //         "NodeProcessServerConnection",
-    //         "DetailsManager"
-    //     ],
-    //     maxSeverity: 0,
-    //     maxMessageLength: 500
-    // });
-
     connection.setLoggerConfiguration({
-        maxSeverity: 4,
-        maxMessageLength: 50
+
+        allowedComponents: [
+            "NodeProcessServerConnection",
+            "DetailsManager",
+            "server"
+        ],
+        maxSeverity: 0,
+        maxMessageLength: 500
     });
+
+    connection.setServerConfiguration({
+        modulesConfiguration: {
+            enableDetailsModule: true
+        }
+    })
+
+    // connection.setLoggerConfiguration({
+    //     maxSeverity: 4,
+    //     maxMessageLength: 50
+    // });
 
     connection.documentOpened({
         uri: apiPath,

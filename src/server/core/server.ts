@@ -23,6 +23,7 @@ import FixedActionsManagerModule = require("../modules/fixedActionsManager");
 import DetailsManagerModule = require("../modules/detailsManager");
 
 import CustomActionsManagerModule = require("../modules/customActionsManager");
+import {undefined} from "vscode-languageserver/lib/utils/is";
 
 export class Server {
 
@@ -112,6 +113,35 @@ export class Server {
     }
 
     public listen(): void {
+
+        this.connection.onSetServerConfiguration((configuration) => {
+            if (!configuration.modulesConfiguration) {
+                return;
+            }
+
+            if (configuration.modulesConfiguration.enableCustomActionsModule != null) {
+
+                const customActionsModuleID = "CUSTOM_ACTIONS_MANAGER";
+
+                this.connection.debug("Changing module enablement of " + customActionsModuleID +
+                    " to " + configuration.modulesConfiguration.enableCustomActionsModule,
+                    "server", "onSetServerConfiguration");
+
+                this.enableModule(customActionsModuleID);
+
+            }
+            if (configuration.modulesConfiguration.enableDetailsModule != null) {
+
+                const detailsModuleID = "DETAILS_MANAGER";
+
+                this.connection.debug("Changing module enablement of " + detailsModuleID +
+                    " to " + configuration.modulesConfiguration.enableDetailsModule,
+                    "server", "onSetServerConfiguration");
+
+                this.enableModule(detailsModuleID);
+
+            }
+        })
 
         for (const moduleName in this.modules) {
             if (this.modules.hasOwnProperty(moduleName)) {
