@@ -5,7 +5,7 @@
   "children": [
     {
       "title": "name",
-      "description": "name of the parameter",
+      "description": "Type name for top level types. For properties and parameters -- property o parameter name, respectively. For bodies -- media type.",
       "type": "ATTRIBUTETEXT",
       "children": [],
       "valueText": "application/xml"
