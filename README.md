@@ -62,6 +62,8 @@ Modules are located in `src/server/modules` folder and its subfolders.
 
 ### Node-based client
 
+More details of how to use the client are [here](./documentation/node_client.md)
+
 An interface for this client is custom and simple. It contains a single method per major functionality feature.
 
 In example, client can notify the server that a document was opened by calling a method:
@@ -102,17 +104,15 @@ Note the an emitter of an event can be both client and server. In example, clien
 
 Server implements node-based launching, a transport that transfers client/server calls via node messages and provides a single simple method, which launches the server and returns an instance of client connection.
 
-More details of how to use the client are [here](./documentation/node_client.md)
-
 ### Web worker-based client
+
+More details of how to use the client are [here](./documentation/web_client.md)
 
 This type of client uses the same client interface as node-based client for unification.
 
 Launching should handle web-worker related functionality and contain a simple method to launch the worker and return client connection. All transport should be handled by this type of launching and hidden from the client.
 
 This is also the place where the “universal” server data like structure is converted to this particular client’s terms like outline if needed.
-
-More details of how to use the client are [here](./documentation/web_client.md)
 
 ### MS LSP client
 
@@ -125,6 +125,8 @@ Communication is handled as server part by converting MS LSP server calls/data t
 In the current implementation prototype launching implementation is located in `src/entryPoints/vscode` folder
 
 ### Server interface
+
+More details of how add to develop the server side are [here](./documentation/server.md)
 
 Server interface is represented by the server connection and is something server business logics communicates to in order to provide its functionality to the clients. It resembles the client one for node-based clients:
 
@@ -159,8 +161,6 @@ onFindReferences(listener: (uri: string, position: number) => ILocation[])
 ```
 
 In the current implementation prototype server interface is located in `src/server/core/connections.ts` file `IServerConnection` interface, implementation is located in `src/server/core` folder.
-
-More details of how add to develop the server side are [here](./documentation/server.md)
 
 ## Contribution
 

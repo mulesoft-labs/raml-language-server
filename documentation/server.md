@@ -8,9 +8,15 @@
 
 `npm install`
 
-`npm run devInstall`
+`sudo npm run devInstall`
 
-`npm run buildAll`
+`sudo npm run buildall`
+
+Using `sudo` is optional, but, depending on current user access rights it may be required.
+
+To test:
+
+`npm run test`
 
 ## Folder structure and modules
 
