@@ -269,8 +269,8 @@ function testOutlineStructure (
         return true;
     }
     else{
-        console.warn("DIFFERENCE DETECTED FOR " + outlineJsonPath);
-        console.warn(diff.map(x=>x.message("actual","expected")).join("\n\n"));
+        // console.log("DIFFERENCE DETECTED FOR " + outlineJsonPath);
+        // console.log(diff.map(x=>x.message("actual","expected")).join("\n\n"));
 
         return false;
     }
