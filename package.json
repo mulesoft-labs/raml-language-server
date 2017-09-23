@@ -65,7 +65,8 @@
     "webpack": "1.4.2",
     "mkdirp": "^0.5.0",
     "json-loader": "^0.5.1",
-    "tslint": "*"
+    "tslint": "*",
+    "typings": "^0.5.1"
   },
   "engines": {
     "node": "*",
