@@ -792,7 +792,7 @@ describe('Property override tests',function(){
         util.testErrors(done, util.data("parser/custom/docShouldBeSequence.raml"),["Property 'documentation' should be a sequence"]);
     });
     it ("missed title value should report only one message",function(done){
-        util.testErrors(done, util.data("parser/custom/missedTitle.raml"),["property 'title' must be a string"]);
+        util.testErrors(done, util.data("parser/custom/missedTitle.raml"),["Missing required property 'title'"]);
     });
     it ("expander not halted by this sample any more",function(done){
         util.testErrorsByNumber(done, util.data("parser/custom/expanderHalt.raml"),10);
