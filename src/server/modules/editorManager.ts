@@ -208,20 +208,6 @@ class TextBufferInfo implements IEditorTextBuffer {
             "Final text is:\n" + this.text,
             "EditorManager", "TextBufferInfo#setTextInRange");
 
-        // reporting the change to the client, if possible.
-        if (this.editorManager && this.editorManager.getDocumentChangeExecutor()) {
-            this.editorManager.getDocumentChangeExecutor().changeDocument({
-
-                uri: this.uri,
-
-                text: this.text
-            });
-        } else {
-            this.logger.error(
-                "Can not report document change to the client as there is no executor",
-            "EditorManager", "TextBufferInfo#setTextInRange");
-        }
-
         return null;
     }
 
