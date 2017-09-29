@@ -73,7 +73,8 @@ function webPackForBrowser(parserRootFolder: string, sourceClientFile: string, s
         plugins,
         resolve: {
             alias: {
-                fs: path.resolve(__dirname, "../../../../web-tools/emptyFS.js")
+                fs: path.resolve(__dirname, "../../../../web-tools/emptyFS.js"),
+                'raml-1-parser': path.resolve(__dirname, "../../../../node_modules/raml-1-parser")
             }
         },
 
