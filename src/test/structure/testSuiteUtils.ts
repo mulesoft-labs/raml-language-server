@@ -8,7 +8,7 @@ import _ = require("underscore")
 
 export function data(filepath: string): string {
     var datadir =  path.resolve(projectFolder(), 'src/test/data');
-    return path.resolve(datadir, filepath);
+    return path.resolve(datadir, filepath).replace(/\\/g,'/');
 }
 
 var pathReplacer = function (str1:string,str2:string) {

@@ -33,7 +33,7 @@ export function extName(uri: string) {
 }
 
 export function resolve(path1: string, path2: string): string {
-    return path.resolve(path1, path2);
+    return path.resolve(path1, path2).replace(/\\/g,'/');
 }
 
 export function basename(path1: string) {

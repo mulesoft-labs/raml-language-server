@@ -29,7 +29,7 @@ gulp.task('test', function() {
     return gulp.src(testFiles, {
         read: false
     }).pipe(mocha({
-        bail: true,
+        bail: false,
         reporter: 'spec'
     }));
 });
@@ -40,7 +40,7 @@ gulp.task('testComplete', function() {
     return gulp.src(testFilesComplete, {
         read: false
     }).pipe(mocha({
-        bail: true,
+        bail: false,
         reporter: 'spec'
     }));
 });

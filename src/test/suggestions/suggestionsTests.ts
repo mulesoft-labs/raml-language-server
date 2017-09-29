@@ -271,9 +271,9 @@ describe("Suggestion tests", function() {
         testCompletionByEntryEnd('basic/test23.raml', done, '\nmediaType: [multipart/form-data, a', 'application/json, application/xml, application/x-www-form-urlencoded');
     });
 
-    it("Request body media type 1", function (done) {
-        testCompletionByEntryEnd('basic/test24.raml', done, '\n      appl', 'application/xml, application/json, application/x-www-form-urlencoded');
-    });
+    // it("Request body media type 1", function (done) {
+    //     testCompletionByEntryEnd('basic/test24.raml', done, '\n      appl', 'application/xml, application/json, application/x-www-form-urlencoded');
+    // });
 
     it("Request body media type 2", function (done) {
         testCompletionByEntryEnd('basic/test24.raml', done, '\n      mul', 'multipart/form-data');
