@@ -626,7 +626,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
     }
 
     public CALCULATE_ACTIONS(payload: {uri: string, position?: number}): Promise<IExecutableAction[]> {
-        if (!this.calculateEditorContextActionsListeners) {
+        if (this.calculateEditorContextActionsListeners.length === 0) {
             return Promise.resolve([]);
         }
 
@@ -634,7 +634,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
     }
 
     public ALL_ACTIONS(payload:{uri: string, position?: number}) : Promise<IExecutableAction[]> {
-        if (!this.getAllEditorContextActionsListeners) {
+        if (this.getAllEditorContextActionsListeners.length === 0) {
             return Promise.resolve([]);
         }
 
@@ -647,7 +647,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
         this.debugDetail("Called",
             "ProxyServerConnection", "EXECUTE_ACTION");
 
-        if (!this.executeContextActionListeners) {
+        if (this.executeContextActionListeners.length === 0) {
             return Promise.resolve([]);
         }
 
