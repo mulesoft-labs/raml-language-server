@@ -30,7 +30,7 @@ import utils = require("../../../common/utils");
 import fixedActionCommon = require("./fixedActionsCommon");
 
 export interface IOpenDeclarationActionModule extends IServerModule {
-    openDeclaration(uri: string, position: number): ILocation[];
+    openDeclaration(uri: string, position: number): Promise<ILocation[]>;
 }
 
 export function createManager(connection: IServerConnection,
@@ -62,7 +62,7 @@ class OpenDeclarationActionModule implements IOpenDeclarationActionModule {
         return "OPEN_DECLARATION_ACTION";
     }
 
-    public openDeclaration(uri: string, position: number): ILocation[] {
+    public openDeclaration(uri: string, position: number): Promise<ILocation[]> {
 
         this.connection.debug("Called for uri: " + uri,
             "FixedActionsManager", "openDeclaration");
@@ -71,53 +71,57 @@ class OpenDeclarationActionModule implements IOpenDeclarationActionModule {
             "FixedActionsManager", "openDeclaration");
 
         if (utils.extName(uri) !== ".raml") {
-            return [];
+            return Promise.resolve([]);
         }
 
-        const ast = this.astManagerModule.getCurrentAST(uri);
+        const connection = this.connection;
 
-        this.connection.debugDetail("Found AST: " + (ast ? "true" : false),
-            "FixedActionsManager", "openDeclaration");
+        return this.astManagerModule.forceGetCurrentAST(uri).then((ast) => {
+            connection.debugDetail("Found AST: " + (ast ? "true" : false),
+                "FixedActionsManager", "openDeclaration");
 
-        if (!ast) {
-            return [];
-        }
-
-        const unit = ast.lowLevel().unit();
-
-        const decl = search.findDeclaration(unit, position);
-
-        this.connection.debugDetail("Found declaration: " + (decl ? "true" : false),
-            "FixedActionsManager", "openDeclaration");
-
-        if (!decl) {
-            return [];
-        }
-
-        if (!(decl as any).absolutePath) {
-            const location = fixedActionCommon.lowLevelNodeToLocation(uri,
-                (decl as hl.IParseResult).lowLevel(),
-                this.editorManagerModule, this.connection);
-            if (!location) {
+            if (!ast) {
                 return [];
             }
 
-            return [location];
-        } else {
-            const absolutePath = (decl as lowLevel.ICompilationUnit).absolutePath();
+            const unit = ast.lowLevel().unit();
 
-            if (utils.isHTTPUri(absolutePath)) {
+            const decl = search.findDeclaration(unit, position);
+
+            connection.debugDetail("Found declaration: " + (decl ? "true" : false),
+                "FixedActionsManager", "openDeclaration");
+
+            if (!decl) {
                 return [];
             }
 
-            return [{
-                uri: absolutePath,
-                range: {
-                    start: 0,
-                    end: 0
+            if (!(decl as any).absolutePath) {
+                const location = fixedActionCommon.lowLevelNodeToLocation(uri,
+                    (decl as hl.IParseResult).lowLevel(),
+                    this.editorManagerModule, connection);
+                if (!location) {
+                    return [];
                 }
-            }];
-        }
+
+                return [location];
+            } else {
+                const absolutePath = (decl as lowLevel.ICompilationUnit).absolutePath();
+
+                if (utils.isHTTPUri(absolutePath)) {
+                    return [];
+                }
+
+                return [{
+                    uri: absolutePath,
+                    range: {
+                        start: 0,
+                        end: 0
+                    }
+                }];
+            }
+        });
+
+
     }
 
 }

@@ -19,7 +19,8 @@ export {
     DetailsValuedItemJSON,
     DetailsItemWithOptionsJSON,
     DetailsItemType,
-    IDetailsReport
+    IDetailsReport,
+    ILocation
 } from "./common/typeInterfaces";
 
 export {

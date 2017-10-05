@@ -10,7 +10,8 @@ var testFiles = [
     "dist/test/parsertests/parserTests.js",
     "dist/test/parsertests/parserTests2.js",
     "dist/test/structure/structureTests.js",
-    "dist/test/structure/detailsTests.js"
+    "dist/test/structure/detailsTests.js",
+    "dist/test/fixedActions/fixedActionTests.js"
 ];
 
 var testFilesComplete = [
@@ -20,7 +21,8 @@ var testFilesComplete = [
     "dist/test/parsertests/parserTests3.js",
     "dist/test/structure/structureTests.js",
     "dist/test/structure/detailsTests.js",
-    "dist/test/parsertests/astReuseTestsBasicTyping.js"
+    "dist/test/parsertests/astReuseTestsBasicTyping.js",
+    "dist/test/fixedActions/fixedActionTests.js"
 ];
 
 gulp.task('test', function() {

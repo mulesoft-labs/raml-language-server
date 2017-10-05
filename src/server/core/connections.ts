@@ -86,7 +86,7 @@ export interface IServerConnection extends ILogger {
      * @param listener
      * @param unsubscribe - if true, existing listener will be removed. False by default.
      */
-    onOpenDeclaration(listener: (uri: string, position: number) => ILocation[], unsubscribe?: boolean);
+    onOpenDeclaration(listener: (uri: string, position: number) => Promise<ILocation[]>, unsubscribe?: boolean): void;
 
     /**
      * Adds a listener to document find references request.  Must notify listeners in order of registration.
@@ -112,7 +112,7 @@ export interface IServerConnection extends ILogger {
      * @param listener
      * @param unsubscribe - if true, existing listener will be removed. False by default.
      */
-    onMarkOccurrences(listener: (uri: string, position: number) => IRange[], unsubscribe?: boolean);
+    onMarkOccurrences(listener: (uri: string, position: number) => Promise<IRange[]>, unsubscribe?: boolean);
 
     /**
      * Finds the set of document (and non-document files) edits to perform the requested rename.

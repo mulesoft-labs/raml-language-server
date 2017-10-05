@@ -396,9 +396,16 @@ class EditorManager implements IEditorManagerModule {
     }
 
     public onOpenDocument(document: IOpenedDocument): void {
+        this.connection.debug("Document is opened",
+            "EditorManager", "onOpenDocument");
+
         this.uriToEditor[document.uri] =
             new TextEditorInfo(document.uri, document.version, document.text,
                 this, this.connection);
+
+        for (const listener of this.documentChangeListeners) {
+            listener(document);
+        }
     }
 
     /**

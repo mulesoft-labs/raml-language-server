@@ -42,9 +42,9 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
     private closeDocumentListeners: {(uri: string): void}[] = [];
     private documentStructureListeners: {(uri: string): Promise<{[categoryName: string]: StructureNodeJSON}>}[] = [];
     private documentCompletionListeners: {(uri: string, position: number): Promise<Suggestion[]>}[] = [];
-    private openDeclarationListeners: {(uri: string, position: number): ILocation[]}[] = [];
+    private openDeclarationListeners: {(uri: string, position: number): Promise<ILocation[]>}[] = [];
     private findReferencesListeners: {(uri: string, position: number): ILocation[]}[] = [];
-    private markOccurrencesListeners: {(uri: string, position: number): IRange[]}[] = [];
+    private markOccurrencesListeners: {(uri: string, position: number): Promise<IRange[]>}[] = [];
     private renameListeners: {(uri: string, position: number, newName: string): IChangedDocument[]}[] = [];
     private documentDetailsListeners: {(uri: string, position: number): Promise<DetailsItemJSON>}[] = [];
     private changePositionListeners: {(uri: string, position: number): void}[] = [];
@@ -115,8 +115,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document open declaration request.  Must notify listeners in order of registration.
      * @param listener
      */
-    public onOpenDeclaration(listener: (uri: string, position: number) => ILocation[],
-                             unsubsribe = false) {
+    public onOpenDeclaration(listener: (uri: string, position: number) => Promise<ILocation[]>,
+                             unsubsribe = false): void {
 
         this.addListener(this.openDeclarationListeners, listener, unsubsribe);
     }
@@ -212,7 +212,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Marks occurrences of a symbol under the cursor in the current document.
      * @param listener
      */
-    public onMarkOccurrences(listener: (uri: string, position: number) => IRange[],
+    public onMarkOccurrences(listener: (uri: string, position: number) => Promise<IRange[]>,
                              unsubsribe = false) {
         this.markOccurrencesListeners.push(listener);
     }
@@ -343,17 +343,12 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param position - offset in the document starting from 0
      * @constructor
      */
-    public OPEN_DECLARATION(payload: {uri: string, position: number}): ILocation[] {
+    public OPEN_DECLARATION(payload: {uri: string, position: number}): Promise<ILocation[]> {
         if (this.openDeclarationListeners.length === 0) {
-            return [];
+            return Promise.resolve([]);
         }
 
-        let result = [];
-        for (const listener of this.openDeclarationListeners) {
-            result = result.concat(listener(payload.uri, payload.position));
-        }
-
-        return result;
+        return this.openDeclarationListeners[0](payload.uri, payload.position);
     }
 
     /**
@@ -381,17 +376,12 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param position - offset in the document starting from 0
      * @constructor
      */
-    public MARK_OCCURRENCES(payload: {uri: string, position: number}): IRange[] {
+    public MARK_OCCURRENCES(payload: {uri: string, position: number}): Promise<IRange[]> {
         if (this.markOccurrencesListeners.length === 0) {
-            return [];
+            return Promise.resolve([]);
         }
 
-        let result = [];
-        for (const listener of this.markOccurrencesListeners) {
-            result = result.concat(listener(payload.uri, payload.position));
-        }
-
-        return result;
+        return this.markOccurrencesListeners[0](payload.uri, payload.position);
     }
 
     /**

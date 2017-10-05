@@ -91,7 +91,7 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
             return this.getCompletion(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
         });
 
-        this.vsCodeConnection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Location[] => {
+        this.vsCodeConnection.onDefinition((textDocumentPosition: TextDocumentPositionParams): Promise<Location[]> => {
 
             return this.openDeclaration(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
         });
@@ -102,7 +102,7 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         });
 
         this.vsCodeConnection.onDocumentHighlight(
-            (textDocumentPosition: TextDocumentPositionParams): DocumentHighlight[] => {
+            (textDocumentPosition: TextDocumentPositionParams): Promise<DocumentHighlight[]> => {
 
             return this.documentHighlight(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
         });
@@ -327,27 +327,26 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         });
     }
 
-    public openDeclaration(uri: string, position: Position): Location[] {
+    public openDeclaration(uri: string, position: Position): Promise<Location[]> {
         this.debug("openDeclaration called for uri: " + uri,
             "ProxyServerConnection", "openDeclaration");
 
         if (this.openDeclarationListeners.length === 0) {
-            return [];
+            return Promise.resolve([]);
         }
 
         const document = this.documents.get(uri);
         this.debugDetail("got document: " + (document != null),
             "ProxyServerConnection", "openDeclaration");
         if (!document) {
-            return [];
+            return Promise.resolve([]);
         }
 
         const offset = document.offsetAt(position);
 
-        const result: Location[]  = [];
+        return this.openDeclarationListeners[0](uri, offset).then((locations) => {
+            const result: Location[]  = [];
 
-        for (const listener of this.openDeclarationListeners) {
-            const locations = listener(uri, offset);
             this.debugDetail("Got locations: " + (locations ? locations.length : 0),
                 "ProxyServerConnection", "openDeclaration");
 
@@ -364,9 +363,10 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
                     });
                 }
             }
-        }
 
-        return result;
+            return result;
+        });
+
     }
 
     public findReferences(uri: string, position: Position): Location[] {
@@ -579,27 +579,27 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         this.loggerSettings = loggerSettings;
     }
 
-    public documentHighlight(uri: string, position: Position): DocumentHighlight[] {
+    public documentHighlight(uri: string, position: Position): Promise<DocumentHighlight[]> {
         this.debug("documentHighlight called for uri: " + uri,
             "ProxyServerConnection", "documentHighlight");
 
         if (this.markOccurrencesListeners.length === 0) {
-            return [];
+            return Promise.resolve([]);
         }
 
         const document = this.documents.get(uri);
         this.debugDetail("got document: " + (document != null),
             "ProxyServerConnection", "documentHighlight");
         if (!document) {
-            return [];
+            return Promise.resolve([]);
         }
 
         const offset = document.offsetAt(position);
 
-        const result: DocumentHighlight[]  = [];
+        return this.markOccurrencesListeners[0](uri, offset).then((locations) => {
 
-        for (const listener of this.markOccurrencesListeners) {
-            const locations = listener(uri, offset);
+            const result: DocumentHighlight[]  = [];
+
             this.debugDetail("Got locations: " + (locations ? locations.length : 0),
                 "ProxyServerConnection", "documentHighlight");
 
@@ -616,9 +616,10 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
                     });
                 }
             }
-        }
 
-        return result;
+            return result;
+        });
+
     }
 
     public rename(uri: string, position: Position, newName: string): WorkspaceEdit {

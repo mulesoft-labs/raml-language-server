@@ -30,9 +30,9 @@ export abstract class AbstractServerConnection {
     protected closeDocumentListeners: {(uri: string): void}[] = [];
     protected documentStructureListeners: {(uri: string): Promise<{[categoryName: string]: StructureNodeJSON}>}[] = [];
     protected documentCompletionListeners: {(uri: string, position: number): Promise<Suggestion[]>}[] = [];
-    protected openDeclarationListeners: {(uri: string, position: number): ILocation[]}[] = [];
+    protected openDeclarationListeners: {(uri: string, position: number): Promise<ILocation[]>}[] = [];
     protected findreferencesListeners: {(uri: string, position: number): ILocation[]}[] = [];
-    protected markOccurrencesListeners: {(uri: string, position: number): IRange[]}[] = [];
+    protected markOccurrencesListeners: {(uri: string, position: number): Promise<IRange[]>}[] = [];
     protected renameListeners: {(uri: string, position: number, newName: string): IChangedDocument[]}[] = [];
     protected documentDetailsListeners: {(uri: string, position: number): Promise<DetailsItemJSON>}[] = [];
     protected changePositionListeners: {(uri: string, position: number): void}[] = [];
@@ -97,7 +97,7 @@ export abstract class AbstractServerConnection {
      * Adds a listener to document open declaration request.  Must notify listeners in order of registration.
      * @param listener
      */
-    public onOpenDeclaration(listener: (uri: string, position: number) => ILocation[],
+    public onOpenDeclaration(listener: (uri: string, position: number) => Promise<ILocation[]>,
                              unsubsribe = false) {
 
         this.addListener(this.openDeclarationListeners, listener, unsubsribe);
@@ -132,7 +132,7 @@ export abstract class AbstractServerConnection {
      * Marks occurrences of a symbol under the cursor in the current document.
      * @param listener
      */
-    public onMarkOccurrences(listener: (uri: string, position: number) => IRange[], unsubsribe = false) {
+    public onMarkOccurrences(listener: (uri: string, position: number) => Promise<IRange[]>, unsubsribe = false) {
 
         this.addListener(this.markOccurrencesListeners, listener, unsubsribe);
     }
