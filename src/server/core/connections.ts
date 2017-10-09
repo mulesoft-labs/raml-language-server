@@ -93,7 +93,7 @@ export interface IServerConnection extends ILogger {
      * @param listener
      * @param unsubscribe - if true, existing listener will be removed. False by default.
      */
-    onFindReferences(listener: (uri: string, position: number) => ILocation[], unsubscribe?: boolean);
+    onFindReferences(listener: (uri: string, position: number) => Promise<ILocation[]>, unsubscribe?: boolean);
 
     /**
      * Reports latest validation results

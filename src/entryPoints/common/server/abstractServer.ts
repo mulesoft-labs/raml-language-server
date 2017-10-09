@@ -43,7 +43,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
     private documentStructureListeners: {(uri: string): Promise<{[categoryName: string]: StructureNodeJSON}>}[] = [];
     private documentCompletionListeners: {(uri: string, position: number): Promise<Suggestion[]>}[] = [];
     private openDeclarationListeners: {(uri: string, position: number): Promise<ILocation[]>}[] = [];
-    private findReferencesListeners: {(uri: string, position: number): ILocation[]}[] = [];
+    private findReferencesListeners: {(uri: string, position: number): Promise<ILocation[]>}[] = [];
     private markOccurrencesListeners: {(uri: string, position: number): Promise<IRange[]>}[] = [];
     private renameListeners: {(uri: string, position: number, newName: string): IChangedDocument[]}[] = [];
     private documentDetailsListeners: {(uri: string, position: number): Promise<DetailsItemJSON>}[] = [];
@@ -125,7 +125,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * Adds a listener to document find references request.  Must notify listeners in order of registration.
      * @param listener
      */
-    public onFindReferences(listener: (uri: string, position: number) => ILocation[],
+    public onFindReferences(listener: (uri: string, position: number) => Promise<ILocation[]>,
                             unsubsribe = false) {
 
         this.addListener(this.findReferencesListeners, listener, unsubsribe);
@@ -357,17 +357,12 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      * @param position - offset in the document starting from 0
      * @constructor
      */
-    public FIND_REFERENCES(payload: {uri: string, position: number}): ILocation[] {
+    public FIND_REFERENCES(payload: {uri: string, position: number}): Promise<ILocation[]> {
         if (this.findReferencesListeners.length === 0) {
-            return [];
+            return Promise.resolve([]);
         }
 
-        let result = [];
-        for (const listener of this.findReferencesListeners) {
-            result = result.concat(listener(payload.uri, payload.position));
-        }
-
-        return result;
+        return this.findReferencesListeners[0](payload.uri, payload.position);
     }
 
     /**

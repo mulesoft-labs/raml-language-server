@@ -23,6 +23,11 @@ export interface Marker {
      * Marker end
      */
     end: number;
+
+    /**
+     * Schema that produced the marker.
+     */
+    schema: MarkerSchema;
 }
 
 /**
@@ -175,6 +180,22 @@ export class ParseResult {
         });
     }
 
+    /**
+     * Gets start positions for a certain type of marker.
+     * @param markerType
+     * @return {any}
+     */
+    public getMarkerPositions(markerType): number[] {
+        const markersOfType = this.markers[markerType];
+        if (!markersOfType) {
+            return [];
+        }
+
+        return markersOfType.map((marker) => {
+            return marker.start;
+        });
+    }
+
     public getOriginalText() {
         return this.originalText;
     }
@@ -211,6 +232,8 @@ export function parseText(originalText: string, schemas: MarkerSchema[]) : Parse
 function findMarkers(originalText: string, schemas: MarkerSchema[]): Marker[] {
     const markers: Marker[] = [];
 
+    let signs: {start: number, length: number}[] = [];
+
     for (const schema of schemas) {
 
         const regexp = regexpForSchema(schema)
@@ -222,16 +245,72 @@ function findMarkers(originalText: string, schemas: MarkerSchema[]): Marker[] {
                 typeName: schema.typeName,
                 isRange: isRangeMarkerSchema(schema),
                 start: match.index,
-                end: isSingleMarkerSchema(schema) ? match.index : match.index + match[0].length
+                end: isSingleMarkerSchema(schema) ? match.index : match.index + match[0].length,
+                schema
             }
 
             markers.push(marker);
+
+            if (isSingleMarkerSchema(schema)) {
+                signs.push({
+                    start: match.index,
+                    length: match[0].length
+                });
+            } else if (isRangeMarkerSchema(schema)) {
+                signs.push({
+                    start: match.index,
+                    length: match[1].length
+                });
+
+                signs.push({
+                    start: match.index + match[1].length,
+                    length:  match[2].length
+                });
+            }
 
             match = regexp.exec(originalText);
         }
     }
 
+    // correction of marker indexes basing on the shift due to marker signs cut-off
+
+    signs = signs.sort((first, second) => {
+        return first.start - second.start;
+    })
+
+    markers.forEach((marker) => {
+        if (isSingleMarkerSchema(marker.schema)) {
+
+            const offset = calculateOffsetForPosition(marker.start, signs);
+            marker.start = marker.start + offset;
+            marker.end = marker.end + offset;
+
+        } else if (isRangeMarkerSchema(marker.schema)) {
+
+            const startOffset = calculateOffsetForPosition(marker.start, signs);
+            const endOffset = calculateOffsetForPosition(marker.end, signs);
+            marker.start = marker.start + startOffset;
+            marker.end = marker.end + endOffset;
+
+        }
+    });
+
     return markers;
+}
+
+function calculateOffsetForPosition(originalPosition: number,
+                                    signs: {start: number, length: number}[]): number {
+
+    let offset = 0;
+    for (const sign of signs) {
+        if (sign.start >= originalPosition) {
+            break;
+        }
+
+        offset -= sign.length;
+    }
+
+    return offset;
 }
 
 function stripTextFromMarkers(originalText: string, schemas: MarkerSchema[]): string {
@@ -257,11 +336,11 @@ function regexpForSchema(schema: MarkerSchema): RegExp {
 
     if (isSingleMarkerSchema(schema)) {
 
-        regexp = new RegExp(schema.markerSign + "", "g");
+        regexp = new RegExp(schema.markerSign, "g");
 
     } else if (isRangeMarkerSchema(schema)) {
 
-        regexp = new RegExp(schema.markerStartSign + ".*" + schema.markerEndSign, "g");
+        regexp = new RegExp("(" + schema.markerStartSign + ").*(" + schema.markerEndSign + ")", "g");
     }
 
     // regexp.global = true;

@@ -96,7 +96,7 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
             return this.openDeclaration(textDocumentPosition.textDocument.uri, textDocumentPosition.position);
         });
 
-        this.vsCodeConnection.onReferences((referenceParams: ReferenceParams): Location[] => {
+        this.vsCodeConnection.onReferences((referenceParams: ReferenceParams): Promise<Location[]> => {
 
             return this.findReferences(referenceParams.textDocument.uri, referenceParams.position);
         });
@@ -369,27 +369,26 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
 
     }
 
-    public findReferences(uri: string, position: Position): Location[] {
+    public findReferences(uri: string, position: Position): Promise<Location[]> {
         this.debug("findReferences called for uri: " + uri,
             "ProxyServerConnection", "findReferences");
 
         if (this.findreferencesListeners.length === 0) {
-            return [];
+            return Promise.resolve([]);
         }
 
         const document = this.documents.get(uri);
         this.debugDetail("got document: " + (document != null),
             "ProxyServerConnection", "findReferences");
         if (!document) {
-            return [];
+            return Promise.resolve([]);
         }
 
         const offset = document.offsetAt(position);
 
-        const result: Location[]  = [];
+        return this.findreferencesListeners[0](uri, offset).then((locations) => {
+            const result: Location[]  = [];
 
-        for (const listener of this.findreferencesListeners) {
-            const locations = listener(uri, offset);
             this.debugDetail("Got locations: " + (locations ? locations.length : 0),
                 "ProxyServerConnection", "findReferences");
 
@@ -406,9 +405,13 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
                     });
                 }
             }
-        }
 
-        return result;
+            this.debugDetail("Returning: " + JSON.stringify(result),
+                "ProxyServerConnection", "findReferences");
+
+            return result;
+        });
+
     }
 
     /**

@@ -42,10 +42,6 @@ function launch(): IClientConnection {
 
     // connection.setLoggerConfiguration({
     //     allowedComponents: [
-    //         "CustomActionsManager",
-    //         "EditorManager",
-    //         "ParseDocumentRunnable",
-    //         "ASTManager",
     //         "FixedActionsManager",
     //         "MessageDispatcher:NodeProcessServerConnection",
     //         "MessageDispatcher:NodeProcessClientConnection"

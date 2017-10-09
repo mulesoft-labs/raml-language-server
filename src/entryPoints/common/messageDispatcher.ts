@@ -105,7 +105,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
             }
 
             this.debugDetail("Message "
-                + message.type + " , result is:\n" + strPayload,
+                + message.type + " , payload is:\n" + strPayload,
                 "MessageDispatcher:" + this.name, "send");
         } catch (Error) {
 
@@ -141,7 +141,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
                 }
 
                 this.debugDetail("Message "
-                    + message.type + " , result is:\n" + strPayload,
+                    + message.type + " , payload is:\n" + strPayload,
                     "MessageDispatcher:" + this.name, "sendWithResponse");
             } catch (Error) {
             }

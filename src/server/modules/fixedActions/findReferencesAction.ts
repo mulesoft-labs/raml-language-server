@@ -55,7 +55,7 @@ class FindReferencesActionModule implements IServerModule {
         return "FIND_REFERENCES_ACTION";
     }
 
-    public findReferences(uri: string, position: number): ILocation[] {
+    public findReferences(uri: string, position: number): Promise<ILocation[]> {
         this.connection.debug("Called for uri: " + uri,
             "FixedActionsManager", "findReferences");
 
@@ -63,34 +63,42 @@ class FindReferencesActionModule implements IServerModule {
             "FixedActionsManager", "findReferences");
 
         if (utils.extName(uri) !== ".raml") {
-            return [];
+            return Promise.resolve([]);
         }
 
-        const ast = this.astManagerModule.getCurrentAST(uri);
+        const connection = this.connection;
 
-        this.connection.debugDetail("Found AST: " + (ast ? "true" : false),
-            "FixedActionsManager", "findReferences");
+        return this.astManagerModule.forceGetCurrentAST(uri).then((ast) => {
 
-        if (!ast) {
-            return [];
-        }
+            connection.debugDetail("Found AST: " + (ast ? "true" : false),
+                "FixedActionsManager", "findReferences");
 
-        const unit = ast.lowLevel().unit();
+            if (!ast) {
+                return [];
+            }
 
-        const findUsagesResult = search.findUsages(unit, position);
+            const unit = ast.lowLevel().unit();
 
-        this.connection.debugDetail("Found usages: " + (findUsagesResult ? "true" : false),
-            "FixedActionsManager", "findReferences");
+            const findUsagesResult = search.findUsages(unit, position);
 
-        if (!findUsagesResult || !findUsagesResult.results) {
-            return [];
-        }
-        this.connection.debugDetail("Number of found usages: " + findUsagesResult.results.length,
-            "FixedActionsManager", "findReferences");
+            connection.debugDetail("Found usages: " + (findUsagesResult ? "true" : false),
+                "FixedActionsManager", "findReferences");
 
-        return findUsagesResult.results.map((parseResult) => {
-            return fixedActionCommon.lowLevelNodeToLocation(uri, parseResult.lowLevel(),
-                this.editorManagerModule, this.connection, true);
+            if (!findUsagesResult || !findUsagesResult.results) {
+                return [];
+            }
+            connection.debugDetail("Number of found usages: " + findUsagesResult.results.length,
+                "FixedActionsManager", "findReferences");
+
+            const result = findUsagesResult.results.map((parseResult) => {
+                return fixedActionCommon.lowLevelNodeToLocation(uri, parseResult.lowLevel(),
+                    this.editorManagerModule, connection, true);
+            });
+
+            connection.debugDetail("Usages are: " + JSON.stringify(result),
+                "FixedActionsManager", "findReferences");
+
+            return result;
         });
     }
 }
