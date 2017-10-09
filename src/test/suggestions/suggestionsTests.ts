@@ -590,6 +590,10 @@ describe("Suggestion tests", function() {
     it("test43", function (done) {
         testCompletionByEntryEnd('basic/test43.raml', done, 'X', 'XKCD/');
     });
+
+    it("test60", function (done) {
+        testCompletionByEntryEnd('basic/test60_overlay.raml', done, 'test60', '');
+    });
 });
 
 function offsetForEntry(entry: string, text: string): number {
