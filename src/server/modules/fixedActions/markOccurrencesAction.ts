@@ -89,9 +89,13 @@ class MarkOccurrencesActionModule implements IServerModule {
             // this.connection.debugDetail("Found node: \n" + node.printDetails(),
             //     "FixedActionsManager", "markOccurrences");
 
-            const name = node.attrValue("name");
-            const type = node.attrValue("type");
-            if (!name && !type) {
+            if (!this.acceptNode(node, position)) {
+                this.connection.debugDetail("Filtering out node, returning",
+                    "FixedActionsManager", "markOccurrences");
+
+                this.connection.debugDetail("Node:\n" + node.printDetails(),
+                    "FixedActionsManager", "markOccurrences");
+
                 return [];
             }
 
@@ -113,6 +117,8 @@ class MarkOccurrencesActionModule implements IServerModule {
                 }));
             }
 
+            const findUsagesLocations = unfiltered;
+
             return openDeclarationsModule.createManager(
                 this.connection, this.astManagerModule, this.editorManagerModule
             ).openDeclaration(uri, position).then((declarations) => {
@@ -120,13 +126,17 @@ class MarkOccurrencesActionModule implements IServerModule {
                 this.connection.debugDetail("Number of found declarations: " + declarations.length,
                     "FixedActionsManager", "markOccurrences");
 
+                let locations = findUsagesLocations;
                 if (declarations) {
-                    unfiltered = unfiltered.concat(declarations);
+                    locations = locations.concat(declarations);
                 }
 
                 let result: IRange[] = [];
 
-                result = unfiltered.filter((location) => {
+                this.connection.debugDetail("Unfiltered occurrences: " + JSON.stringify(locations),
+                    "FixedActionsManager", "markOccurrences");
+
+                result = locations.filter((location) => {
                     return location.uri === uri;
                 }).filter((location) => {
                     // excluding any mentions of whatever is located at the position itself
@@ -144,5 +154,38 @@ class MarkOccurrencesActionModule implements IServerModule {
 
         });
 
+    }
+
+    private acceptNode(node, position): boolean {
+
+        // checking for a node with name attribute
+        const name = node.attrValue("name");
+        if (name) {
+            return true;
+        }
+
+        // checking for a node with type attribute
+        const type = node.attrValue("type");
+        if (type) {
+            return true;
+        }
+
+        // checking for trait reference
+        const isAttribute = node.attr("is");
+        if (isAttribute && isAttribute.lowLevel() &&
+            isAttribute.lowLevel().start() <= position && isAttribute.lowLevel().end()) {
+
+            return true;
+        }
+
+        // checking for security scheme reference
+        const securedByAttribute = node.attr("securedBy");
+        if (securedByAttribute && securedByAttribute.lowLevel() &&
+            securedByAttribute.lowLevel().start() <= position && securedByAttribute.lowLevel().end()) {
+
+            return true;
+        }
+
+        return false;
     }
 }
