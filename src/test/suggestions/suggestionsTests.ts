@@ -606,7 +606,7 @@ function resolve(testPath: string): string {
 
 var connection;
 
-export function completionByUniqueEntryAsync(filePath: string, entry: string, begin: boolean = false, callback: (result: string) => void): void {
+export function completionByUniqueEntryAsync(filePath: string, entry: string, begin: boolean = false, callback: (result: string[]) => void): void {
     filePath = resolve(filePath);
     let content = fs.readFileSync(filePath).toString();
 
@@ -614,15 +614,15 @@ export function completionByUniqueEntryAsync(filePath: string, entry: string, be
 
     connection = index.getNodeClientConnection();
 
-    connection.setLoggerConfiguration({
-        allowedComponents: [
-            "NodeProcessServerConnection",
-            "CompletionManagerModule",
-            "completionProvider"
-        ],
-        maxSeverity: 4,
-        maxMessageLength: 500
-    });
+    // connection.setLoggerConfiguration({
+    //     allowedComponents: [
+    //         "NodeProcessServerConnection",
+    //         "CompletionManagerModule",
+    //         "completionProvider"
+    //     ],
+    //     maxSeverity: 4,
+    //     maxMessageLength: 500
+    // });
 
     connection.documentOpened({
         uri: filePath,
@@ -631,14 +631,14 @@ export function completionByUniqueEntryAsync(filePath: string, entry: string, be
 
     connection.getSuggestions(filePath, position).then(result => {
         connection.documentClosed(filePath);
-        callback(result.map((suggestion) => suggestion.displayText || suggestion.text).join(', '));
+        callback(result.map((suggestion) => suggestion.displayText || suggestion.text));
     })
 }
 
 function testCompletionByEntryStart(testPath: string, done: any, entry: string, expected: string) {
     completionByUniqueEntryAsync(testPath, entry, true, result => {
         try {
-            assert.equal(result, expected);
+            assert(compareProposals(result, expected));
 
             done();
         } catch(exception) {
@@ -650,7 +650,7 @@ function testCompletionByEntryStart(testPath: string, done: any, entry: string, 
 function testCompletionByEntryEnd(testPath: string, done: any, entry: string, expected: string) {
     completionByUniqueEntryAsync(testPath, entry, false, result => {
         try {
-            assert.equal(result, expected);
+            assert(compareProposals(result, expected));
 
             done();
         } catch(exception) {
@@ -665,3 +665,25 @@ after(function() {
     }
 });
 
+function compareProposals(actualProposals: string[], expectedStr: string): boolean {
+    const expectedProposals: string[] = expectedStr.length === 0 ? [] : expectedStr.split(", ");
+
+    if (actualProposals.length !== expectedProposals.length) {
+        console.log("Expected " + expectedProposals.length
+            + " proposals, but got " + actualProposals.length);
+
+        console.log("Expected: " + expectedStr + " , actual: " + actualProposals.join(", "));
+        return false;
+    }
+
+    for (const expectedProposal of expectedProposals) {
+        if (actualProposals.indexOf(expectedProposal) == -1) {
+            console.log("Can not find expected proposal " + expectedProposal);
+            console.log("Expected: " + expectedStr + " , actual: " + actualProposals.join(", "));
+
+            return false;
+        }
+    }
+
+    return true;
+}
