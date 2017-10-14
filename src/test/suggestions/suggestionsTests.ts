@@ -594,6 +594,10 @@ describe("Suggestion tests", function() {
     it("test60", function (done) {
         testCompletionByEntryEnd('basic/test60_overlay.raml', done, 'test60', '');
     });
+
+    it("test61", function (done) {
+        testCompletionByEntryStart('basic/test61.raml', done, '#marker', 'is, type, description, securedBy, uriParameters, displayName, get, put, post, delete, options, head, patch');
+    });
 });
 
 function offsetForEntry(entry: string, text: string): number {
