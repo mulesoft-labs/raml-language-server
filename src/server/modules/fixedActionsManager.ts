@@ -13,7 +13,7 @@ import {
 } from "./editorManager";
 
 import {
-    IServerModule
+    IDisposableModule
 } from "./commonInterfaces";
 
 import findReferencesModule = require("./fixedActions/findReferencesAction");
@@ -25,14 +25,14 @@ import fixedActionsCommon = require("./fixedActions/fixedActionsCommon");
 
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule): IServerModule {
+                              editorManagerModule: IEditorManagerModule): IDisposableModule {
 
     return new FixedActionsManager(connection, astManagerModule, editorManagerModule);
 }
 
-class FixedActionsManager implements IServerModule {
+class FixedActionsManager implements IDisposableModule {
 
-    private subModules: IServerModule[] = [];
+    private subModules: IDisposableModule[] = [];
 
     constructor(
         private connection: IServerConnection,
@@ -58,6 +58,10 @@ class FixedActionsManager implements IServerModule {
 
     public launch() {
         this.subModules.forEach((subModule) => subModule.launch());
+    }
+
+    public dispose(): void {
+        this.subModules.forEach((subModule) => subModule.dispose());
     }
 
     /**

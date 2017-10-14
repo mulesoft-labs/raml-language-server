@@ -23,13 +23,13 @@ import lowLevel= rp.ll;
 import hl= rp.hl;
 
 import {
-    IServerModule
+    IDisposableModule
 } from "../../modules/commonInterfaces";
 
 import utils = require("../../../common/utils");
 import fixedActionCommon = require("./fixedActionsCommon");
 
-export interface IOpenDeclarationActionModule extends IServerModule {
+export interface IOpenDeclarationActionModule extends IDisposableModule {
     openDeclaration(uri: string, position: number): Promise<ILocation[]>;
 }
 
@@ -45,14 +45,23 @@ export function createManager(connection: IServerConnection,
  * Handles "open declaration" action.
  */
 class OpenDeclarationActionModule implements IOpenDeclarationActionModule {
+
+    private onOpenDeclarationListener;
+
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {
     }
 
     public launch() {
-        this.connection.onOpenDeclaration((uri: string, position: number) => {
+
+        this.onOpenDeclarationListener = (uri: string, position: number) => {
             return this.openDeclaration(uri, position);
-        });
+        }
+        this.connection.onOpenDeclaration(this.onOpenDeclarationListener);
+    }
+
+    public dispose(): void {
+        this.connection.onOpenDeclaration(this.onOpenDeclarationListener, false);
     }
 
     /**

@@ -23,7 +23,7 @@ import {
 } from "./editorManager";
 
 import {
-    IServerModule
+    IDisposableModule
 } from "./commonInterfaces";
 
 export type IHighLevelNode = parser.hl.IHighLevelNode;
@@ -42,7 +42,7 @@ export interface IASTListener {
 /**
  * Manager of AST states.
  */
-export interface IASTManagerModule extends IServerModule {
+export interface IASTManagerModule extends IDisposableModule {
 
     /**
      * Start listening to the connection.
@@ -320,6 +320,12 @@ class ASTManager implements IASTManagerModule {
 
     private reconciler: Reconciler;
 
+    private onOpenDocumentListener;
+
+    private onChangeDocumentListener;
+
+    private onCloseDocumentListener;
+
     constructor(private connection: IServerConnection,
                 private editorManager: IEditorManagerModule) {
 
@@ -327,17 +333,24 @@ class ASTManager implements IASTManagerModule {
     }
 
     public launch(): void {
-        this.connection.onOpenDocument(
-            (document: IOpenedDocument) => {this.onOpenDocument(document); }
-        );
 
-        this.editorManager.onChangeDocument(
-            (document: IChangedDocument) => {this.onChangeDocument(document); }
-        );
+        this.onOpenDocumentListener = (document: IOpenedDocument) => {this.onOpenDocument(document); };
+        this.connection.onOpenDocument(this.onOpenDocumentListener);
 
-        this.connection.onCloseDocument(
-            (uri: string) => {this.onCloseDocument(uri); }
-        );
+        this.onChangeDocumentListener = (document: IChangedDocument) => {this.onChangeDocument(document); };
+        this.editorManager.onChangeDocument(this.onChangeDocumentListener);
+
+        this.onCloseDocumentListener = (uri: string) => {this.onCloseDocument(uri);};
+        this.connection.onCloseDocument(this.onCloseDocumentListener);
+    }
+
+    public dispose(): void {
+
+        this.connection.onOpenDocument(this.onOpenDocumentListener, false);
+
+        this.editorManager.onChangeDocument(this.onChangeDocumentListener, false);
+
+        this.connection.onCloseDocument(this.onCloseDocumentListener, false);
     }
 
     /**

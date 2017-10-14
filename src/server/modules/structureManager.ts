@@ -22,7 +22,7 @@ import {
 } from "../../common/typeInterfaces";
 
 import {
-    IServerModule
+    IDisposableModule
 } from "./commonInterfaces";
 
 import rp= require("raml-1-parser");
@@ -36,7 +36,7 @@ const universes = rp.universes;
 
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule): IServerModule {
+                              editorManagerModule: IEditorManagerModule): IDisposableModule {
 
     return new StructureManager(connection, astManagerModule, editorManagerModule);
 }
@@ -144,11 +144,17 @@ export function initialize() {
 
 initialize();
 
-class StructureManager implements IServerModule {
+class StructureManager implements IDisposableModule {
 
     private calculatingStructureOnDirectRequest = false;
 
     private cachedStructures: {[uri: string]: {[categoryName: string]: StructureNodeJSON}} = {};
+
+    private onDocumentStructureListener;
+
+    private onNewASTAvailableListener;
+
+    private onCloseDocumentListener;
 
     constructor(private connection: IServerConnection,
                 private astManagerModule: IASTManagerModule,
@@ -156,11 +162,13 @@ class StructureManager implements IServerModule {
     }
 
     public launch() {
-        this.connection.onDocumentStructure((uri) => {
+        this.onDocumentStructureListener = (uri) => {
             return this.getStructure(uri);
-        });
+        }
 
-        this.astManagerModule.onNewASTAvailable((uri: string, version: number, ast: hl.IHighLevelNode) => {
+        this.connection.onDocumentStructure(this.onDocumentStructureListener);
+
+        this.onNewASTAvailableListener = (uri: string, version: number, ast: hl.IHighLevelNode) => {
 
             // we do not want reporting while performing the calculation
             if (this.calculatingStructureOnDirectRequest) {
@@ -186,9 +194,21 @@ class StructureManager implements IServerModule {
                 }
             });
 
-        });
+        }
 
-        this.connection.onCloseDocument((uri) => delete this.cachedStructures[uri]);
+        this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener);
+
+        this.onCloseDocumentListener = (uri) => delete this.cachedStructures[uri];
+        this.connection.onCloseDocument(this.onCloseDocumentListener);
+    }
+
+    public dispose(): void {
+
+        this.connection.onDocumentStructure(this.onDocumentStructureListener, false);
+
+        this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener, false);
+
+        this.connection.onCloseDocument(this.onCloseDocumentListener, false);
     }
 
     /**

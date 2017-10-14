@@ -18,7 +18,7 @@ import {
 } from "../../../common/typeInterfaces";
 
 import {
-    IServerModule
+    IDisposableModule
 } from "../../modules/commonInterfaces";
 
 import rp= require("raml-1-parser");
@@ -32,20 +32,30 @@ import fixedActionCommon = require("./fixedActionsCommon");
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
                               editorManagerModule: IEditorManagerModule)
-                        : IServerModule {
+                        : IDisposableModule {
 
     return new FindReferencesActionModule(connection, astManagerModule, editorManagerModule);
 }
 
-class FindReferencesActionModule implements IServerModule {
+class FindReferencesActionModule implements IDisposableModule {
+
+    private onFindReferencesListener;
+
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {
     }
 
     public launch() {
-        this.connection.onFindReferences((uri: string, position: number) => {
+
+        this.onFindReferencesListener = (uri: string, position: number) => {
             return this.findReferences(uri, position);
-        });
+        }
+
+        this.connection.onFindReferences(this.onFindReferencesListener);
+    }
+
+    public dispose(): void {
+        this.connection.onFindReferences(this.onFindReferencesListener, false);
     }
 
     /**

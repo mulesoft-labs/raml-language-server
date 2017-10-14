@@ -23,7 +23,6 @@ import FixedActionsManagerModule = require("../modules/fixedActionsManager");
 import DetailsManagerModule = require("../modules/detailsManager");
 
 import CustomActionsManagerModule = require("../modules/customActionsManager");
-import {undefined} from "vscode-languageserver/lib/utils/is";
 
 export class Server {
 
@@ -109,7 +108,7 @@ export class Server {
                 "server", "disableModule");
         }
 
-        this.modulesEnablementState[moduleName] = true;
+        this.modulesEnablementState[moduleName] = false;
     }
 
     public listen(): void {
@@ -119,27 +118,42 @@ export class Server {
                 return;
             }
 
-            if (configuration.modulesConfiguration.enableCustomActionsModule != null) {
+            checkAndChangeEnablement(configuration.modulesConfiguration.enableCustomActionsModule,
+                "CUSTOM_ACTIONS_MANAGER");
 
-                const customActionsModuleID = "CUSTOM_ACTIONS_MANAGER";
+            checkAndChangeEnablement(configuration.modulesConfiguration.enableDetailsModule,
+                "DETAILS_MANAGER");
 
-                this.connection.debug("Changing module enablement of " + customActionsModuleID +
-                    " to " + configuration.modulesConfiguration.enableCustomActionsModule,
+            checkAndChangeEnablement(configuration.modulesConfiguration.enableASTManagerModule,
+                "AST_MANAGER");
+
+            checkAndChangeEnablement(configuration.modulesConfiguration.enableCompletionManagerModule,
+                "COMPLETION_MANAGER");
+
+            checkAndChangeEnablement(configuration.modulesConfiguration.enableEditorManagerModule,
+                "EDITOR_MANAGER");
+
+            checkAndChangeEnablement(configuration.modulesConfiguration.enableFixedActionsModule,
+                "FIXED_ACTIONS_MANAGER");
+
+            checkAndChangeEnablement(configuration.modulesConfiguration.enableStructureManagerModule,
+                "STRUCTURE_MANAGER");
+
+            checkAndChangeEnablement(configuration.modulesConfiguration.enableValidationManagerModule,
+                "VALIDATION_MANAGER");
+
+            if (configuration.modulesConfiguration.allModules != null) {
+
+                this.connection.debug("Changing module enablement of " + moduleID +
+                    " to " + configuration.modulesConfiguration.allModules,
                     "server", "onSetServerConfiguration");
 
-                this.enableModule(customActionsModuleID);
-
-            }
-            if (configuration.modulesConfiguration.enableDetailsModule != null) {
-
-                const detailsModuleID = "DETAILS_MANAGER";
-
-                this.connection.debug("Changing module enablement of " + detailsModuleID +
-                    " to " + configuration.modulesConfiguration.enableDetailsModule,
-                    "server", "onSetServerConfiguration");
-
-                this.enableModule(detailsModuleID);
-
+                for (const moduleName in this.modules) {
+                    if (this.modules.hasOwnProperty(moduleName)) {
+                        configuration.modulesConfiguration.allModules ?
+                            this.enableModule(moduleName) : this.disableModule(moduleName);
+                    }
+                }
             }
         })
 
@@ -149,6 +163,19 @@ export class Server {
                     this.modules[moduleName].launch();
                 }
             }
+        }
+    }
+
+    private checkAndChangeEnablement(enablementFlag: boolean, moduleId: string) {
+        if (enablementFlag != null) {
+
+            this.connection.debug("Changing module enablement of " + moduleId +
+                " to " + enablementFlag,
+                "server", "onSetServerConfiguration");
+
+            enablementFlag ?
+                this.enableModule(moduleId) : this.disableModule(moduleId);
+
         }
     }
 

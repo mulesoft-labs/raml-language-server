@@ -8,8 +8,13 @@ import {
 import {
     getNodeClientConnection,
     ILocation,
-    IRange
+    IRange,
+    IChangedDocument
 } from "../../index";
+
+import {
+    applyDocumentEdits
+} from "../../common/textEditProcessor";
 
 export function testOpenDeclaration(testFileRelativePath: string, done: any):void{
 
@@ -322,5 +327,155 @@ function callMarkOccurrences(apiPath: string, parseResult: ParseResult,
 
 function getMarkOccurrencesFullPath(originalPath: string): string {
     return path.resolve(__dirname, "../../../src/test/data/fixedActions/markOccurrences"
+        + originalPath).replace(/\\/g, "/");
+}
+
+export function testRename(testFileRelativePath: string, done: any):void{
+
+    const fullFilePath = getRenameFullPath(testFileRelativePath);
+
+    const parseResult = parseFileSync(fullFilePath, [
+        {
+            markerSign: "\\*",
+            typeName: "SOURCE"
+        },
+        {
+            markerSign: "\\!",
+            typeName: "TARGET"
+        }
+    ]);
+
+    if (!parseResult) {
+        done(new Error("Can not parse file " + fullFilePath));
+        return;
+    }
+
+    const sourcePosition = parseResult.getMarkerPosition("SOURCE");
+
+    const nameToRename = findNameAtPosition(parseResult.getStrippedText(), sourcePosition);
+    const newName = nameToRename.substring(0, nameToRename.length - 1) + "0";
+
+    callRename(fullFilePath, parseResult, newName, (result, error) => {
+        if (error) {
+            done(error);
+
+            return;
+        }
+
+        try {
+            assert(compareRename(fullFilePath, parseResult, newName, result));
+            done();
+        } catch (exception) {
+            done(exception);
+        }
+    });
+}
+
+function callRename(apiPath: string, parseResult: ParseResult, newName: string,
+                             callback: (result: IChangedDocument[], error: any) => void): void {
+
+    const content = parseResult.getStrippedText();
+
+    const position = parseResult.getMarkerPosition("SOURCE");
+
+    const connection = getNodeClientConnection();
+
+    connection.documentOpened({
+        uri: apiPath,
+        text: content
+    });
+
+    connection.rename(apiPath, position, newName).then((result) => {
+        connection.documentClosed(apiPath);
+        callback(result, null);
+    }, (err) => {
+        callback(null, err);
+    });
+}
+
+function findNameAtPosition(text: string, position: number): string {
+
+    let start = position;
+    for (let currentPos = position; currentPos >= 0; currentPos--) {
+        const currentChar = text.charAt(currentPos);
+        if (!isNameChar(currentChar)) {
+            start = currentPos + 1;
+            break;
+        }
+    }
+
+    let end = position + 1;
+    for (let currentPos = position; currentPos < text.length; currentPos++) {
+        const currentChar = text.charAt(currentPos);
+        if (!isNameChar(currentChar)) {
+            end = currentPos;
+            break;
+        }
+    }
+
+    return text.substring(start, end);
+}
+
+const allowCharRegexp = /^[a-zA-Z0-9_]$/;
+function isNameChar(char: string) {
+    return allowCharRegexp.test(char);
+}
+
+function compareRename(apiPath: string, parseResult: ParseResult, expectedName: string, changes: IChangedDocument[]): boolean {
+    const targetPosition = parseResult.getMarkerPosition("TARGET");
+    if (!targetPosition) {
+
+        console.log("Can not determine target position")
+        return false;
+    }
+
+    let newText = parseResult.getStrippedText();
+
+    changes.forEach((change) => {
+        if (change.uri !== apiPath) {
+            return;
+        }
+
+        if (change.text !== null) {
+            newText = change.text;
+        } else if (change.textEdits !== null) {
+            newText = applyDocumentEdits(newText, change.textEdits);
+        }
+    })
+
+    const markerPositions = parseResult.getMarkerPositions("TARGET");
+    markerPositions.push(parseResult.getMarkerPosition("SOURCE"));
+
+    let noMismatches = true;
+    for (const markerPosition of markerPositions) {
+        const nameAtPosition = findNameAtPosition(newText, markerPosition);
+
+        if (expectedName !== nameAtPosition) {
+
+            console.log("Resulting name at position " + markerPosition +
+                " is " + nameAtPosition + " instead of " + expectedName);
+
+            let start = markerPosition - 30;
+            if (start < 0) {
+                start = 0;
+            }
+
+            let end = markerPosition + 30;
+            if (end >= newText.length)  {
+                end = newText.length;
+            }
+
+            console.log("Code cut-off:\n-------------\n" + newText.substring(start, markerPosition) + "!" +
+                newText.substring(markerPosition, end) + "\n-------------");
+
+            noMismatches = false;
+        }
+    }
+
+    return noMismatches;
+}
+
+function getRenameFullPath(originalPath: string): string {
+    return path.resolve(__dirname, "../../../src/test/data/fixedActions/rename"
         + originalPath).replace(/\\/g, "/");
 }

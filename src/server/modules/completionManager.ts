@@ -14,7 +14,7 @@ import {
 
 import {
     IAbstractTextEditor,
-    IServerModule
+    IDisposableModule
 } from "./commonInterfaces";
 
 import {
@@ -44,7 +44,7 @@ import suggestions = require("raml-suggestions");
 
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule): IServerModule {
+                              editorManagerModule: IEditorManagerModule): IDisposableModule {
 
     return new CompletionManagerModule(connection, astManagerModule, editorManagerModule);
 }
@@ -395,15 +395,25 @@ class FSProvider implements suggestions.IFSProvider {
 //     }
 // }
 
-class CompletionManagerModule implements IServerModule {
+class CompletionManagerModule implements IDisposableModule {
+
+    private onDocumentCompletionListener;
+
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {
     }
 
     public launch() {
-        this.connection.onDocumentCompletion((uri, position) => {
+
+        this.onDocumentCompletionListener = (uri, position) => {
             return this.getCompletion(uri, position);
-        });
+        }
+
+        this.connection.onDocumentCompletion(this.onDocumentCompletionListener);
+    }
+
+    public dispose(): void {
+        this.connection.onDocumentCompletion(this.onDocumentCompletionListener, false);
     }
 
     /**

@@ -14,7 +14,7 @@ import {
 } from "../../common/typeInterfaces";
 
 import {
-    IServerModule
+    IDisposableModule
 } from "./commonInterfaces";
 
 import {
@@ -28,7 +28,7 @@ type IHighLevelNode = parser.hl.IHighLevelNode;
 
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule): IServerModule {
+                              editorManagerModule: IEditorManagerModule): IDisposableModule {
 
     return new ValidationManager(connection, astManagerModule, editorManagerModule);
 }
@@ -121,15 +121,25 @@ class Acceptor extends utils.PointOfViewValidationAcceptorImpl {
     }
 }
 
-class ValidationManager implements IServerModule {
+class ValidationManager implements IDisposableModule {
+
+    private onNewASTAvailableListener;
+
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {
     }
 
     public launch() {
-        this.astManagerModule.onNewASTAvailable((uri: string, version: number, ast: IHighLevelNode) => {
+
+        this.onNewASTAvailableListener = (uri: string, version: number, ast: IHighLevelNode) => {
             this.newASTAvailable(uri, version, ast);
-        });
+        }
+
+        this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener);
+    }
+
+    public dispose(): void {
+        this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener, false);
     }
 
     /**

@@ -381,4 +381,140 @@ describe('Fixed Actions Test Set',function(){
             testSuiteUtil.testMarkOccurrences("/test026.raml", done);
         });
     });
+
+    describe('Rename tests',function(){
+
+        it("test001/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test001.raml", done);
+        });
+
+        it("test002/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test002.raml", done);
+        });
+
+        it("test003/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test003.raml", done);
+        });
+
+        it("test004/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test004.raml", done);
+        });
+
+        it("test005/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test005.raml", done);
+        });
+
+        it("test006/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test006.raml", done);
+        });
+
+        it("test007/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test007.raml", done);
+        });
+
+        it("test008/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test008.raml", done);
+        });
+
+        // TODO uncomment when https://www.mulesoft.org/jira/browse/ALS-220 is fixed.
+        it("test009/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test009.raml", done);
+        });
+
+        it("test010/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test010.raml", done);
+        });
+
+        // TODO uncomment when https://www.mulesoft.org/jira/browse/ALS-221 is fixed.
+        it("test011/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test011.raml", done);
+        });
+
+        it("test012/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test012.raml", done);
+        });
+
+        it("test013/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test013.raml", done);
+        });
+
+        it("test014/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test014.raml", done);
+        });
+
+        it("test015/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test015.raml", done);
+        });
+
+        it("test016/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test016.raml", done);
+        });
+
+        it("test017/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test017.raml", done);
+        });
+
+        it("test018/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test018.raml", done);
+        });
+
+        it("test019/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test019.raml", done);
+        });
+
+        it("test020/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test020.raml", done);
+        });
+
+        // TODO uncomment when https://www.mulesoft.org/jira/browse/ALS-221 is fixed.
+        it("test021/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test021.raml", done);
+        });
+
+        it("test022/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test022.raml", done);
+        });
+
+        it("test023/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test023.raml", done);
+        });
+
+        it("test024/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test024.raml", done);
+        });
+
+        it("test025/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test025.raml", done);
+        });
+
+        it("test026/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testRename("/test026.raml", done);
+        });
+    });
 });

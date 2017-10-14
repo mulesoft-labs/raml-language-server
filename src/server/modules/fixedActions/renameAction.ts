@@ -27,7 +27,7 @@ import def= parserApi.ds;
 import stubs= parserApi.stubs;
 
 import {
-    IServerModule
+    IDisposableModule
 } from "../../modules/commonInterfaces";
 
 import utils = require("../../../common/utils");
@@ -36,18 +36,22 @@ import fixedActionCommon = require("./fixedActionsCommon");
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
                               editorManagerModule: IEditorManagerModule)
-                        : IServerModule {
+                        : IDisposableModule {
 
     return new RenameActionModule(connection, astManagerModule, editorManagerModule);
 }
 
-class RenameActionModule implements IServerModule {
+class RenameActionModule implements IDisposableModule {
+
+    private onRenameListener;
+
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManagerModule: IEditorManagerModule) {
     }
 
     public launch() {
-        this.connection.onRename((uri: string, position: number, newName: string) => {
+
+        this.onRenameListener = (uri: string, position: number, newName: string) => {
             const result = this.rename(uri, position, newName);
 
             this.connection.debugDetail("Renaming result for uri: " + uri,
@@ -59,7 +63,12 @@ class RenameActionModule implements IServerModule {
             }
 
             return result;
-        });
+        }
+        this.connection.onRename(this.onRenameListener);
+    }
+
+    public dispose(): void {
+        this.connection.onRename(this.onRenameListener, false);
     }
 
     /**

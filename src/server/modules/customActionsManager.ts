@@ -36,7 +36,7 @@ const universes = rp.universes;
 
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule): IServerModule {
+                              editorManagerModule: IEditorManagerModule): IDisposableModule {
 
     return new CustomActionsManager(connection, astManagerModule, editorManagerModule);
 }

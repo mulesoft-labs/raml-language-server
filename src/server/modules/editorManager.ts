@@ -23,7 +23,7 @@ import {
 export interface IEditorManagerModule extends IServerModule {
     launch(): void;
     getEditor(uri: string): IAbstractTextEditorWithCursor;
-    onChangeDocument(listener: (document: IChangedDocument) => void);
+    onChangeDocument(listener: (document: IChangedDocument) => void, unsubscribe?: boolean);
 
     /**
      * Sets document change executor to use when editor buffer text modification
@@ -387,8 +387,15 @@ class EditorManager implements IEditorManagerModule {
         return "EDITOR_MANAGER";
     }
 
-    public onChangeDocument(listener: (document: IChangedDocument) => void) {
-        this.documentChangeListeners.push(listener);
+    public onChangeDocument(listener: (document: IChangedDocument) => void, unsubscribe = false) {
+        if (unsubscribe) {
+            const index = this.documentChangeListeners.indexOf(listener);
+            if (index !== -1) {
+                this.documentChangeListeners.splice(index, 1);
+            }
+        } else {
+            this.documentChangeListeners.push(listener);
+        }
     }
 
     public getEditor(uri: string): IAbstractTextEditorWithCursor {
