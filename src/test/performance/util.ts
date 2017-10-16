@@ -320,8 +320,7 @@ function openConnection(): void {
 }
 
 function getAbsoluteUri(relativePath: string): string {
-    //return path.resolve(__dirname, "../../../src/test/data/performance", relativePath);
-    return path.resolve(__dirname, "../data/performance", relativePath);
+    return path.resolve(__dirname, "../../../src/test/data/performance", relativePath);
 }
 
 var cases: any = {
