@@ -321,7 +321,7 @@ function openConnection(): void {
 
 function getAbsoluteUri(relativePath: string): string {
     //return path.resolve(__dirname, "../../../src/test/data/performance", relativePath);
-    return path.resolve(__dirname, "/Users/dreamflyer/Downloads/project/modules/raml-js-parser-2/src/parser/test/data/performance", relativePath);
+    return path.resolve(__dirname, "../data/performance", relativePath);
 }
 
 var cases: any = {
