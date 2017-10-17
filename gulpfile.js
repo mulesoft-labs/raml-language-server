@@ -22,7 +22,12 @@ var testFilesComplete = [
     "dist/test/structure/structureTests.js",
     "dist/test/structure/detailsTests.js",
     "dist/test/parsertests/astReuseTestsBasicTyping.js",
-    "dist/test/fixedActions/fixedActionTests.js"
+    "dist/test/fixedActions/fixedActionTests.js",
+    "dist/test/longevity/editorManagerTests.js",
+    "dist/test/longevity/validationManagerTests.js",
+    "dist/test/longevity/completionManagerTests.js",
+    "dist/test/longevity/detailsManagerTests.js",
+    "dist/test/longevity/structureManagerTests.js"
 ];
 
 gulp.task('test', function() {

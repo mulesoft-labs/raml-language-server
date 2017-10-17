@@ -413,7 +413,7 @@ class CompletionManagerModule implements IDisposableModule {
     }
 
     public dispose(): void {
-        this.connection.onDocumentCompletion(this.onDocumentCompletionListener, false);
+        this.connection.onDocumentCompletion(this.onDocumentCompletionListener, true);
     }
 
     /**

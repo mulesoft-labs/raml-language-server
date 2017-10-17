@@ -214,7 +214,7 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      */
     public onMarkOccurrences(listener: (uri: string, position: number) => Promise<IRange[]>,
                              unsubsribe = false) {
-        this.markOccurrencesListeners.push(listener);
+        this.addListener(this.markOccurrencesListeners, listener, unsubsribe);
     }
 
     /**
@@ -223,7 +223,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      */
     public onDocumentDetails(listener: (uri: string, position: number) => Promise<DetailsItemJSON>,
                              unsubsribe = false) {
-        this.documentDetailsListeners.push(listener);
+
+        this.addListener(this.documentDetailsListeners, listener, unsubsribe);
     }
 
     /**
@@ -233,7 +234,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
      */
     public onChangePosition(listener: (uri: string, position: number) => void,
                             unsubsribe = false) {
-        this.changePositionListeners.push(listener);
+
+        this.addListener(this.changePositionListeners, listener, unsubsribe);
     }
 
     /**

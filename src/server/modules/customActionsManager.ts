@@ -200,17 +200,17 @@ class CustomActionsManager implements IDisposableModule {
 
     public dispose(): void {
         this.connection.onCalculateEditorContextActions(
-            this.onCalculateEditorContextActionsListener, false
+            this.onCalculateEditorContextActionsListener, true
         );
 
-        this.connection.onAllEditorContextActions(this.getAllActionsListener, false);
+        this.connection.onAllEditorContextActions(this.getAllActionsListener, true);
 
         this.connection.onExecuteContextAction(
-            this.onExecuteContextActionListener, false
+            this.onExecuteContextActionListener, true
         );
 
         this.connection.onSetServerConfiguration(
-            this.onSetServerConfigurationListener, false
+            this.onSetServerConfigurationListener, true
         );
     }
 

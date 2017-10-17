@@ -103,9 +103,9 @@ class DetailsManager implements IDisposableModule {
     }
 
     public dispose(): void {
-        this.connection.onDocumentDetails(this.onDocumentDetailsListener, false);
-        this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener, false);
-        this.connection.onChangePosition(this.onChangePositionListener, false);
+        this.connection.onDocumentDetails(this.onDocumentDetailsListener, true);
+        this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener, true);
+        this.connection.onChangePosition(this.onChangePositionListener, true);
     }
 
     /**

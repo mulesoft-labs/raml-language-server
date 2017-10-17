@@ -204,11 +204,14 @@ class StructureManager implements IDisposableModule {
 
     public dispose(): void {
 
-        this.connection.onDocumentStructure(this.onDocumentStructureListener, false);
+        this.connection.debugDetail("Disposing the module", "StructureManager",
+            "dispose");
 
-        this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener, false);
+        this.connection.onDocumentStructure(this.onDocumentStructureListener, true);
 
-        this.connection.onCloseDocument(this.onCloseDocumentListener, false);
+        this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener, true);
+
+        this.connection.onCloseDocument(this.onCloseDocumentListener, true);
     }
 
     /**

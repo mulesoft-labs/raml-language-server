@@ -55,7 +55,7 @@ class FindReferencesActionModule implements IDisposableModule {
     }
 
     public dispose(): void {
-        this.connection.onFindReferences(this.onFindReferencesListener, false);
+        this.connection.onFindReferences(this.onFindReferencesListener, true);
     }
 
     /**

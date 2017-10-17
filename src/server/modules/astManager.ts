@@ -346,11 +346,11 @@ class ASTManager implements IASTManagerModule {
 
     public dispose(): void {
 
-        this.connection.onOpenDocument(this.onOpenDocumentListener, false);
+        this.connection.onOpenDocument(this.onOpenDocumentListener, true);
 
-        this.editorManager.onChangeDocument(this.onChangeDocumentListener, false);
+        this.editorManager.onChangeDocument(this.onChangeDocumentListener, true);
 
-        this.connection.onCloseDocument(this.onCloseDocumentListener, false);
+        this.connection.onCloseDocument(this.onCloseDocumentListener, true);
     }
 
     /**
@@ -474,8 +474,16 @@ class ASTManager implements IASTManagerModule {
      */
     private addListener<T>(memberListeners: T[], listener: T, unsubscribe = false): void {
         if (unsubscribe) {
+            this.connection.debugDetail("Asked to remove listener",
+                "ASTManager", "addListener");
+
             const index = memberListeners.indexOf(listener);
+
+            this.connection.debugDetail("Found index: " + index,
+                "ASTManager", "addListener");
             if (index !== -1) {
+                this.connection.debugDetail("Removing listener",
+                    "ASTManager", "addListener");
                 memberListeners.splice(index, 1);
             }
         } else {

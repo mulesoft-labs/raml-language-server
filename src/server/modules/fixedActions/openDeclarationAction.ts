@@ -61,7 +61,7 @@ class OpenDeclarationActionModule implements IOpenDeclarationActionModule {
     }
 
     public dispose(): void {
-        this.connection.onOpenDeclaration(this.onOpenDeclarationListener, false);
+        this.connection.onOpenDeclaration(this.onOpenDeclarationListener, true);
     }
 
     /**

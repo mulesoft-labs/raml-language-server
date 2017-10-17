@@ -56,7 +56,7 @@ class MarkOccurrencesActionModule implements IDisposableModule {
     }
 
     public dispose(): void {
-        this.connection.onMarkOccurrences(this.onMarkOccurrencesListener, false);
+        this.connection.onMarkOccurrences(this.onMarkOccurrencesListener, true);
     }
 
     /**

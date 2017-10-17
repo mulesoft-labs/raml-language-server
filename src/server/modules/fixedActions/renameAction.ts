@@ -68,7 +68,7 @@ class RenameActionModule implements IDisposableModule {
     }
 
     public dispose(): void {
-        this.connection.onRename(this.onRenameListener, false);
+        this.connection.onRename(this.onRenameListener, true);
     }
 
     /**

@@ -139,7 +139,7 @@ class ValidationManager implements IDisposableModule {
     }
 
     public dispose(): void {
-        this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener, false);
+        this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener, true);
     }
 
     /**

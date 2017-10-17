@@ -76,7 +76,16 @@ export class Server {
     }
 
     public enableModule(moduleName: string): void {
+
+        this.connection.debugDetail("Changing module enablement of " + moduleName +
+            " to true",
+            "server", "onSetServerConfiguration");
+
         if (this.modulesEnablementState[moduleName]) {
+
+            this.connection.debugDetail("Module already enabled " + moduleName ,
+                                        "server", "onSetServerConfiguration");
+
             return;
         }
 
@@ -91,7 +100,15 @@ export class Server {
     }
 
     public disableModule(moduleName: string): void {
+        this.connection.debugDetail("Changing module enablement of " + moduleName +
+            " to false",
+            "server", "onSetServerConfiguration");
+
         if (!this.modulesEnablementState[moduleName]) {
+
+            this.connection.debugDetail("Module already disabled " + moduleName ,
+                "server", "onSetServerConfiguration");
+
             return;
         }
 
@@ -118,33 +135,33 @@ export class Server {
                 return;
             }
 
-            checkAndChangeEnablement(configuration.modulesConfiguration.enableCustomActionsModule,
+            this.checkAndChangeEnablement(configuration.modulesConfiguration.enableCustomActionsModule,
                 "CUSTOM_ACTIONS_MANAGER");
 
-            checkAndChangeEnablement(configuration.modulesConfiguration.enableDetailsModule,
+            this.checkAndChangeEnablement(configuration.modulesConfiguration.enableDetailsModule,
                 "DETAILS_MANAGER");
 
-            checkAndChangeEnablement(configuration.modulesConfiguration.enableASTManagerModule,
+            this.checkAndChangeEnablement(configuration.modulesConfiguration.enableASTManagerModule,
                 "AST_MANAGER");
 
-            checkAndChangeEnablement(configuration.modulesConfiguration.enableCompletionManagerModule,
+            this.checkAndChangeEnablement(configuration.modulesConfiguration.enableCompletionManagerModule,
                 "COMPLETION_MANAGER");
 
-            checkAndChangeEnablement(configuration.modulesConfiguration.enableEditorManagerModule,
+            this.checkAndChangeEnablement(configuration.modulesConfiguration.enableEditorManagerModule,
                 "EDITOR_MANAGER");
 
-            checkAndChangeEnablement(configuration.modulesConfiguration.enableFixedActionsModule,
+            this.checkAndChangeEnablement(configuration.modulesConfiguration.enableFixedActionsModule,
                 "FIXED_ACTIONS_MANAGER");
 
-            checkAndChangeEnablement(configuration.modulesConfiguration.enableStructureManagerModule,
+            this.checkAndChangeEnablement(configuration.modulesConfiguration.enableStructureManagerModule,
                 "STRUCTURE_MANAGER");
 
-            checkAndChangeEnablement(configuration.modulesConfiguration.enableValidationManagerModule,
+            this.checkAndChangeEnablement(configuration.modulesConfiguration.enableValidationManagerModule,
                 "VALIDATION_MANAGER");
 
             if (configuration.modulesConfiguration.allModules != null) {
 
-                this.connection.debug("Changing module enablement of " + moduleID +
+                this.connection.debugDetail("Changing module enablement of all modules" +
                     " to " + configuration.modulesConfiguration.allModules,
                     "server", "onSetServerConfiguration");
 
