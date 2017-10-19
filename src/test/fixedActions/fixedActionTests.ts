@@ -156,8 +156,8 @@ describe('Fixed Actions Test Set',function(){
         });
 /* //TODO uncomment after fixing https://www.mulesoft.org/jira/browse/ALS-230
         it("test031/api.raml", function (done) {
-            this.timeout(15000);
-            testSuiteUtil.testOpenDeclaration("/test031.raml", done);
+         this.timeout(15000);
+         testSuiteUtil.testOpenDeclaration("/test031.raml", done);
         });
 */
         it("test032/api.raml", function (done) {
@@ -166,8 +166,8 @@ describe('Fixed Actions Test Set',function(){
         });
 /* //TODO uncomment after fixing https://www.mulesoft.org/jira/browse/ALS-230
         it("test033/api.raml", function (done) {
-            this.timeout(15000);
-            testSuiteUtil.testOpenDeclaration("/test033.raml", done);
+         this.timeout(15000);
+         testSuiteUtil.testOpenDeclaration("/test033.raml", done);
         });
 */
         it("test034/api.raml", function (done) {
@@ -236,8 +236,8 @@ describe('Fixed Actions Test Set',function(){
         });
 /* //TODO uncomment after fixing https://www.mulesoft.org/jira/browse/ALS-230
         it("test046/api.raml", function (done) {
-            this.timeout(15000);
-            testSuiteUtil.testOpenDeclaration("/test046.raml", done);
+         this.timeout(15000);
+         testSuiteUtil.testOpenDeclaration("/test046.raml", done);
         });
 */
         it("test047/api.raml", function (done) {
@@ -248,6 +248,11 @@ describe('Fixed Actions Test Set',function(){
         it("test048/api.raml", function (done) {
             this.timeout(15000);
             testSuiteUtil.testOpenDeclaration("/test048.raml", done);
+        });
+
+        it("test049/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testOpenDeclaration("/test049.raml", done);
         });
     });
 
@@ -426,8 +431,8 @@ describe('Fixed Actions Test Set',function(){
         });
 /* // TODO uncomment when https://www.mulesoft.org/jira/browse/ALS-220 is fixed.
         it("test035/api.raml", function (done) {
-            this.timeout(15000);
-            testSuiteUtil.testFindReferences("/test035.raml", done);
+         this.timeout(15000);
+         testSuiteUtil.testFindReferences("/test035.raml", done);
         });
 */
         it("test036/api.raml", function (done) {
@@ -477,8 +482,8 @@ describe('Fixed Actions Test Set',function(){
 
 /* //TODO uncomment after fixing https://www.mulesoft.org/jira/browse/ALS-228
         it("test044/api.raml", function (done) {
-            this.timeout(15000);
-            testSuiteUtil.testFindReferences("/test044.raml", done);
+         this.timeout(15000);
+         testSuiteUtil.testFindReferences("/test044.raml", done);
         });
 */
         it("test045/api.raml", function (done) {
@@ -487,8 +492,8 @@ describe('Fixed Actions Test Set',function(){
         });
 /* //TODO uncomment after fixing https://www.mulesoft.org/jira/browse/ALS-231
         it("test046/api.raml", function (done) {
-            this.timeout(15000);
-            testSuiteUtil.testFindReferences("/test046.raml", done);
+         this.timeout(15000);
+         testSuiteUtil.testFindReferences("/test046.raml", done);
         });
 */
         it("test047/api.raml", function (done) {
@@ -499,6 +504,11 @@ describe('Fixed Actions Test Set',function(){
         it("test048/api.raml", function (done) {
             this.timeout(15000);
             testSuiteUtil.testFindReferences("/test048.raml", done);
+        });
+
+        it("test049/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test049.raml", done);
         });
     });
 
@@ -635,6 +645,122 @@ describe('Fixed Actions Test Set',function(){
         it("test026/api.raml", function (done) {
             this.timeout(15000);
             testSuiteUtil.testMarkOccurrences("/test026.raml", done);
+        });
+        /* TODO Uncomment after fixing https://www.mulesoft.org/jira/browse/ALS-235
+         it("test027/api.raml", function (done) {
+         this.timeout(15000);
+         testSuiteUtil.testMarkOccurrences("/test027.raml", done);
+         });
+         */
+        /* TODO Uncomment after fixing https://www.mulesoft.org/jira/browse/ALS-155
+         it("test028/api.raml", function (done) {
+         this.timeout(15000);
+         testSuiteUtil.testMarkOccurrences("/test028.raml", done);
+         });
+         */
+        it("test029/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test029.raml", done);
+        });
+
+        it("test030/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test030.raml", done);
+        });
+
+        it("test031/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test031.raml", done);
+        });
+
+        it("test032/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test032.raml", done);
+        });
+
+        it("test033/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test033.raml", done);
+        });
+
+        it("test034/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test034.raml", done);
+        });
+
+        it("test035/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test035.raml", done);
+        });
+
+        it("test036/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test036.raml", done);
+        });
+
+        it("test037/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test037.raml", done);
+        });
+
+        it("test038/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test038.raml", done);
+        });
+
+        it("test039/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test039.raml", done);
+        });
+
+        it("test040/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test040.raml", done);
+        });
+
+        it("test041/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test041.raml", done);
+        });
+
+        it("test042/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test042.raml", done);
+        });
+
+        it("test043/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test043.raml", done);
+        });
+
+        it("test044/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test044.raml", done);
+        });
+        /* TODO Uncomment after fixing https://www.mulesoft.org/jira/browse/ALS-236
+         it("test045/api.raml", function (done) {
+         this.timeout(15000);
+         testSuiteUtil.testMarkOccurrences("/test045.raml", done);
+         });
+         */
+        it("test046/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test046.raml", done);
+        });
+
+        it("test047/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test047.raml", done);
+        });
+
+        it("test048/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test048.raml", done);
+        });
+
+        it("test049/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test049.raml", done);
         });
     });
 });
