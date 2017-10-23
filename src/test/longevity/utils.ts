@@ -323,7 +323,6 @@ class StructureManagerTester extends AbstractDocumentTester {
 
         this.connection.onStructureReport((structureReport) => {
             if (this.callBack && this.callBack.resolve) {
-                console.log(JSON.stringify(structureReport))
                 this.callBack.resolve(true);
             }
 
@@ -360,6 +359,7 @@ class CompletionManagerTester extends AbstractDocumentTester {
     }
 
     public test(contentVariant: IContentVariant, last: boolean): Promise<boolean> {
+
 
         this.connection.documentChanged({
             uri: contentVariant.path,
@@ -420,6 +420,9 @@ class WordBasedContentProducer implements IContentProducer {
         this.contentBuffer = fileContent.substr(0, lineIndex);
 
         this.words = fileContent.substring(lineIndex).split(/(\s+)/);
+        if (this.words.length > 0 && this.words[this.words.length - 1].length == 0) {
+            this.words.splice(this.words.length - 1, 1);
+        }
     }
 
     public getNext(): IContentVariant {
