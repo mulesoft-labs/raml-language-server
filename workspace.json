@@ -2,7 +2,7 @@
   "raml-language-server" : {
     "build" : "npm run build",
     "test": "npm run test",
-    "gitUrl" : "https://github.com/raml-org/raml-language-server.git",
+    "gitUrl" : "https://github.com/mulesoft-labs/raml-language-server",
     "gitBranch" : false,
     "installTypings" : true
   },
