@@ -116,13 +116,13 @@ This is also the place where the “universal” server data like structure is c
 
 ### MS LSP client
 
+More details of how to use the client are [here](./documentation/mslsp_client.md)
+
 This type of client has no client interface because this is something handled by the standard LSP clients, at least until we decide to extend what MS LSP currently provides.
 
 Launching is represented by the proper LSP config, it is supposed that the client simply adds raml-language-client to dependencies list and refers it as a server module. For non-node clients it can be harder.
 
 Communication is handled as server part by converting MS LSP server calls/data to/from server interface calls/data. This is also the place where the “universal” server data like structure is converted to this particular client’s terms like symbols if needed.
-
-In the current implementation prototype launching implementation is located in `src/entryPoints/vscode` folder
 
 ### Server interface
 
