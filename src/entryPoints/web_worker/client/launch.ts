@@ -41,6 +41,14 @@ import {
     RAMLClientConnection
 } from "./client";
 
+export {
+    StructureCategories
+} from "../../../common/typeInterfaces";
+
+export {
+    Reconciler
+} from "../../../common/reconciler";
+
 let clientConnection = null;
 
 export function getConnection(): IClientConnection {
