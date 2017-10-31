@@ -215,4 +215,14 @@ export interface IClientConnection extends ILogger {
      * @param serverSettings
      */
     setServerConfiguration(serverSettings: IServerConfiguration): void;
+
+    /**
+     * Changes value of details item.
+     * @param uri
+     * @param position
+     * @param itemID
+     * @param value
+     */
+    changeDetailValue(uri: string, position: number, itemID: string,
+                      value: string | number| boolean): Promise<IChangedDocument[]>;
 }

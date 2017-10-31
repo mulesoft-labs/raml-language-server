@@ -8,7 +8,8 @@
       "description": "Responses MUST be a map of one or more HTTP status codes, where each status code itself is a map that describes that status code.",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "200"
+      "valueText": "200",
+      "id": ".collection.get.200#code"
     },
     {
       "title": "Documentation",
@@ -20,11 +21,14 @@
           "description": "A longer, human-friendly description of the response",
           "type": "MARKDOWN",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": ".collection.get.200#description"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Documentation"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#Response"
 }

@@ -8,7 +8,8 @@
       "description": "Name of the security scheme",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "custom_scheme"
+      "valueText": "custom_scheme",
+      "id": ".custom_scheme#name"
     },
     {
       "title": "Documentation",
@@ -20,25 +21,30 @@
           "description": "The displayName attribute specifies the security scheme display name. It is a friendly name used only for  display or documentation purposes. If displayName is not specified, it defaults to the element's key (the name of the property itself).",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": ".custom_scheme#displayName"
         },
         {
           "title": "description",
           "description": "The description MAY be used to describe a securityScheme.",
           "type": "MARKDOWN",
           "children": [],
-          "valueText": "A custom security scheme for authenticating requests.\n"
+          "valueText": "A custom security scheme for authenticating requests.\n",
+          "id": ".custom_scheme#description"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Documentation"
     },
     {
       "title": "type",
       "description": "The securitySchemes property MUST be used to specify an API's security mechanisms, including the required settings and the authentication methods that the API supports. one authentication method is allowed if the API supports them.",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "x-custom"
+      "valueText": "x-custom",
+      "id": ".custom_scheme#type"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#AbstractSecurityScheme"
 }

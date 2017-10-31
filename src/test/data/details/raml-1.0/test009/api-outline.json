@@ -8,7 +8,8 @@
       "description": "Type name for top level types. For properties and parameters -- property o parameter name, respectively. For bodies -- media type.",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "Alertable"
+      "valueText": "Alertable",
+      "id": ".Alertable#name"
     },
     {
       "title": "General",
@@ -20,24 +21,28 @@
           "description": "Restrictions on where annotations of this type can be applied. If this property is specified, annotations of this type may only be applied on a property corresponding to one of the target names specified as the value of this property.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": ".Alertable#allowedTargets"
         },
         {
           "title": "default",
           "description": "Provides default value for a property",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": ".Alertable#default"
         },
         {
           "title": "isAnnotation",
           "description": "Whether the type represents annotation",
           "type": "CHECKBOX",
           "children": [],
-          "valueText": "false"
+          "valueText": "false",
+          "id": ".Alertable#isAnnotation"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#General"
     },
     {
       "title": "Documentation",
@@ -49,17 +54,20 @@
           "description": "The displayName attribute specifies the type display name. It is a friendly name used only for  display or documentation purposes. If displayName is not specified, it defaults to the element's key (the name of the property itself).",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": ".Alertable#displayName"
         },
         {
           "title": "description",
           "description": "A longer, human-friendly description of the type",
           "type": "MARKDOWN",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": ".Alertable#description"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Documentation"
     },
     {
       "title": "Facets",
@@ -71,38 +79,44 @@
           "description": "Array component type.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": ".Alertable#items"
         },
         {
           "title": "maxItems",
           "description": "Maximum amount of items in array",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": ".Alertable#maxItems"
         },
         {
           "title": "minItems",
           "description": "Minimum amount of items in array",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": ".Alertable#minItems"
         },
         {
           "title": "uniqueItems",
           "description": "Should items in array be unique",
           "type": "CHECKBOX",
           "children": [],
-          "valueText": "false"
+          "valueText": "false",
+          "id": ".Alertable#uniqueItems"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Facets"
     },
     {
       "title": "type",
       "description": "A base type which the current type extends, or more generally a type expression.",
       "type": "MULTIEDITOR",
       "children": [],
-      "valueText": "\"(Manager | AlertableAdmin)[]\""
+      "valueText": "\"(Manager | AlertableAdmin)[]\"",
+      "id": ".Alertable#type"
     },
     {
       "title": "Type",
@@ -114,11 +128,14 @@
           "description": "A base type which the current type extends, or more generally a type expression.",
           "type": "TYPEDISPLAY",
           "children": [],
-          "valueText": "(Manager | AlertableAdmin)[]"
+          "valueText": "(Manager | AlertableAdmin)[]",
+          "id": ".Alertable#type"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Type"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#Alertable"
 }

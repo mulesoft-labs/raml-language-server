@@ -159,6 +159,15 @@ export interface IServerConnection extends ILogger {
     onDocumentDetails(listener: (uri: string, position: number) => Promise<DetailsItemJSON>, unsubscribe?: boolean);
 
     /**
+     * Adds a listener to document details value change request.
+     * @param listener
+     * @param unsubscribe - if true, existing listener will be removed. False by default.
+     */
+    onChangeDetailValue(listener: (uri: string, position: number, itemID: string,
+                                   value: string | number| boolean) => Promise<IChangedDocument[]>,
+                        unsubscribe?: boolean);
+
+    /**
      * Adds a listener to document cursor position change notification.
      * Must notify listeners in order of registration.
      * @param listener

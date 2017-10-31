@@ -8,7 +8,8 @@
       "description": "Name of the trait",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "base"
+      "valueText": "base",
+      "id": ".base#name"
     },
     {
       "title": "Documentation",
@@ -20,24 +21,28 @@
           "description": "An alternate, human-friendly name for the trait",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": "base"
+          "valueText": "base",
+          "id": ".base#displayName"
         },
         {
           "title": "usage",
           "description": "Instructions on how and when the trait should be used.",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": "method"
+          "valueText": "method",
+          "id": ".base#usage"
         },
         {
           "title": "description",
           "description": "",
           "type": "MARKDOWN",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": ".base#description"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Documentation"
     },
     {
       "title": "General",
@@ -49,10 +54,12 @@
           "description": "A method can override an API's protocols value for that single method by setting a different value for the fields.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": "HTTPS"
+          "valueText": "HTTPS",
+          "id": ".base#protocols"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#General"
     },
     {
       "title": "References",
@@ -64,11 +71,14 @@
           "description": "A list of the security schemas to apply, these must be defined in the securitySchemes declaration. To indicate that the method may be called without applying any securityScheme, the method may be annotated with the null securityScheme. Security schemas may also be applied to a resource with securedBy, which is equivalent to applying the security schemas to all methods that may be declared, explicitly or implicitly, by defining the resourceTypes or traits property for that resource.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": "basic, null"
+          "valueText": "basic, null",
+          "id": ".base#securedBy"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#References"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#Trait"
 }

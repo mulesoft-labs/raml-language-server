@@ -35,6 +35,8 @@ export abstract class AbstractServerConnection {
     protected markOccurrencesListeners: {(uri: string, position: number): Promise<IRange[]>}[] = [];
     protected renameListeners: {(uri: string, position: number, newName: string): IChangedDocument[]}[] = [];
     protected documentDetailsListeners: {(uri: string, position: number): Promise<DetailsItemJSON>}[] = [];
+    private changeDetailValueListeners: {(uri: string, position: number, itemID: string,
+                                          value: string | number| boolean): Promise<IChangedDocument[]>}[] = [];
     protected changePositionListeners: {(uri: string, position: number): void}[] = [];
     protected serverConfigurationListeners: {(configuration: IServerConfiguration): void}[] = [];
 
@@ -155,6 +157,17 @@ export abstract class AbstractServerConnection {
                              unsubsribe = false) {
 
         this.addListener(this.documentDetailsListeners, listener, unsubsribe);
+    }
+
+    /**
+     * Adds a listener to document details value change request.
+     * @param listener
+     * @param unsubscribe - if true, existing listener will be removed. False by default.
+     */
+    public onChangeDetailValue(listener: (uri: string, position: number, itemID: string,
+                                          value: string | number| boolean) => Promise<IChangedDocument[]>,
+                               unsubsribe?: boolean) {
+        this.addListener(this.changeDetailValueListeners, listener, unsubsribe);
     }
 
     /**

@@ -13,17 +13,20 @@
           "description": "An alternate, human-friendly name for the security scheme part",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": ".custom_scheme.describedBy#displayName"
         },
         {
           "title": "description",
           "description": "A longer, human-friendly description of the security scheme part",
           "type": "MARKDOWN",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": ".custom_scheme.describedBy#description"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Documentation"
     },
     {
       "title": "References",
@@ -35,17 +38,20 @@
           "description": "Instantiation of applyed traits",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": ".custom_scheme.describedBy#is"
         },
         {
           "title": "securedBy",
           "description": "A list of the security schemas to apply, these must be defined in the securitySchemes declaration. To indicate that the method may be called without applying any securityScheme, the method may be annotated with the null securityScheme. Security schemas may also be applied to a resource with securedBy, which is equivalent to applying the security schemas to all methods that may be declared, explicitly or implicitly, by defining the resourceTypes or traits property for that resource.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": ".custom_scheme.describedBy#securedBy"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#References"
     },
     {
       "title": "General",
@@ -57,11 +63,14 @@
           "description": "A method can override an API's protocols value for that single method by setting a different value for the fields.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": ".custom_scheme.describedBy#protocols"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#SecuritySchemePart"
 }

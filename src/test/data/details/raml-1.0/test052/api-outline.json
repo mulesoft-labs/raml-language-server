@@ -13,31 +13,36 @@
           "description": "A URI that's to be used as the base of all the resources' URIs. Often used as the base of the URL of each resource, containing the location of the API. Can be a template URI.",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": "#baseUri"
         },
         {
           "title": "mediaType",
           "description": "The default media type to use for request and response bodies (payloads), e.g. \"application/json\"",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": "#mediaType"
         },
         {
           "title": "protocols",
           "description": "The protocols supported by the API",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": "#protocols"
         },
         {
           "title": "version",
           "description": "The version of the API, e.g. 'v1'",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": "#version"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#General"
     },
     {
       "title": "References",
@@ -49,17 +54,20 @@
           "description": "The security schemes that apply to every resource and method in the API",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": "#securedBy"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#References"
     },
     {
       "title": "title",
       "description": "Short plain-text label for the API",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "My API With Types"
+      "valueText": "My API With Types",
+      "id": "#title"
     },
     {
       "title": "Documentation",
@@ -71,11 +79,14 @@
           "description": "A longer, human-friendly description of the API",
           "type": "MARKDOWN",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": "#description"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Documentation"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#Api"
 }

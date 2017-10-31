@@ -8,7 +8,8 @@
       "description": "Method that can be called",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "get"
+      "valueText": "get",
+      "id": "./users/{id}.get#method"
     },
     {
       "title": "Documentation",
@@ -20,17 +21,20 @@
           "description": "The displayName attribute specifies the method display name. It is a friendly name used only for  display or documentation purposes. If displayName is not specified, it defaults to the element's key (the name of the property itself).",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": "./users/{id}.get#displayName"
         },
         {
           "title": "description",
           "description": "",
           "type": "MARKDOWN",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": "./users/{id}.get#description"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Documentation"
     },
     {
       "title": "References",
@@ -42,17 +46,20 @@
           "description": "Instantiation of applyed traits",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": "./users/{id}.get#is"
         },
         {
           "title": "securedBy",
           "description": "securityScheme may also be applied to a resource by using the securedBy key, which is equivalent to applying the securityScheme to all methods that may be declared, explicitly or implicitly, by defining the resourceTypes or traits property for that resource. To indicate that the method may be called without applying any securityScheme, the method may be annotated with the null securityScheme.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": "./users/{id}.get#securedBy"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#References"
     },
     {
       "title": "General",
@@ -64,11 +71,14 @@
           "description": "A method can override the protocols specified in the resource or at the API root, by employing this property.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": "./users/{id}.get#protocols"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#Method"
 }

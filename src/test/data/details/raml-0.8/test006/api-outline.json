@@ -8,15 +8,18 @@
       "description": "title of documentation section",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "doc"
+      "valueText": "doc",
+      "id": ".#title"
     },
     {
       "title": "content",
       "description": "Content of documentation section",
       "type": "MARKDOWN",
       "children": [],
-      "valueText": "description"
+      "valueText": "description",
+      "id": ".#content"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#DocumentationItem"
 }

@@ -8,7 +8,8 @@
       "description": "Name of the trait",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "base"
+      "valueText": "base",
+      "id": ".base#name"
     },
     {
       "title": "Documentation",
@@ -20,24 +21,28 @@
           "description": "The displayName attribute specifies the trait display name. It is a friendly name used only for  display or documentation purposes. If displayName is not specified, it defaults to the element's key (the name of the property itself).",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": "base"
+          "valueText": "base",
+          "id": ".base#displayName"
         },
         {
           "title": "usage",
           "description": "Instructions on how and when the trait should be used.",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": "method"
+          "valueText": "method",
+          "id": ".base#usage"
         },
         {
           "title": "description",
           "description": "",
           "type": "MARKDOWN",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": ".base#description"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Documentation"
     },
     {
       "title": "References",
@@ -49,17 +54,20 @@
           "description": "Instantiation of applyed traits",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": "main"
+          "valueText": "main",
+          "id": ".base#is"
         },
         {
           "title": "securedBy",
           "description": "securityScheme may also be applied to a resource by using the securedBy key, which is equivalent to applying the securityScheme to all methods that may be declared, explicitly or implicitly, by defining the resourceTypes or traits property for that resource. To indicate that the method may be called without applying any securityScheme, the method may be annotated with the null securityScheme.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": "basic, null"
+          "valueText": "basic, null",
+          "id": ".base#securedBy"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#References"
     },
     {
       "title": "General",
@@ -71,11 +79,14 @@
           "description": "A method can override the protocols specified in the resource or at the API root, by employing this property.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": "HTTPS"
+          "valueText": "HTTPS",
+          "id": ".base#protocols"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#Trait"
 }
