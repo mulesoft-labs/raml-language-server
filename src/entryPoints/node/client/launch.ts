@@ -43,8 +43,10 @@ function launch(): IClientConnection {
     // connection.setLoggerConfiguration({
     //     allowedComponents: [
     //         "server",
-    //         "ASTManager",
-    //         "StructureManager"
+    //         "DetailsManager",
+    //         "MessageDispatcher:NodeProcessClientConnection",
+    //         "MessageDispatcher:NodeProcessServerConnection",
+    //         "detailsImpl"
     //     ],
     //     maxSeverity: MessageSeverity.DEBUG_DETAIL,
     //     maxMessageLength: 5000

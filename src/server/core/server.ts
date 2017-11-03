@@ -52,7 +52,7 @@ export class Server {
             astManagerModule, editorManagerModule));
 
         this.registerModule(DetailsManagerModule.createManager(connection,
-            astManagerModule, editorManagerModule), false);
+            astManagerModule, editorManagerModule), true);
 
         this.registerModule(CompletionManagerModule.createManager(connection,
             astManagerModule, editorManagerModule));
