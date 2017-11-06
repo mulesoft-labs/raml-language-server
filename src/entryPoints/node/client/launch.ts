@@ -35,22 +35,22 @@ function launch(): IClientConnection {
 
     const connection = new NodeProcessClientConnection(serverProcess);
 
-    connection.setLoggerConfiguration({
-        maxSeverity: MessageSeverity.ERROR,
-        maxMessageLength: 50
-    });
-
     // connection.setLoggerConfiguration({
-    //     allowedComponents: [
-    //         "server",
-    //         "DetailsManager",
-    //         "MessageDispatcher:NodeProcessClientConnection",
-    //         "MessageDispatcher:NodeProcessServerConnection",
-    //         "detailsImpl"
-    //     ],
-    //     maxSeverity: MessageSeverity.DEBUG_DETAIL,
-    //     maxMessageLength: 5000
+    //     maxSeverity: MessageSeverity.ERROR,
+    //     maxMessageLength: 50
     // });
+
+    connection.setLoggerConfiguration({
+        allowedComponents: [
+            "server",
+            "DetailsManager",
+            "MessageDispatcher:NodeProcessClientConnection",
+            "MessageDispatcher:NodeProcessServerConnection",
+            "detailsImpl"
+        ],
+        maxSeverity: MessageSeverity.DEBUG_DETAIL,
+        maxMessageLength: 5000
+    });
 
     return connection;
 }
