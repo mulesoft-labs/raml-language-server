@@ -13,11 +13,14 @@
           "description": "contains description of why library exist",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": "#usage"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Documentation"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#Library"
 }

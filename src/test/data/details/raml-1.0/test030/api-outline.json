@@ -8,15 +8,18 @@
       "description": "Title of documentation section",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "Rendering Data as Graphs"
+      "valueText": "Rendering Data as Graphs",
+      "id": ".[2]#title"
     },
     {
       "title": "content",
       "description": "Content of documentation section",
       "type": "MARKDOWN",
       "children": [],
-      "valueText": "content"
+      "valueText": "content",
+      "id": ".[2]#content"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#DocumentationItem"
 }

@@ -218,6 +218,26 @@ export abstract class AbstractClientConnection extends MessageDispatcher<Message
     }
 
     /**
+     * Changes value of details item.
+     * @param uri
+     * @param position
+     * @param itemID
+     * @param value
+     */
+    public changeDetailValue(uri: string, position: number, itemID: string,
+                             value: string | number| boolean): Promise<clientInterfaces.IChangedDocument[]> {
+        return this.sendWithResponse({
+            type : "CHANGE_DETAIL_VALUE",
+            payload : {
+                uri,
+                position,
+                itemID,
+                value
+            }
+        });
+    }
+
+    /**
      * Sets connection logger configuration, both for the server and for the client.
      * @param loggerSettings
      */

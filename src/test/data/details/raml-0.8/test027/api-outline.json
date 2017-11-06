@@ -8,7 +8,8 @@
       "description": "Name of the global schema, used to refer on schema content",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "UserJSON"
+      "valueText": "UserJSON",
+      "id": ".UserJSON#key"
     },
     {
       "title": "General",
@@ -20,11 +21,14 @@
           "description": "Content of the schema",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": "{\n  \"$schema\": \"http://json-schema.org/draft-03/schema\",\n  \"properties\": {\n    \"input\": {\n      \"required\": false,\n      \"type\": \"string\"\n    }\n  },\n  \"required\": false,\n  \"type\": \"object\"\n}"
+          "valueText": "{\n  \"$schema\": \"http://json-schema.org/draft-03/schema\",\n  \"properties\": {\n    \"input\": {\n      \"required\": false,\n      \"type\": \"string\"\n    }\n  },\n  \"required\": false,\n  \"type\": \"object\"\n}",
+          "id": ".UserJSON#value"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#GlobalSchema"
 }

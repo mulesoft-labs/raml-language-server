@@ -47,6 +47,8 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
     private markOccurrencesListeners: {(uri: string, position: number): Promise<IRange[]>}[] = [];
     private renameListeners: {(uri: string, position: number, newName: string): IChangedDocument[]}[] = [];
     private documentDetailsListeners: {(uri: string, position: number): Promise<DetailsItemJSON>}[] = [];
+    private changeDetailValueListeners: {(uri: string, position: number, itemID: string,
+                                          value: string | number| boolean): Promise<IChangedDocument[]>}[] = [];
     private changePositionListeners: {(uri: string, position: number): void}[] = [];
     private serverConfigurationListeners: {(configuration: IServerConfiguration): void}[] = [];
 
@@ -225,6 +227,17 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
                              unsubsribe = false) {
 
         this.addListener(this.documentDetailsListeners, listener, unsubsribe);
+    }
+
+    /**
+     * Adds a listener to document details value change request.
+     * @param listener
+     * @param unsubscribe - if true, existing listener will be removed. False by default.
+     */
+    public onChangeDetailValue(listener: (uri: string, position: number, itemID: string,
+                                          value: string | number| boolean) => Promise<IChangedDocument[]>,
+                               unsubsribe?: boolean) {
+        this.addListener(this.changeDetailValueListeners, listener, unsubsribe);
     }
 
     /**
@@ -417,6 +430,21 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
         }
 
         return this.documentDetailsListeners[0](payload.uri, payload.position);
+    }
+
+    /**
+     * Handler of GET_STRUCTURE message.
+     * @param uri
+     * @constructor
+     */
+    public CHANGE_DETAIL_VALUE(payload: {uri: string, position: number, itemID: string,
+                                   value: string | number| boolean}): Promise<IChangedDocument[]> {
+        if (this.changeDetailValueListeners.length === 0) {
+            return Promise.resolve(null);
+        }
+
+        return this.changeDetailValueListeners[0](payload.uri, payload.position,
+                                                  payload.itemID, payload.value);
     }
 
     /**

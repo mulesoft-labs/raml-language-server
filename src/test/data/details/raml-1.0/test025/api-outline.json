@@ -8,7 +8,8 @@
       "description": "Name prefix (without dot) used to refer imported declarations",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "files"
+      "valueText": "files",
+      "id": ".files#key"
     },
     {
       "title": "General",
@@ -20,11 +21,14 @@
           "description": "Content of the schema",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": "files.raml"
+          "valueText": "files.raml",
+          "id": ".files#value"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#UsesDeclaration"
 }

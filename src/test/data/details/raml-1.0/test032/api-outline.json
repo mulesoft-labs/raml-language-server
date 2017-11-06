@@ -8,7 +8,8 @@
       "description": "Relative URL of this resource from the parent resource",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "/someChildUri"
+      "valueText": "/someChildUri",
+      "id": "./someChildUri#relativeUri"
     },
     {
       "title": "Documentation",
@@ -20,17 +21,20 @@
           "description": "The displayName attribute specifies the resource display name. It is a friendly name used only for  display or documentation purposes. If displayName is not specified, it defaults to the element's key (the name of the property itself).",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": "./someChildUri#displayName"
         },
         {
           "title": "description",
           "description": "A longer, human-friendly description of the resource.",
           "type": "MARKDOWN",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": "./someChildUri#description"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Documentation"
     },
     {
       "title": "References",
@@ -42,25 +46,30 @@
           "description": "A list of the traits to apply to all methods declared (implicitly or explicitly) for this resource. Individual methods may override this declaration",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": "./someChildUri#is"
         },
         {
           "title": "securedBy",
           "description": "The security schemes that apply to all methods declared (implicitly or explicitly) for this resource.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": "./someChildUri#securedBy"
         },
         {
           "title": "type",
           "description": "The resource type which this resource inherits.",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": "./someChildUri#type"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#References"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#Resource"
 }

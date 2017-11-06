@@ -8,7 +8,8 @@
       "description": "Name of the global schema, used to refer on schema content",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "TestSchema"
+      "valueText": "TestSchema",
+      "id": ".TestSchema#key"
     },
     {
       "title": "General",
@@ -20,11 +21,14 @@
           "description": "Content of the schema",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": "{\n  \"$schema\": \"http://json-schema.org/draft-03/schema\",\n  \"type\": \"object\" ,\n  \"properties\": {\n    \"type\": {\n      \"type\": \"string\"\n    },\n    \"id\": {\n      \"type\": \"string\"\n    }\n  }\n}\n"
+          "valueText": "{\n  \"$schema\": \"http://json-schema.org/draft-03/schema\",\n  \"type\": \"object\" ,\n  \"properties\": {\n    \"type\": {\n      \"type\": \"string\"\n    },\n    \"id\": {\n      \"type\": \"string\"\n    }\n  }\n}\n",
+          "id": ".TestSchema#value"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#GlobalSchema"
 }

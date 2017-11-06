@@ -14,13 +14,11 @@ import {
 
 import {
     DetailsItemJSON,
-    ILogger,
-    IValidationIssue
+    IChangedDocument
 } from "../../common/typeInterfaces";
 
 import {
-    IDisposableModule,
-    IServerModule
+    IDisposableModule
 } from "./commonInterfaces";
 
 import rp= require("raml-1-parser");
@@ -56,6 +54,7 @@ class DetailsManager implements IDisposableModule {
     private onDocumentDetailsListener;
     private onNewASTAvailableListener;
     private onChangePositionListener;
+    private onChangeDetailValueListener;
 
     /**
      * Remembering positions for opened documents.
@@ -100,12 +99,18 @@ class DetailsManager implements IDisposableModule {
             this.calculateAndSendDetailsReport(uri, version);
         };
         this.connection.onChangePosition(this.onChangePositionListener);
+
+        this.onChangeDetailValueListener = (uri, position, itemID, value) => {
+            return this.changeDetailValue(uri, position, itemID, value);
+        };
+        this.connection.onChangeDetailValue(this.onChangeDetailValueListener);
     }
 
     public dispose(): void {
         this.connection.onDocumentDetails(this.onDocumentDetailsListener, true);
         this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener, true);
         this.connection.onChangePosition(this.onChangePositionListener, true);
+        this.connection.onChangeDetailValue(this.onChangeDetailValueListener, true);
     }
 
     /**
@@ -201,5 +206,31 @@ class DetailsManager implements IDisposableModule {
                 }
             });
         }
+    }
+
+    private changeDetailValue(uri: string, position: number, itemID: string,
+                              value: string | number| boolean): Promise<IChangedDocument[]> {
+
+        return this.astManagerModule.forceGetCurrentAST(uri).then((currentAST) => {
+
+            outlineManagerCommons.setOutlineASTProvider(uri, this.astManagerModule,
+                this.editorManager, this.connection);
+
+            const result = ramlOutline.changeDetailValue(position, itemID, value)
+
+            this.connection.debug("Change documentn result is not null:" +
+                (result != null ? "true" : "false"), "DetailsManager",
+                "changeDetailValue");
+
+            if (result) {
+                this.connection.debugDetail("Calculation result: "
+                    + JSON.stringify(result, null, 2), "DetailsManager", "changeDetailValue");
+            }
+
+            return [{
+                uri,
+                text: result.text
+            }];
+        });
     }
 }

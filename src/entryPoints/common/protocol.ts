@@ -24,7 +24,8 @@ export type MessageToServerType =
     "CALCULATE_ACTIONS" |
     "EXECUTE_ACTION" |
     "ALL_ACTIONS" |
-    "SET_SERVER_CONFIGURATION";
+    "SET_SERVER_CONFIGURATION" |
+    "CHANGE_DETAIL_VALUE";
 
 export interface ProtocolMessage<MessageType extends MessageToClientType | MessageToServerType> {
     type: MessageType;

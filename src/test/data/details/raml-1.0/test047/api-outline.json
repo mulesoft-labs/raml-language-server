@@ -8,7 +8,8 @@
       "description": "Relative URL of this resource from the parent resource",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "/test"
+      "valueText": "/test",
+      "id": "./test#relativeUri"
     },
     {
       "title": "Documentation",
@@ -20,17 +21,20 @@
           "description": "The displayName attribute specifies the resource display name. It is a friendly name used only for  display or documentation purposes. If displayName is not specified, it defaults to the element's key (the name of the property itself).",
           "type": "ATTRIBUTETEXT",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": "./test#displayName"
         },
         {
           "title": "description",
           "description": "A longer, human-friendly description of the resource.",
           "type": "MARKDOWN",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": "./test#description"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Documentation"
     },
     {
       "title": "References",
@@ -42,25 +46,30 @@
           "description": "A list of the traits to apply to all methods declared (implicitly or explicitly) for this resource. Individual methods may override this declaration",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": "./test#is"
         },
         {
           "title": "securedBy",
           "description": "The security schemes that apply to all methods declared (implicitly or explicitly) for this resource.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": "./test#securedBy"
         },
         {
           "title": "type",
           "description": "The resource type which this resource inherits.",
           "type": "STRUCTURED",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": "./test#type"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#References"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#Resource"
 }

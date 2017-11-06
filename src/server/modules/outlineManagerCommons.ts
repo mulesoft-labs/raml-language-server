@@ -108,4 +108,5 @@ export function setOutlineASTProvider(uri: string, astManagerModule: IASTManager
                                       editorManagerModule: IEditorManagerModule,
                                       logger: ILogger) {
     ramlOutline.setASTProvider(new ASTProvider(uri, astManagerModule, editorManagerModule, logger));
+    ramlOutline.setLogger(logger);
 }

@@ -8,7 +8,8 @@
       "description": "Method that can be called",
       "type": "ATTRIBUTETEXT",
       "children": [],
-      "valueText": "get"
+      "valueText": "get",
+      "id": "./users/{id}.get#method"
     },
     {
       "title": "References",
@@ -20,17 +21,20 @@
           "description": "Instantiation of applyed traits",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": "./users/{id}.get#is"
         },
         {
           "title": "securedBy",
           "description": "A list of the security schemas to apply, these must be defined in the securitySchemes declaration. To indicate that the method may be called without applying any securityScheme, the method may be annotated with the null securityScheme. Security schemas may also be applied to a resource with securedBy, which is equivalent to applying the security schemas to all methods that may be declared, explicitly or implicitly, by defining the resourceTypes or traits property for that resource.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": "./users/{id}.get#securedBy"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#References"
     },
     {
       "title": "General",
@@ -42,10 +46,12 @@
           "description": "A method can override an API's protocols value for that single method by setting a different value for the fields.",
           "type": "MULTIEDITOR",
           "children": [],
-          "valueText": ""
+          "valueText": "",
+          "id": "./users/{id}.get#protocols"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#General"
     },
     {
       "title": "Documentation",
@@ -57,11 +63,14 @@
           "description": "",
           "type": "MARKDOWN",
           "children": [],
-          "valueText": null
+          "valueText": null,
+          "id": "./users/{id}.get#description"
         }
       ],
-      "valueText": null
+      "valueText": null,
+      "id": "Category#Documentation"
     }
   ],
-  "valueText": null
+  "valueText": null,
+  "id": "Category#Method"
 }
