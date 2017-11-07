@@ -1,6 +1,6 @@
 {
   "name": "raml-language-server",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "RAML Language Server based on the Language Server Protocol",
   "main": "./dist/index.js",
   "scripts": {
@@ -31,10 +31,10 @@
   "homepage": "https://github.com/raml-org/raml-language-server#readme",
   "typings": "./dist/index.d.ts",
   "dependencies": {
-    "raml-1-parser": "1.1.35",
-    "raml-outline":"0.0.11",
-    "raml-suggestions": "0.0.41",
-    "raml-actions" : "0.0.21",
+    "raml-1-parser": "1.1.36",
+    "raml-outline":"0.0.13",
+    "raml-suggestions": "0.0.42",
+    "raml-actions" : "0.0.22",
     "shortid": "^2.2.6",
     "vscode-languageserver": "^3.2.0",
     "promise-polyfill": "6.0.2",
