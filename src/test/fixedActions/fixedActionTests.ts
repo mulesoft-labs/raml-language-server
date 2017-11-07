@@ -254,6 +254,56 @@ describe('Fixed Actions Test Set',function(){
             this.timeout(15000);
             testSuiteUtil.testOpenDeclaration("/test049.raml", done);
         });
+
+        it("test050/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testOpenDeclaration("/test050.raml", done);
+        });
+
+        it("test051/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testOpenDeclaration("/test051.raml", done);
+        });
+
+        it("test052/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testOpenDeclaration("/test052.raml", done);
+        });
+
+        it("test053/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testOpenDeclaration("/test053.raml", done);
+        });
+
+        it("test054/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testOpenDeclaration("/test054.raml", done);
+        });
+
+        it("test055/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testOpenDeclaration("/test055.raml", done);
+        });
+
+        it("test056/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testOpenDeclaration("/test056.raml", done);
+        });
+
+        it("test057/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testOpenDeclaration("/test057.raml", done);
+        });
+
+        it("test058/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testOpenDeclaration("/test058.raml", done);
+        });
+
+        it("test059/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testOpenDeclaration("/test059.raml", done);
+        });
     });
 
     describe('Find references tests',function(){
