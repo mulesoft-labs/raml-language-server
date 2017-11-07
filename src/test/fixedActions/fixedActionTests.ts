@@ -812,6 +812,56 @@ describe('Fixed Actions Test Set',function(){
             this.timeout(15000);
             testSuiteUtil.testMarkOccurrences("/test049.raml", done);
         });
+
+        it("test050/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test050.raml", done);
+        });
+
+        it("test051/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test051.raml", done);
+        });
+
+        it("test052/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test052.raml", done);
+        });
+
+        it("test053/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test053.raml", done);
+        });
+
+        it("test054/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test054.raml", done);
+        });
+
+        it("test055/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test055.raml", done);
+        });
+
+        it("test056/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test056.raml", done);
+        });
+
+        it("test057/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test057.raml", done);
+        });
+
+        it("test058/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test058.raml", done);
+        });
+
+        it("test059/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test059.raml", done);
+        });
     });
 
     describe('Rename tests',function(){
