@@ -510,6 +510,56 @@ describe('Fixed Actions Test Set',function(){
             this.timeout(15000);
             testSuiteUtil.testFindReferences("/test049.raml", done);
         });
+
+        it("test050/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test050.raml", done);
+        });
+
+        it("test051/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test051.raml", done);
+        });
+
+        it("test052/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test052.raml", done);
+        });
+
+        it("test053/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test053.raml", done);
+        });
+
+        it("test054/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test054.raml", done);
+        });
+
+        it("test055/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test055.raml", done);
+        });
+
+        it("test056/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test056.raml", done);
+        });
+
+        it("test057/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test057.raml", done);
+        });
+
+        it("test058/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test058.raml", done);
+        });
+
+        it("test059/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test059.raml", done);
+        });
     });
 
     describe('Mark occurrences tests',function(){
