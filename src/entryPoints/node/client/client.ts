@@ -22,6 +22,8 @@ export class NodeProcessClientConnection extends AbstractClientConnection
             this.handleRecievedMessage(serverMessage);
         });
 
+        const logger = this;
+
         serverProcess.stdout.on("data", (data) => {
             console.log(data.toString());
         });
@@ -31,7 +33,7 @@ export class NodeProcessClientConnection extends AbstractClientConnection
         });
 
         serverProcess.on("close", function(code) {
-            this.debug("Validation process exited with code " + code, "NodeProcessClientConnection");
+            console.log("Validation process exited with code " + code, "NodeProcessClientConnection");
         });
     }
 

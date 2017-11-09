@@ -128,6 +128,7 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
         return new Promise((resolve: (value?: ResultType) => void, reject: (error?: any) => void) => {
 
             message.id = shortid.generate();
+
             this.callBacks[message.id] = {
                 resolve,
                 reject
@@ -135,9 +136,13 @@ export abstract class MessageDispatcher<MessageType extends MessageToClientType 
 
             try {
                 let strPayload: string = "";
-                if (message.payload != null) {
-                    strPayload = (typeof(message.payload) === "string") ?
-                        message.payload : JSON.stringify(message.payload, null, 2);
+                try {
+                    if (message.payload != null) {
+                        strPayload = (typeof(message.payload) === "string") ?
+                            message.payload : JSON.stringify(message.payload, null, 2);
+                    }
+                } catch (Error) {
+                    this.error(Error, "MessageDispatcher:" + this.name, "sendWithResponse");
                 }
 
                 this.debugDetail("Message "

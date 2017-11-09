@@ -46,7 +46,9 @@ function launch(): IClientConnection {
             "DetailsManager",
             "MessageDispatcher:NodeProcessClientConnection",
             "MessageDispatcher:NodeProcessServerConnection",
-            "detailsImpl"
+            "CustomActionsManager",
+            "CompleteBodyStateCalculator",
+            "contextActions"
         ],
         maxSeverity: MessageSeverity.DEBUG_DETAIL,
         maxMessageLength: 5000

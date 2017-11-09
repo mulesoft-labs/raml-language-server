@@ -20,6 +20,15 @@ class NodeProcessServerConnection extends AbstractMSServerConnection {
     }
 
     public sendMessage(message: ProtocolMessage<MessageToClientType>): void {
+
+        try {
+            this.debugDetail(JSON.stringify(message),
+                "MessageDispatcher:NodeProcessServerConnection", "sendMessage")
+        } catch (Error) {
+            this.error(Error,
+                "MessageDispatcher:NodeProcessServerConnection", "sendMessage")
+        }
+
         process.send(message);
     }
 
@@ -78,5 +87,14 @@ const server = new Server(connection);
 server.listen();
 
 process.on("message", (data: ProtocolMessage<MessageToClientType>) => {
+
+    try {
+        connection.debugDetail(JSON.stringify(data),
+            "MessageDispatcher:NodeProcessServerConnection", "recieveMessage");
+    } catch (Error) {
+        connection.error(Error,
+            "MessageDispatcher:NodeProcessServerConnection", "recieveMessage");
+    }
+
     connection.handleRecievedMessage(data);
 });

@@ -61,7 +61,7 @@ export class Server {
             astManagerModule, editorManagerModule));
 
         this.registerModule(CustomActionsManagerModule.createManager(connection,
-            astManagerModule, editorManagerModule), false);
+            astManagerModule, editorManagerModule), true);
     }
 
     public registerModule(module: IServerModule, defaultEnablementState = true): void {

@@ -275,6 +275,8 @@ class CustomActionsManager implements IDisposableModule {
 
             return actions.filter((action) => {
                 if (!this.enableUIActions && action.hasUI) {
+                    connection.debugDetail("Filtering out action: " + action.id + " as UI actions are disabled",
+                        "CustomActionsManager", "calculateEditorActions");
                     return false;
                 }
 
@@ -317,46 +319,7 @@ class CustomActionsManager implements IDisposableModule {
 
             this.initializeActionsFramework(uri, position);
 
-            ramlActions.setExternalUIDisplayExecutor(
-                (externalDisplay: ramlActions.IExternalUIDisplay) => {
 
-                connection.debugDetail("Requested to display UI for action ID " + actionId,
-                    "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
-
-                const action = ramlActions.findActionById(actionId);
-
-                connection.debugDetail("Action found: " + action ? "true" : "false",
-                    "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
-
-                return (initialUIState?: any) => {
-
-                    connection.debugDetail("Requested to display UI for action, git UI state",
-                        "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
-
-                    const uiCode = externalDisplay.createUICode(initialUIState);
-
-                    connection.debugDetail("UI code generated: " + uiCode ? "true" : "false",
-                        "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
-
-                    connection.debugDetail("Requesting client for UI code display.",
-                        "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
-
-                    return connection.displayActionUI({
-
-                        action,
-
-                        uiCode,
-
-                        initialUIState
-                    }).then((finalUIState) => {
-                        connection.debugDetail(
-                            "Client answered with fina UI state for action " + actionId +
-                            " , got final UI state: " + finalUIState ? "true" : "false",
-                            "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
-                    });
-                };
-
-            });
 
             connection.debugDetail("Starting to execute action " + actionId,
                 "CustomActionsManager", "executeAction");
@@ -399,6 +362,61 @@ class CustomActionsManager implements IDisposableModule {
         ramlActions.setDocumentChangeExecutor(this.changeExecutor);
 
         this.editorManager.setDocumentChangeExecutor(this.changeExecutor);
+
+        const connection = this.connection;
+
+        ramlActions.setExternalUIDisplayExecutor(
+            (actionId: string, externalDisplay: ramlActions.IExternalUIDisplay) => {
+
+                connection.debugDetail("Requested to display UI for action ID " + actionId,
+                    "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+                const action = ramlActions.findActionById(actionId);
+
+                connection.debugDetail("Action found: " + action ? "true" : "false",
+                    "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+                return (initialUIState?: any) => {
+
+                    connection.debugDetail("Requested to display UI for action, got UI state",
+                        "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+                    const uiCode = externalDisplay.createUICode(initialUIState);
+
+                    connection.debugDetail("UI code generated: " + (uiCode ? "true" : "false"),
+                        "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+                    connection.debugDetail("Requesting client for UI code display.",
+                        "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+                    connection.debugDetail("UI state is: " + JSON.stringify(initialUIState),
+                        "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+                    return connection.displayActionUI({
+
+                        action: {
+                            id: action.id,
+                            name: action.name,
+                            target: action.target,
+                            hasUI : action.hasUI,
+                            category: action.category,
+                            label: action.label
+                        },
+
+                        uiCode,
+
+                        initialUIState
+                    }).then((finalUIState) => {
+                        connection.debugDetail(
+                            "Client answered with fina UI state for action " + actionId +
+                            " , got final UI state: " + finalUIState ? "true" : "false",
+                            "CustomActionsManager", "executeAction#setExternalUIDisplayExecutor");
+
+                        return finalUIState;
+                    });
+                };
+
+            });
 
         ramlActions.setLogger(this.connection);
     }
