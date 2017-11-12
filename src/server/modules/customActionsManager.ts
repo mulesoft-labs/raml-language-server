@@ -324,22 +324,52 @@ class CustomActionsManager implements IDisposableModule {
             connection.debugDetail("Starting to execute action " + actionId,
                 "CustomActionsManager", "executeAction");
 
-            ramlActions.executeAction(actionId);
+            const actionMeta = ramlActions.findActionById(actionId, true);
 
-            connection.debugDetail("Finished to execute action " + actionId,
-                "CustomActionsManager", "executeAction");
+            if (actionMeta.hasUI) {
 
-            editorManager.setDocumentChangeExecutor(null);
+                const executeActionPromise =
+                    (ramlActions.executeAction(actionId) as Promise<void>);
 
-            const changes = this.getChangeExecutor().getChanges();
+                connection.debugDetail("Got executeAction promise: " +
+                    ((executeActionPromise) ? "true" : "false"),
+                    "CustomActionsManager", "executeAction");
 
-            connection.debugDetail("Collected changes",
-                "CustomActionsManager", "executeAction");
+                return executeActionPromise.then(() => {
+                    connection.debugDetail("Finished to execute action " + actionId,
+                        "CustomActionsManager", "executeAction");
 
-            connection.debugDetail("Number of changes: " + changes ? changes.length.toString() : "0",
-                "CustomActionsManager", "executeAction");
+                    editorManager.setDocumentChangeExecutor(null);
 
-            return changes;
+                    const changes = this.getChangeExecutor().getChanges();
+
+                    connection.debugDetail("Collected changes",
+                        "CustomActionsManager", "executeAction");
+
+                    connection.debugDetail("Number of changes: " + changes ? changes.length.toString() : "0",
+                        "CustomActionsManager", "executeAction");
+
+                    return changes;
+                });
+
+            } else {
+                ramlActions.executeAction(actionId);
+
+                connection.debugDetail("Finished to execute action " + actionId,
+                    "CustomActionsManager", "executeAction");
+
+                editorManager.setDocumentChangeExecutor(null);
+
+                const changes = this.getChangeExecutor().getChanges();
+
+                connection.debugDetail("Collected changes",
+                    "CustomActionsManager", "executeAction");
+
+                connection.debugDetail("Number of changes: " + changes ? changes.length.toString() : "0",
+                    "CustomActionsManager", "executeAction");
+
+                return changes;
+            }
 
         }).catch((error) => {
             editorManager.setDocumentChangeExecutor(null);
