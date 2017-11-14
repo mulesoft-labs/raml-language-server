@@ -147,4 +147,9 @@ describe('Validation manager longevity tests',function(){
         this.timeout(60000);
         testSuiteUtil.testValidationManager("/test029.raml", done);
     });
+
+    it("test030/api.raml", function (done) {
+        this.timeout(60000);
+        testSuiteUtil.testValidationManager("/test030.raml", done);
+    });
 });

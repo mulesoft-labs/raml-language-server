@@ -169,6 +169,25 @@ abstract class AbstractDocumentTester implements IContentTester {
             uri: this.apiPath,
             text: "#%RAML 1.0\n"
         });
+
+        this.connection.onExists((fullPath: string) => {
+            return Promise.resolve(fs.existsSync(fullPath));
+        });
+
+        this.connection.onReadDir((fullPath: string) => {
+
+            return Promise.resolve(fs.readdirSync(fullPath));
+        });
+
+
+        this.connection.onIsDirectory((fullPath: string) => {
+            return Promise.resolve(fs.statSync(fullPath).isDirectory());
+        });
+
+
+        this.connection.onContent((fullPath: string) => {
+            return Promise.resolve(fs.readFileSync(fullPath).toString());
+        });
     }
 
     /**
