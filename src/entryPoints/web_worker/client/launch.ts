@@ -59,6 +59,8 @@ export function getConnection(): IClientConnection {
     return clientConnection;
 }
 
+export import textEditProcessor = require("../../../common/textEditProcessor");
+
 function loadExternalJSAsWorker( url ) {
     const ajax = new XMLHttpRequest();
     ajax.open( "GET", url, false ); // <-- the 'false' makes it synchronous
