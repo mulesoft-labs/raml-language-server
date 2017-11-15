@@ -445,7 +445,7 @@ class EditorManager implements IEditorManagerModule {
             }
 
             const currentText = current.getText();
-            if (document.text === currentText) {
+            if (document.version < currentVersion && document.text === currentText) {
                 this.connection.debugDetail("No changes detected", "EditorManager", "onChangeDocument");
                 return;
             }
