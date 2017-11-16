@@ -210,11 +210,6 @@ describe('Fixed Actions Test Set',function(){
             testSuiteUtil.testOpenDeclaration("/test041.raml", done);
         });
 
-        it("test041/api.raml", function (done) {
-            this.timeout(15000);
-            testSuiteUtil.testOpenDeclaration("/test041.raml", done);
-        });
-
         it("test042/api.raml", function (done) {
             this.timeout(15000);
             testSuiteUtil.testOpenDeclaration("/test042.raml", done);
@@ -508,11 +503,6 @@ describe('Fixed Actions Test Set',function(){
         it("test040/api.raml", function (done) {
             this.timeout(15000);
             testSuiteUtil.testFindReferences("/test040.raml", done);
-        });
-
-        it("test041/api.raml", function (done) {
-            this.timeout(15000);
-            testSuiteUtil.testFindReferences("/test041.raml", done);
         });
 
         it("test041/api.raml", function (done) {

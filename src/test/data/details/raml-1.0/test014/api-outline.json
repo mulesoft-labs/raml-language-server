@@ -44,25 +44,136 @@
           "title": "first",
           "description": "An example of this type instance represented as string. This can be used, e.g., by documentation generators to generate sample values for an object of this type. Cannot be present if the example property is present.",
           "type": "TREE",
-          "children": [],
-          "valueText": null,
-          "id": "./locations.get.queryString#examples"
+          "children": [
+            {
+              "title": "first",
+              "description": "",
+              "type": "TREE",
+              "children": [
+                {
+                  "title": "value",
+                  "description": "",
+                  "type": "TREE",
+                  "children": [
+                    {
+                      "title": "start",
+                      "description": "",
+                      "type": "TREE",
+                      "children": [],
+                      "valueText": "2"
+                    },
+                    {
+                      "title": "lat",
+                      "description": "",
+                      "type": "TREE",
+                      "children": [],
+                      "valueText": "12"
+                    },
+                    {
+                      "title": "long",
+                      "description": "",
+                      "type": "TREE",
+                      "children": [],
+                      "valueText": "13"
+                    }
+                  ],
+                  "valueText": ""
+                }
+              ],
+              "valueText": ""
+            }
+          ],
+          "valueText": null
         },
         {
           "title": "second",
           "description": "An example of this type instance represented as string. This can be used, e.g., by documentation generators to generate sample values for an object of this type. Cannot be present if the example property is present.",
           "type": "TREE",
-          "children": [],
-          "valueText": null,
-          "id": "./locations.get.queryString#examples"
+          "children": [
+            {
+              "title": "second",
+              "description": "",
+              "type": "TREE",
+              "children": [
+                {
+                  "title": "value",
+                  "description": "",
+                  "type": "TREE",
+                  "children": [
+                    {
+                      "title": "start",
+                      "description": "",
+                      "type": "TREE",
+                      "children": [],
+                      "valueText": "2"
+                    },
+                    {
+                      "title": "page-size",
+                      "description": "",
+                      "type": "TREE",
+                      "children": [],
+                      "valueText": "20"
+                    },
+                    {
+                      "title": "location",
+                      "description": "",
+                      "type": "TREE",
+                      "children": [],
+                      "valueText": "1,2"
+                    }
+                  ],
+                  "valueText": ""
+                }
+              ],
+              "valueText": ""
+            }
+          ],
+          "valueText": null
         },
         {
           "title": "third",
           "description": "An example of this type instance represented as string. This can be used, e.g., by documentation generators to generate sample values for an object of this type. Cannot be present if the example property is present.",
           "type": "TREE",
-          "children": [],
-          "valueText": null,
-          "id": "./locations.get.queryString#examples"
+          "children": [
+            {
+              "title": "third",
+              "description": "",
+              "type": "TREE",
+              "children": [
+                {
+                  "title": "value",
+                  "description": "",
+                  "type": "TREE",
+                  "children": [
+                    {
+                      "title": "lat",
+                      "description": "",
+                      "type": "TREE",
+                      "children": [],
+                      "valueText": "12"
+                    },
+                    {
+                      "title": "location",
+                      "description": "",
+                      "type": "TREE",
+                      "children": [],
+                      "valueText": "2"
+                    }
+                  ],
+                  "valueText": ""
+                },
+                {
+                  "title": "strict",
+                  "description": "",
+                  "type": "TREE",
+                  "children": [],
+                  "valueText": "false"
+                }
+              ],
+              "valueText": ""
+            }
+          ],
+          "valueText": null
         }
       ],
       "valueText": null,
