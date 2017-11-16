@@ -19,10 +19,10 @@ traits:
         maxLength: <<maxLength>>
 /users:
   get:
-    is: [ chargeable, trace!able: {maxL!ength : 10} ]
+    is: [ chargeable, trace!able: {maxLength : 10} ]
     description: |
       The HTTP interaction will look like
   post:
     is: [chargeable]
   patch:
-    is: [trace!able: {maxL!ength : 10}]
+    is: [trace!able: {maxLength : 10}]
