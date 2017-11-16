@@ -42,31 +42,31 @@ class MarkOccurrencesActionModule implements IDisposableModule {
 
     private onMarkOccurrencesListener;
 
-    constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
-                private editorManagerModule: IEditorManagerModule) {
+    constructor(private connection:IServerConnection, private astManagerModule:IASTManagerModule,
+                private editorManagerModule:IEditorManagerModule) {
     }
 
     public launch() {
 
-        this.onMarkOccurrencesListener = (uri: string, position: number) => {
+        this.onMarkOccurrencesListener = (uri:string, position:number) => {
             return this.markOccurrences(uri, position);
         }
 
         this.connection.onMarkOccurrences(this.onMarkOccurrencesListener);
     }
 
-    public dispose(): void {
+    public dispose():void {
         this.connection.onMarkOccurrences(this.onMarkOccurrencesListener, true);
     }
 
     /**
      * Returns unique module name.
      */
-    public getModuleName(): string {
+    public getModuleName():string {
         return "MARK_OCCURRENCES_ACTION";
     }
 
-    public markOccurrences(uri: string, position: number): Promise<IRange[]> {
+    public markOccurrences(uri:string, position:number):Promise<IRange[]> {
         this.connection.debug("Called for uri: " + uri,
             "FixedActionsManager", "markOccurrences");
 
@@ -98,8 +98,9 @@ class MarkOccurrencesActionModule implements IDisposableModule {
 
             // this.connection.debugDetail("Found node: \n" + node.printDetails(),
             //     "FixedActionsManager", "markOccurrences");
+            var selectionValue = acceptNode(node, position, unit.contents());
 
-            if (!this.acceptNode(node, position)) {
+            if (!selectionValue) {
                 this.connection.debugDetail("Filtering out node, returning",
                     "FixedActionsManager", "markOccurrences");
 
@@ -114,7 +115,7 @@ class MarkOccurrencesActionModule implements IDisposableModule {
             this.connection.debugDetail("Found usages: " + (findUsagesResult ? "true" : false),
                 "FixedActionsManager", "markOccurrences");
 
-            let unfiltered: ILocation[] = [];
+            let unfiltered:ILocation[] = [];
 
             if (findUsagesResult && findUsagesResult.results) {
 
@@ -146,15 +147,15 @@ class MarkOccurrencesActionModule implements IDisposableModule {
                 this.connection.debugDetail("Unfiltered occurrences: " + JSON.stringify(locations),
                     "FixedActionsManager", "markOccurrences");
 
-                result = locations.filter((location) => {
+                result = locations.filter(location => {
                     return location.uri === uri;
-                }).filter((location) => {
+                }).filter(location => {
                     // excluding any mentions of whatever is located at the position itself
                     // as its not what user is interested with
                     return location.range.start > position || location.range.end < position;
-                }).map((location) => {
+                }).map(location => {
                     return location.range;
-                });
+                }).map(range => reduce(unit.contents(), selectionValue, range)).filter(range => range);
 
                 this.connection.debugDetail("Found occurrences result: " + JSON.stringify(result),
                     "FixedActionsManager", "markOccurrences");
@@ -165,37 +166,97 @@ class MarkOccurrencesActionModule implements IDisposableModule {
         });
 
     }
+}
 
-    private acceptNode(node, position): boolean {
+function reduce(fullContent: string, selection: string, range: IRange): IRange {
+    if(!fullContent || !fullContent.trim()) {
+        return null;
+    }
 
-        // checking for a node with name attribute
-        const name = node.attrValue("name");
-        if (name) {
-            return true;
+    if(!selection || !selection.trim()) {
+        return null;
+    }
+
+    var actualIndex = fullContent.indexOf(selection, range.start);
+
+    if(actualIndex < 0) {
+        return null;
+    }
+
+    return {
+        start: actualIndex,
+        end: actualIndex + selection.length
+    }
+}
+
+function findSelectionValues(node, name: string, position): string[] {
+    var result = [];
+
+    node.attributes(name).forEach(attr => {
+        var toAdd = null;
+        
+        if(attr && attr.lowLevel() && attr.lowLevel().start() <= position && attr.lowLevel().end() >= position) {
+            toAdd = attr.value && attr.value();
         }
-
-        // checking for a node with type attribute
-        const type = node.attrValue("type");
-        if (type) {
-            return true;
+        
+        if(toAdd) {
+            result.push(toAdd);
         }
+    });
+    
+    if(node.attrValue(name)) {
+        result.push(node.attrValue(name));
+    }
+    
+    return result;
+}
 
-        // checking for trait reference
-        const isAttribute = node.attr("is");
-        if (isAttribute && isAttribute.lowLevel() &&
-            isAttribute.lowLevel().start() <= position && isAttribute.lowLevel().end()) {
+function isValidSelection(fullContent: string, selection: string, position: number): boolean {
+    var startFrom = position - selection.length;
 
-            return true;
-        }
-
-        // checking for security scheme reference
-        const securedByAttribute = node.attr("securedBy");
-        if (securedByAttribute && securedByAttribute.lowLevel() &&
-            securedByAttribute.lowLevel().start() <= position && securedByAttribute.lowLevel().end()) {
-
-            return true;
-        }
-
+    startFrom = startFrom < 0 ? 0 : startFrom;
+    
+    var selectionStart = fullContent.indexOf(selection, startFrom);
+    
+    if(selectionStart < 0) {
         return false;
     }
+    
+    if(position < selectionStart) {
+        return false;
+    }
+    
+    if(position > selectionStart + selection.length + 1) {
+        return false
+    }
+    
+    return true;
+}
+
+function findSelectionValue(node, name, position, content): string {
+    var proposals = findSelectionValues(node, name, position);
+    
+    for(var i = 0; i < proposals.length; i++) {
+        if(isValidSelection(content, proposals[i], position)) {
+            return proposals[i];
+        }
+    }
+    
+    return null;
+}
+
+function acceptNode(node, position, content): string {
+    var names = ["name", "type", "is", "securedBy"];
+    
+    for(var i = 0; i < names.length; i++) {
+        var name = names[i];
+        
+        var selection = findSelectionValue(node, name, position, content);
+        
+        if(selection) {
+            return selection;
+        }
+    }
+    
+    return null;
 }
