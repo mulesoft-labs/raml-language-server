@@ -98,6 +98,13 @@ class MarkOccurrencesActionModule implements IDisposableModule {
 
             // this.connection.debugDetail("Found node: \n" + node.printDetails(),
             //     "FixedActionsManager", "markOccurrences");
+
+            var selectionValue: string = null;
+            try {
+                selectionValue = acceptNode(node, position, unit.contents());
+            } catch(e) {
+                this.connection.debugDetail("STAAAAACK: " + e.stack, "FixedActionsManager", "markOccurrences");
+            }
             var selectionValue = acceptNode(node, position, unit.contents());
 
             if (!selectionValue) {
@@ -155,17 +162,36 @@ class MarkOccurrencesActionModule implements IDisposableModule {
                     return location.range.start > position || location.range.end < position;
                 }).map(location => {
                     return location.range;
-                }).map(range => reduce(unit.contents(), selectionValue, range)).filter(range => range);
+                }).map(range => reduce(unit.contents(), selectionValue, range)).filter(range => range).filter(range => {
+                    return range.start > position || range.end < position;
+                });
 
                 this.connection.debugDetail("Found occurrences result: " + JSON.stringify(result),
                     "FixedActionsManager", "markOccurrences");
+                
+                var filtered = [result[0]];
+                
+                result.forEach(range => {
+                    for(var i = 0; i < filtered.length; i++) {
+                        if(range.start === filtered[i].start && range.end === filtered[i].end) {
+                            return;
+                        }
+                    }
 
-                return result;
+                    filtered.push(range);
+                });
+                
+
+                return filtered;
             });
 
         });
 
     }
+}
+
+function isLetter(value: string) {
+    return /^[a-zA-Z0-9-]+$/.test(value);
 }
 
 function reduce(fullContent: string, selection: string, range: IRange): IRange {
@@ -182,7 +208,21 @@ function reduce(fullContent: string, selection: string, range: IRange): IRange {
     if(actualIndex < 0) {
         return null;
     }
+    
+    while(true) {
+        var borders = fullContent.charAt(actualIndex - 1) + fullContent.charAt(actualIndex + selection.length);
 
+        if(isLetter(borders.trim())) {
+            actualIndex = fullContent.indexOf(selection, actualIndex + selection.length);
+
+            if(actualIndex < 0) {
+                return null;
+            }
+        } else {
+            break;
+        }
+    }
+    
     return {
         start: actualIndex,
         end: actualIndex + selection.length
@@ -207,6 +247,24 @@ function findSelectionValues(node, name: string, position): string[] {
     if(node.attrValue(name)) {
         result.push(node.attrValue(name));
     }
+    
+    return handleStructuredValues(result);
+}
+
+function handleStructuredValues(values: any[]) {
+    var result = [];
+
+    values.forEach(value => {
+        if(value.valueName) {
+            result.push(value.valueName());
+            
+            result = result.concat(handleStructuredValues(value.children()));
+            
+            return;
+        }
+
+        result.push(value);
+    })
     
     return result;
 }
@@ -233,21 +291,73 @@ function isValidSelection(fullContent: string, selection: string, position: numb
     return true;
 }
 
+function removeSquares(value: string): string {
+    return value.split("(").join("").split(")").join("").trim();
+}
+
+function filterProposals(selections: string[]) {
+    var result = [];
+
+    selections.forEach(selection => {
+        if(!selection) {
+            return;
+        }
+        
+        selection  = removeSquares(selection);
+
+        if(selection.indexOf('|') > 0) {
+            var unions = filterProposals(selection.split('|'));
+
+            result = result.concat(unions);
+            
+            return;
+        }
+
+        var indexOfSquare = selection.indexOf("[");
+        
+        if(indexOfSquare > 0) {
+            result.push(selection.substr(0, indexOfSquare));
+        } else {
+            result.push(selection);
+        }
+    })
+    
+    return result;
+}
+
+function findUnique(names: string[]) {
+    var result = names[0];
+    
+    names.forEach(name => {
+        if(name.length > result.length) {
+            result = name;
+        }
+    })
+    
+    return result;
+}
+
 function findSelectionValue(node, name, position, content): string {
-    var proposals = findSelectionValues(node, name, position);
+    var proposals = filterProposals(findSelectionValues(node, name, position)).map(proposal => proposal.trim());
+    
+    var valids = [];
     
     for(var i = 0; i < proposals.length; i++) {
         if(isValidSelection(content, proposals[i], position)) {
-            return proposals[i];
+            valids.push(proposals[i]);
         }
     }
     
-    return null;
+    if(valids.length === 0) {
+        return null;
+    }
+    
+    return findUnique(valids);
 }
 
 function acceptNode(node, position, content): string {
-    var names = ["name", "type", "is", "securedBy"];
-    
+    var names = ["name", "type", "is", "securedBy", "schema"];
+
     for(var i = 0; i < names.length; i++) {
         var name = names[i];
         
@@ -255,6 +365,16 @@ function acceptNode(node, position, content): string {
         
         if(selection) {
             return selection;
+        }
+    }
+
+    var parsedType = node.parsedType && node.parsedType();
+    
+    var customFacets = (parsedType.customFacets && parsedType.customFacets()) || [];
+
+    for(var i = 0; i < customFacets.length; i++) {
+        if(isValidSelection(content, customFacets[i].facetName(), position)) {
+            return customFacets[i].facetName();
         }
     }
     
