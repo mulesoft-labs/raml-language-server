@@ -1,6 +1,6 @@
 {
   "name": "raml-language-server",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "RAML Language Server based on the Language Server Protocol",
   "main": "./dist/index.js",
   "scripts": {
