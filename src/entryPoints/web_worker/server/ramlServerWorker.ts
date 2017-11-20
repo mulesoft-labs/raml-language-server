@@ -1,3 +1,7 @@
+import actions = require("raml-actions");
+
+actions.setIsPackaged();
+
 import {
     MessageToClientType,
     ProtocolMessage
