@@ -354,26 +354,25 @@ describe('Fixed Actions Test Set',function(){
             testSuiteUtil.testFindReferences("/test010.raml", done);
         });
 
-        // TODO uncomment when https://www.mulesoft.org/jira/browse/ALS-221 is fixed.
-        // it("test011/api.raml", function (done) {
-        //     this.timeout(15000);
-        //     testSuiteUtil.testFindReferences("/test011.raml", done);
-        // });
-        //
-        // it("test012/api.raml", function (done) {
-        //     this.timeout(15000);
-        //     testSuiteUtil.testFindReferences("/test012.raml", done);
-        // });
-        //
-        // it("test013/api.raml", function (done) {
-        //     this.timeout(15000);
-        //     testSuiteUtil.testFindReferences("/test013.raml", done);
-        // });
-        //
-        // it("test014/api.raml", function (done) {
-        //     this.timeout(15000);
-        //     testSuiteUtil.testFindReferences("/test014.raml", done);
-        // });
+        it("test011/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test011.raml", done);
+        });
+        
+        it("test012/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test012.raml", done);
+        });
+        
+        it("test013/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test013.raml", done);
+        });
+        
+        it("test014/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testFindReferences("/test014.raml", done);
+        });
 
         it("test015/api.raml", function (done) {
             this.timeout(15000);
@@ -655,26 +654,25 @@ describe('Fixed Actions Test Set',function(){
             testSuiteUtil.testMarkOccurrences("/test010.raml", done);
         });
 
-        // TODO uncomment when https://www.mulesoft.org/jira/browse/ALS-221 is fixed.
-        // it("test011/api.raml", function (done) {
-        //     this.timeout(15000);
-        //     testSuiteUtil.testMarkOccurrences("/test011.raml", done);
-        // });
-        //
-        // it("test012/api.raml", function (done) {
-        //     this.timeout(15000);
-        //     testSuiteUtil.testMarkOccurrences("/test012.raml", done);
-        // });
-        //
-        // it("test013/api.raml", function (done) {
-        //     this.timeout(15000);
-        //     testSuiteUtil.testMarkOccurrences("/test013.raml", done);
-        // });
-        //
-        // it("test014/api.raml", function (done) {
-        //     this.timeout(15000);
-        //     testSuiteUtil.testMarkOccurrences("/test014.raml", done);
-        // });
+        it("test011/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test011.raml", done);
+        });
+        
+        it("test012/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test012.raml", done);
+        });
+        
+        it("test013/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test013.raml", done);
+        });
+        
+        it("test014/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test014.raml", done);
+        });
 
         it("test015/api.raml", function (done) {
             this.timeout(15000);
@@ -706,16 +704,15 @@ describe('Fixed Actions Test Set',function(){
             testSuiteUtil.testMarkOccurrences("/test020.raml", done);
         });
 
-        // TODO uncomment when https://www.mulesoft.org/jira/browse/ALS-221 is fixed.
-        // it("test021/api.raml", function (done) {
-        //     this.timeout(15000);
-        //     testSuiteUtil.testMarkOccurrences("/test021.raml", done);
-        // });
-        //
-        // it("test022/api.raml", function (done) {
-        //     this.timeout(15000);
-        //     testSuiteUtil.testMarkOccurrences("/test022.raml", done);
-        // });
+        it("test021/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test021.raml", done);
+        });
+        
+        it("test022/api.raml", function (done) {
+            this.timeout(15000);
+            testSuiteUtil.testMarkOccurrences("/test022.raml", done);
+        });
 
         it("test023/api.raml", function (done) {
             this.timeout(15000);

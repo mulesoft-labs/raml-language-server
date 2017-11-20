@@ -10,9 +10,9 @@ resourceTypes:
 /servers:
   type:
     corp!Resource:
-      Text!AboutPost: post method # post defined which will force to define the TextAboutPost parameter
+      TextAboutPost: post method # post defined which will force to define the TextAboutPost parameter
   get:
   post: # will require the X-Chargeback header
 /queues:
-  type:  { corp!Resource: {Text!AboutPost : node serever} }
+  type:  { corp!Resource: {TextAboutPost : node serever} }
   get:
