@@ -28,6 +28,7 @@ import hl= rp.hl;
 
 import utils = require("../../../common/utils");
 import fixedActionCommon = require("./fixedActionsCommon");
+import selectionUtils = require("./selectionUtils");
 
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
@@ -79,7 +80,6 @@ class FindReferencesActionModule implements IDisposableModule {
         const connection = this.connection;
 
         return this.astManagerModule.forceGetCurrentAST(uri).then((ast) => {
-
             connection.debugDetail("Found AST: " + (ast ? "true" : false),
                 "FixedActionsManager", "findReferences");
 
@@ -88,6 +88,8 @@ class FindReferencesActionModule implements IDisposableModule {
             }
 
             const unit = ast.lowLevel().unit();
+
+            var selection = selectionUtils.findSelection(ast.findElementAtOffset(position), position, unit.contents());
 
             const findUsagesResult = search.findUsages(unit, position);
 
@@ -100,15 +102,39 @@ class FindReferencesActionModule implements IDisposableModule {
             connection.debugDetail("Number of found usages: " + findUsagesResult.results.length,
                 "FixedActionsManager", "findReferences");
 
-            const result = findUsagesResult.results.map((parseResult) => {
-                return fixedActionCommon.lowLevelNodeToLocation(uri, parseResult.lowLevel(),
-                    this.editorManagerModule, connection, true);
-            });
+            const result = findUsagesResult.results.map(parseResult => {
+                var resultUnit = parseResult.lowLevel().unit();
+                
+                var location = fixedActionCommon.lowLevelNodeToLocation(uri, parseResult.lowLevel(), this.editorManagerModule, connection, true);
+                
+                var reducedRange = selectionUtils.reduce(resultUnit.contents(), selection, location.range);
+                
+                if(!reducedRange) {
+                    return null;
+                }
+                
+                return {
+                    uri: location.uri,
+                    range: reducedRange
+                }
+            }).filter(range => range);
 
+            var filtered = result[0] ? [result[0]] : [];
+
+            result.forEach(location => {
+                for(var i = 0; i < filtered.length; i++) {
+                    if(location.range.start === filtered[i].range.start && location.range.end === filtered[i].range.end) {
+                        return;
+                    }
+                }
+
+                filtered.push(location);
+            });
+            
             connection.debugDetail("Usages are: " + JSON.stringify(result),
                 "FixedActionsManager", "findReferences");
 
-            return result;
+            return filtered;
         });
     }
 }
