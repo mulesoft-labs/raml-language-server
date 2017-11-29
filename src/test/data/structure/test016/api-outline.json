@@ -36,12 +36,12 @@
                 "typeText": null,
                 "children": [
                   {
-                    "text": "body",
+                    "text": "application/json",
                     "typeText": ":<<resourcePathName>>",
                     "icon": "FILE_BINARY",
                     "textStyle": "SUCCESS",
                     "children": [],
-                    "key": "body :: 200 :: get :: collection :: ",
+                    "key": "application/json :: 200 :: get :: collection :: ",
                     "start": 148,
                     "end": 152
                   }
@@ -66,12 +66,12 @@
                 "typeText": null,
                 "children": [
                   {
-                    "text": "body",
+                    "text": "application/json",
                     "typeText": ":<<resourcePathName | !singularize>>",
                     "icon": "FILE_BINARY",
                     "textStyle": "SUCCESS",
                     "children": [],
-                    "key": "body :: 200 :: post :: collection :: ",
+                    "key": "application/json :: 200 :: post :: collection :: ",
                     "start": 256,
                     "end": 260
                   }
@@ -106,12 +106,12 @@
                 "typeText": null,
                 "children": [
                   {
-                    "text": "body",
+                    "text": "application/json",
                     "typeText": ":<<resourcePathName>>",
                     "icon": "FILE_BINARY",
                     "textStyle": "SUCCESS",
                     "children": [],
-                    "key": "body :: 200 :: get :: member :: ",
+                    "key": "application/json :: 200 :: get :: member :: ",
                     "start": 388,
                     "end": 392
                   }
