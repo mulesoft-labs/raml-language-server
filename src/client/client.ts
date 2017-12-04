@@ -177,6 +177,16 @@ export interface IClientConnection extends ILogger {
     onDetailsReport(listener: (IDetailsReport) => void);
 
     /**
+     * Executes the specified details action.
+     * @param uri - document uri
+     * @param actionID - ID of the action to execute.
+     * @param position - optional position in the document.
+     * If not provided, the last reported by positionChanged method will be used.
+     */
+    executeDetailsAction(uri: string,
+                         actionID: string, position?: number): Promise<IChangedDocument[]>;
+
+    /**
      * Calculates the list of executable actions avilable in the current context.
      *
      * @param uri - document uri.

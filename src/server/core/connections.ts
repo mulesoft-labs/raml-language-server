@@ -182,6 +182,18 @@ export interface IServerConnection extends ILogger {
     detailsAvailable(report: IDetailsReport);
 
     /**
+     * Adds a listener for specific details action execution.
+     * @param uri - document uri
+     * @param actionId - ID of the action to execute.
+     * @param position - optional position in the document.
+     * @param unsubscribe - if true, existing listener will be removed. False by default.
+     * If not provided, the last reported by positionChanged method will be used.
+     */
+    onExecuteDetailsAction(listener: (uri: string, actionId: string,
+                                      position?: number) => Promise<IChangedDocument[]>,
+                           unsubscribe?: boolean): void;
+
+    /**
      * Calculates the list of executable actions available in the current context.
      *
      * @param uri - document uri.

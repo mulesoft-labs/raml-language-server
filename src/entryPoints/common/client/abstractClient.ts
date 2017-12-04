@@ -497,6 +497,26 @@ export abstract class AbstractClientConnection extends MessageDispatcher<Message
     }
 
     /**
+     * Executes the specified details action.
+     * @param uri - document uri
+     * @param actionID - ID of the action to execute.
+     * @param position - optional position in the document.
+     * If not provided, the last reported by positionChanged method will be used.
+     */
+    public executeDetailsAction(uri: string,
+                                actionID: string, position?: number): Promise<IChangedDocument[]> {
+
+        return this.sendWithResponse({
+            type : "EXECUTE_DETAILS_ACTION",
+            payload : {
+                uri,
+                position,
+                actionId: actionID
+            }
+        });
+    }
+
+    /**
      * Calculates the list of executable actions avilable in the current context.
      *
      * @param uri - document uri.

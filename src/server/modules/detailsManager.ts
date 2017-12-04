@@ -55,6 +55,7 @@ class DetailsManager implements IDisposableModule {
     private onNewASTAvailableListener;
     private onChangePositionListener;
     private onChangeDetailValueListener;
+    private onExecuteDetailsActionListener;
 
     /**
      * Remembering positions for opened documents.
@@ -104,6 +105,11 @@ class DetailsManager implements IDisposableModule {
             return this.changeDetailValue(uri, position, itemID, value);
         };
         this.connection.onChangeDetailValue(this.onChangeDetailValueListener);
+
+        this.onExecuteDetailsActionListener = (uri, itemID, position) => {
+            return this.onExecuteDetailsAction(uri, itemID, position);
+        }
+        this.connection.onExecuteDetailsAction(this.onExecuteDetailsActionListener);
     }
 
     public dispose(): void {
@@ -111,6 +117,7 @@ class DetailsManager implements IDisposableModule {
         this.astManagerModule.onNewASTAvailable(this.onNewASTAvailableListener, true);
         this.connection.onChangePosition(this.onChangePositionListener, true);
         this.connection.onChangeDetailValue(this.onChangeDetailValueListener, true);
+        this.connection.onExecuteDetailsAction(this.onExecuteDetailsActionListener, true);
     }
 
     /**
@@ -217,6 +224,31 @@ class DetailsManager implements IDisposableModule {
                 this.editorManager, this.connection);
 
             const result = ramlOutline.changeDetailValue(position, itemID, value)
+
+            this.connection.debug("Change documentn result is not null:" +
+                (result != null ? "true" : "false"), "DetailsManager",
+                "changeDetailValue");
+
+            if (result) {
+                this.connection.debugDetail("Calculation result: "
+                    + JSON.stringify(result, null, 2), "DetailsManager", "changeDetailValue");
+            }
+
+            return [{
+                uri,
+                text: result.text
+            }];
+        });
+    }
+
+    private onExecuteDetailsAction(uri: string, itemID: string, position: number): Promise<IChangedDocument[]> {
+
+        return this.astManagerModule.forceGetCurrentAST(uri).then((currentAST) => {
+
+            outlineManagerCommons.setOutlineASTProvider(uri, this.astManagerModule,
+                this.editorManager, this.connection);
+
+            const result = ramlOutline.runDetailsAction(position, itemID)
 
             this.connection.debug("Change documentn result is not null:" +
                 (result != null ? "true" : "false"), "DetailsManager",

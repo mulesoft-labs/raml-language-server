@@ -60,6 +60,10 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
         {(uri: string, actionId: string,
           position?: number): Promise<IChangedDocument[]>}[] = [];
 
+    private executeDetailsActionListeners:
+        {(uri: string, actionId: string,
+          position?: number): Promise<IChangedDocument[]>}[] = [];
+
     constructor(name: string) {
         super(name);
     }
@@ -227,6 +231,21 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
                              unsubsribe = false) {
 
         this.addListener(this.documentDetailsListeners, listener, unsubsribe);
+    }
+
+    /**
+     * Adds a listener for specific details action execution.
+     * @param uri - document uri
+     * @param action - action to execute.
+     * @param position - optional position in the document.
+     * If not provided, the last reported by positionChanged method will be used.
+     */
+    public onExecuteDetailsAction(listener: (uri: string, actionId: string,
+                                             position?: number)
+                                      => Promise<IChangedDocument[]>,
+                                  unsubsribe = false): void {
+
+        this.addListener(this.executeDetailsActionListeners, listener, unsubsribe);
     }
 
     /**
@@ -638,6 +657,29 @@ export abstract class AbstractMSServerConnection extends MessageDispatcher<Messa
             type : "DISPLAY_ACTION_UI",
             payload : uiDisplayRequest
         });
+    }
+
+    public EXECUTE_DETAILS_ACTION(payload: {uri: string, actionId: string,
+                              position?: number}): Promise<IChangedDocument[]> {
+
+        this.debugDetail("Called",
+            "ProxyServerConnection", "EXECUTE_DETAILS_ACTION");
+
+        if (this.executeDetailsActionListeners.length === 0) {
+            return Promise.resolve([]);
+        }
+
+        this.debugDetail("Before execution",
+            "ProxyServerConnection", "EXECUTE_DETAILS_ACTION");
+
+        try {
+            const result = this.executeDetailsActionListeners[0](payload.uri, payload.actionId,
+                payload.position);
+            return result;
+        } catch (Error) {
+            this.debugDetail("Failed listener execution: " + Error.message,
+                "ProxyServerConnection", "EXECUTE_DETAILS_ACTION");
+        }
     }
 
     public CALCULATE_ACTIONS(payload: {uri: string, position?: number}): Promise<IExecutableAction[]> {

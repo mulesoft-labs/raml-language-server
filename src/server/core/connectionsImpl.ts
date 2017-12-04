@@ -48,6 +48,10 @@ export abstract class AbstractServerConnection {
         {(uri: string, actionId: string,
           position?: number): Promise<IChangedDocument[]>}[] = [];
 
+    protected executeDetailsActionListeners:
+        {(uri: string, actionId: string,
+          position?: number): Promise<IChangedDocument[]>}[] = [];
+
     /**
      * Adds a listener to document open notification. Must notify listeners in order of registration.
      * @param listener
@@ -157,6 +161,20 @@ export abstract class AbstractServerConnection {
                              unsubsribe = false) {
 
         this.addListener(this.documentDetailsListeners, listener, unsubsribe);
+    }
+
+    /**
+     * Adds a listener for specific action execution.
+     * @param uri - document uri
+     * @param actionId - ID of the action to execute.
+     * @param position - optional position in the document.
+     * If not provided, the last reported by positionChanged method will be used.
+     */
+    public onExecuteDetailsAction(listener: (uri: string, actionId: string,
+                                             position?: number) => Promise<IChangedDocument[]>,
+                                  unsubsribe = false): void {
+
+        this.addListener(this.executeDetailsActionListeners, listener, unsubsribe);
     }
 
     /**

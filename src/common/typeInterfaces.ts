@@ -38,6 +38,16 @@ export type DetailsItemWithOptionsJSON = outline.DetailsItemWithOptionsJSON;
 export type DetailsItemType = outline.DetailsItemType;
 
 /**
+ * Subtype for action items.
+ */
+export type ActionItemSubType = outline.ActionItemSubType;
+
+/**
+ * Details item pointing to an executable action.
+ */
+export type DetailsActionItemJSON = outline.DetailsActionItemJSON;
+
+/**
  * Range in the document.
  */
 export interface IRange {
