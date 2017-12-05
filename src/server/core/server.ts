@@ -51,17 +51,18 @@ export class Server {
         this.registerModule(StructureManagerModule.createManager(connection,
             astManagerModule, editorManagerModule));
 
-        this.registerModule(DetailsManagerModule.createManager(connection,
-            astManagerModule, editorManagerModule), true);
-
         this.registerModule(CompletionManagerModule.createManager(connection,
             astManagerModule, editorManagerModule));
 
         this.registerModule(FixedActionsManagerModule.createManager(connection,
             astManagerModule, editorManagerModule));
 
-        this.registerModule(CustomActionsManagerModule.createManager(connection,
-            astManagerModule, editorManagerModule), true);
+        const customActionsManager = CustomActionsManagerModule.createManager(connection,
+            astManagerModule, editorManagerModule);
+        this.registerModule(customActionsManager, true);
+
+        this.registerModule(DetailsManagerModule.createManager(connection,
+            astManagerModule, editorManagerModule, customActionsManager), true);
     }
 
     public registerModule(module: IServerModule, defaultEnablementState = true): void {

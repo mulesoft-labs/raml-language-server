@@ -21,6 +21,10 @@ import {
     IDisposableModule
 } from "./commonInterfaces";
 
+import {
+    IActionManagerModule
+} from "./customActionsManager";
+
 import rp= require("raml-1-parser");
 import lowLevel= rp.ll;
 import hl= rp.hl;
@@ -32,9 +36,10 @@ const universes = rp.universes;
 
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule): IDisposableModule {
+                              editorManagerModule: IEditorManagerModule,
+                              customActionsManager: IActionManagerModule): IDisposableModule {
 
-    return new DetailsManager(connection, astManagerModule, editorManagerModule);
+    return new DetailsManager(connection, astManagerModule, editorManagerModule, customActionsManager);
 }
 
 export function initialize() {
@@ -64,7 +69,7 @@ class DetailsManager implements IDisposableModule {
     private uriToPositions: {[uri: string]: number} = {};
 
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
-                private editorManager: IEditorManagerModule) {
+                private editorManager: IEditorManagerModule, private actionManagerModule?: IActionManagerModule) {
     }
 
     public launch() {
@@ -179,7 +184,7 @@ class DetailsManager implements IDisposableModule {
                     + JSON.stringify(result, null, 2), "DetailsManager", "calculateDetails");
             }
 
-            return result;
+            return this.addActionsToDetails(result, uri, position);
         });
     }
 
@@ -213,6 +218,58 @@ class DetailsManager implements IDisposableModule {
                 }
             });
         }
+    }
+
+    private addActionsToDetails(root: DetailsItemJSON, uri: string, position: number): Promise<DetailsItemJSON> {
+        if (!this.actionManagerModule) {
+            return Promise.resolve(root);
+        }
+
+        return this.actionManagerModule.calculateEditorActions(uri, position).then((actions) => {
+            const generalCategory = this.findOrCreateGeneralCategory(root);
+
+            if (actions && actions.length > 0) {
+                for (const action of actions) {
+
+                    const actionItem: ramlOutline.DetailsActionItemJSON = {
+                        title: action.name,
+                        description: "Activate " + action.name,
+                        type: "DETAILS_ACTION",
+                        error: null,
+                        children: [],
+                        id: action.id,
+                        subType: "CUSTOM_ACTION"
+                    };
+
+                    generalCategory.children.push(actionItem);
+                }
+            }
+
+            return root;
+        });
+    }
+
+    private findOrCreateGeneralCategory(root: DetailsItemJSON) : DetailsItemJSON {
+        let foundCategory: ramlOutline.DetailsItemJSON = null;
+
+        root.children.forEach((child) => {
+            if (child.type === "CATEGORY" && child.title == "General") {
+                foundCategory = child;
+            }
+        });
+
+        if (!foundCategory) {
+            foundCategory = {
+                title: "General",
+                description: "",
+                type: "CATEGORY",
+                error: null,
+                children: [],
+                id: "Category#General"
+            };
+        }
+
+        return foundCategory;
     }
 
     private changeDetailValue(uri: string, position: number, itemID: string,

@@ -34,9 +34,15 @@ import ramlActions = require("raml-actions");
 
 const universes = rp.universes;
 
+export interface IActionManagerModule extends IDisposableModule {
+
+    calculateEditorActions(uri: string, position?: number):
+        Promise<IExecutableAction[]>;
+}
+
 export function createManager(connection: IServerConnection,
                               astManagerModule: IASTManagerModule,
-                              editorManagerModule: IEditorManagerModule): IDisposableModule {
+                              editorManagerModule: IEditorManagerModule): IActionManagerModule {
 
     return new CustomActionsManager(connection, astManagerModule, editorManagerModule);
 }
