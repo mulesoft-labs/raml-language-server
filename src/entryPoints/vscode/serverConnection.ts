@@ -15,7 +15,7 @@ import {
     MessageSeverity,
     StructureCategories,
     StructureNodeJSON,
-    Suggestion
+    Suggestion, IDetailsReport
 } from "../../common/typeInterfaces";
 
 import {
@@ -23,6 +23,57 @@ import {
 } from "../../server/core/connectionsImpl";
 
 import utils = require("../../common/utils");
+
+import {
+    AbstractMSServerConnection
+} from "../common/server/abstractServer";
+
+import fs = require("fs");
+
+class ExtendedConnection extends AbstractMSServerConnection {
+
+    constructor(private vsCodeConnection: IConnection) {
+        super("ExtendedConnection");
+    }
+
+    public sendMessage(message: ProtocolMessage<MessageToClientType>): void {
+        //require('fs').writeFileSync("/Users/dreamflyer/Desktop/rls/raml-language-server/src/entryPoints/common/messageDispatcher2.txt", JSON.stringify(message));
+
+        this.vsCodeConnection.sendRequest("CUSTOM_REQUEST", message);
+    }
+
+    public exists(path: string): Promise<boolean> {
+        return new Promise((resolve) => {
+            fs.exists(path, (result) => {resolve(result); });
+        });
+    }
+
+    public readDir(path: string): Promise<string[]> {
+        return new Promise((resolve) => {
+            fs.readdir(path, (err, result) => {resolve(result); });
+        });
+    }
+
+    public isDirectory(path: string): Promise<boolean> {
+        return new Promise((resolve) => {
+            fs.stat(path, (err, stats) => {resolve(stats.isDirectory()); });
+        });
+    }
+
+    public content(path: string): Promise<string> {
+        return new Promise(function(resolve, reject) {
+
+            fs.readFile(path, (err, data) => {
+                if (err != null) {
+                    return reject(err);
+                }
+
+                const content = data.toString();
+                resolve(content);
+            });
+        });
+    }
+}
 
 import {
     CompletionItem, CompletionItemKind,
@@ -34,25 +85,19 @@ import {
     TextDocument, TextDocumentEdit, TextDocumentPositionParams,
     TextDocuments, TextDocumentSyncKind, TextEdit, WorkspaceEdit
 } from "vscode-languageserver";
-
-import fs = require("fs");
+import {ProtocolMessage, MessageToClientType} from "../common/protocol";
 
 export class ProxyServerConnection extends AbstractServerConnection implements IServerConnection {
 
     private loggerSettings: ILoggerSettings;
     private documents: TextDocuments;
+    
+    private extendedConnection: ExtendedConnection;
 
     constructor(private vsCodeConnection: IConnection) {
         super();
 
-        this.setLoggerConfiguration({
-            allowedComponents: [
-                "CompletionManagerModule",
-                "ProxyServerConnection"
-            ],
-            // maxSeverity: MessageSeverity.ERROR,
-            // maxMessageLength: 50
-        });
+        this.extendedConnection = new ExtendedConnection(vsCodeConnection);
     }
 
     public listen(): void {
@@ -112,6 +157,44 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
             return this.rename(renameParams.textDocument.uri,
                 renameParams.position, renameParams.newName);
         });
+
+        this.vsCodeConnection.onRequest("CUSTOM_REQUEST", (message) => {
+            this.extendedConnection.handleRecievedMessage(message);
+            
+            return Promise.resolve("OK");
+        })
+    }
+
+    public onChangePosition(listener) {
+        this.extendedConnection.onChangePosition(listener);
+    }
+
+    public onChangeDetailValue(listener) {
+        this.extendedConnection.onChangeDetailValue(listener);
+    }
+
+    public onDocumentDetails(listener) {
+        this.extendedConnection.onDocumentDetails(listener);
+    }
+
+    public onDocumentStructure(listener) {
+        this.extendedConnection.onDocumentStructure(listener);
+    }
+    
+    public detailsAvailable(report: IDetailsReport) {
+        this.extendedConnection.detailsAvailable(report);
+    }
+    
+    public onSetServerConfiguration(listener) {
+        this.extendedConnection.onSetServerConfiguration(listener);
+    }
+
+    public onOpenDocument(listener) {
+        this.extendedConnection.onOpenDocument(listener);
+    }
+
+    public onChangeDocument(listener) {
+        this.extendedConnection.onChangeDocument(listener);
     }
 
     /**
@@ -580,6 +663,8 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
      */
     public setLoggerConfiguration(loggerSettings: ILoggerSettings) {
         this.loggerSettings = loggerSettings;
+
+        this.extendedConnection.setLoggerConfiguration(loggerSettings);
     }
 
     public documentHighlight(uri: string, position: Position): Promise<DocumentHighlight[]> {
