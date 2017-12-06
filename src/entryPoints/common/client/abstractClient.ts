@@ -567,6 +567,26 @@ export abstract class AbstractClientConnection extends MessageDispatcher<Message
     }
 
     /**
+     * Executes the specified action. If action has UI, causes a consequent
+     * server->client UI message resulting in onDisplayActionUI listener call.
+     * @param uri - document uri
+     * @param actionID - actionID to execute.
+     * @param position - optional position in the document.
+     * If not provided, the last reported by positionChanged method will be used.
+     */
+    public executeContextActionByID(uri: string,
+                                    actionID: string, position?: number): Promise<IChangedDocument[]> {
+        return this.sendWithResponse({
+            type : "EXECUTE_ACTION",
+            payload : {
+                uri,
+                position,
+                actionId: actionID
+            }
+        });
+    }
+
+    /**
      * Adds a listener to display action UI.
      * @param listener - accepts UI display request, should result in a promise
      * returning final UI state to be transferred to the server.
