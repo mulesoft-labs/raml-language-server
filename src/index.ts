@@ -48,3 +48,7 @@ export function getNodeClientConnection(): IClientConnection {
 }
 
 export import textEditProcessor = require("./common/textEditProcessor");
+
+export {
+    AbstractClientConnection
+} from "../src/entryPoints/common/client/abstractClient";
