@@ -39,6 +39,46 @@
           "children": [],
           "valueText": "false",
           "id": ".PossibleMeetingDate#isAnnotation"
+        },
+        {
+          "title": "facets",
+          "description": "Insert facets",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".PossibleMeetingDate#facets#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "example",
+          "description": "Insert example",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".PossibleMeetingDate#example#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "examples",
+          "description": "Insert examples",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".PossibleMeetingDate#examples#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "xml",
+          "description": "Insert xml",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".PossibleMeetingDate#xml#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".PossibleMeetingDate#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

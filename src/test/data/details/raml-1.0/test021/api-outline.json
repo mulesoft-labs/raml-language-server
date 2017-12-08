@@ -43,6 +43,31 @@
       "children": [],
       "valueText": "Pass Through",
       "id": ".passthrough#type"
+    },
+    {
+      "title": "General",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "settings",
+          "description": "Insert settings",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".passthrough#settings#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".passthrough#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
+        }
+      ],
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
   "valueText": null,

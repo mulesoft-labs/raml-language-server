@@ -39,6 +39,46 @@
           "children": [],
           "valueText": "false",
           "id": ".NewType#isAnnotation"
+        },
+        {
+          "title": "facets",
+          "description": "Insert facets",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".NewType#facets#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "example",
+          "description": "Insert example",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".NewType#example#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "examples",
+          "description": "Insert examples",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".NewType#examples#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "xml",
+          "description": "Insert xml",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".NewType#xml#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".NewType#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

@@ -55,6 +55,38 @@
           "children": [],
           "valueText": null,
           "id": ".secured.<<methodName>>#example"
+        },
+        {
+          "title": "facets",
+          "description": "Insert facets",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".secured.<<methodName>>#facets#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "examples",
+          "description": "Insert examples",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".secured.<<methodName>>#examples#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "xml",
+          "description": "Insert xml",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".secured.<<methodName>>#xml#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".secured.<<methodName>>#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

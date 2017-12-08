@@ -27,9 +27,9 @@ export function getValidationReport(apiPath:string, callback: (result: Object, e
         
         connection = index.getNodeClientConnection();
         
-        connection.setLoggerConfiguration({
-            disabled: true
-        });
+        // connection.setLoggerConfiguration({
+        //     disabled: true
+        // });
 
         connection.documentOpened({
             uri: apiPath,
@@ -52,9 +52,9 @@ export function startTyping(apiPath, done: (error?: any) => void) {
 
     connection = index.getNodeClientConnection();
 
-    connection.setLoggerConfiguration({
-        disabled: true
-    });
+    // connection.setLoggerConfiguration({
+    //     disabled: true
+    // });
 
     var changer = new TextChanger(content, true);
     

@@ -56,6 +56,14 @@
           "children": [],
           "valueText": "false",
           "id": "./res.get.200.application/xml.example[1]#strict"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./res.get.200.application/xml.example[1]#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

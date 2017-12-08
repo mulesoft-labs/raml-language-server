@@ -314,9 +314,9 @@ function openDocument(absoluteUri: string): Promise<RequestResult> {
 function openConnection(): void {
     connection = index.getNodeClientConnection();
 
-    connection.setLoggerConfiguration({
-        disabled: true
-    });
+    // connection.setLoggerConfiguration({
+    //     disabled: true
+    // });
 }
 
 function getAbsoluteUri(relativePath: string): string {

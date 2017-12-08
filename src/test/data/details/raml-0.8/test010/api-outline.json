@@ -48,6 +48,46 @@
           "children": [],
           "valueText": "",
           "id": "./users/{id}.get#protocols"
+        },
+        {
+          "title": "body",
+          "description": "Insert body",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./users/{id}.get#body#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "baseUriParameters",
+          "description": "Insert baseUriParameters",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./users/{id}.get#baseUriParameters#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "queryParameters",
+          "description": "Insert queryParameters",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./users/{id}.get#queryParameters#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "headers",
+          "description": "Insert headers",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./users/{id}.get#headers#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./users/{id}.get#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

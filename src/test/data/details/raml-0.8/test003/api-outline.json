@@ -68,6 +68,111 @@
       ],
       "valueText": null,
       "id": "Category#References"
+    },
+    {
+      "title": "General",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "uriParameters",
+          "description": "Insert uriParameters",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test#uriParameters#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "baseUriParameters",
+          "description": "Insert baseUriParameters",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test#baseUriParameters#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "get",
+          "description": "Insert methods",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test#methods#get",
+          "subType": "INSERT_VALUE"
+        },
+        {
+          "title": "put",
+          "description": "Insert methods",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test#methods#put",
+          "subType": "INSERT_VALUE"
+        },
+        {
+          "title": "post",
+          "description": "Insert methods",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test#methods#post",
+          "subType": "INSERT_VALUE"
+        },
+        {
+          "title": "delete",
+          "description": "Insert methods",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test#methods#delete",
+          "subType": "INSERT_VALUE"
+        },
+        {
+          "title": "patch",
+          "description": "Insert methods",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test#methods#patch",
+          "subType": "INSERT_VALUE"
+        },
+        {
+          "title": "options",
+          "description": "Insert methods",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test#methods#options",
+          "subType": "INSERT_VALUE"
+        },
+        {
+          "title": "head",
+          "description": "Insert methods",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test#methods#head",
+          "subType": "INSERT_VALUE"
+        },
+        {
+          "title": "trace",
+          "description": "Insert methods",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test#methods#trace",
+          "subType": "INSERT_VALUE"
+        },
+        {
+          "title": "connect",
+          "description": "Insert methods",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test#methods#connect",
+          "subType": "INSERT_VALUE"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
+        }
+      ],
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
   "valueText": null,

@@ -69,6 +69,38 @@
             }
           ],
           "valueText": null
+        },
+        {
+          "title": "facets",
+          "description": "Insert facets",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test.post.201.application/json#facets#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "examples",
+          "description": "Insert examples",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test.post.201.application/json#examples#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "xml",
+          "description": "Insert xml",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test.post.201.application/json#xml#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./test.post.201.application/json#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

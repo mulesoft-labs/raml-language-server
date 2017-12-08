@@ -31,6 +31,14 @@
           "children": [],
           "valueText": "",
           "id": ".oauth_2_0.settings#scopes"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".oauth_2_0.settings#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

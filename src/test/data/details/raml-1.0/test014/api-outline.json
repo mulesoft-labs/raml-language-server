@@ -174,6 +174,46 @@
             }
           ],
           "valueText": null
+        },
+        {
+          "title": "facets",
+          "description": "Insert facets",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./locations.get.queryString#facets#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "example",
+          "description": "Insert example",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./locations.get.queryString#example#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "xml",
+          "description": "Insert xml",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./locations.get.queryString#xml#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "properties",
+          "description": "Insert properties",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./locations.get.queryString#properties#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./locations.get.queryString#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

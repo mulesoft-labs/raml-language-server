@@ -701,14 +701,15 @@ function getDetailsJSONAsync(apiPath:string, callback: (result: Object, error: a
     //     maxMessageLength: 500
     // });
 
-    connection.setLoggerConfiguration({
-        maxSeverity: 4,
-        maxMessageLength: 50
-    });
+    // connection.setLoggerConfiguration({
+    //     maxSeverity: 4,
+    //     maxMessageLength: 50
+    // });
 
     connection.setServerConfiguration({
         modulesConfiguration: {
-            enableDetailsModule: true
+            enableDetailsModule: true,
+            enableCustomActionsModule: false
         }
     })
 

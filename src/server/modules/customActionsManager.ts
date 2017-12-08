@@ -38,6 +38,10 @@ export interface IActionManagerModule extends IDisposableModule {
 
     calculateEditorActions(uri: string, position?: number):
         Promise<IExecutableAction[]>;
+    /**
+     * Whether module is disposed.
+     */
+    isDisposed(): boolean;
 }
 
 export function createManager(connection: IServerConnection,
@@ -162,6 +166,7 @@ class CustomActionsManager implements IDisposableModule {
     private getAllActionsListener;
     private onExecuteContextActionListener;
     private onSetServerConfigurationListener;
+    private disposed: boolean = false;
 
     constructor(private connection: IServerConnection, private astManagerModule: IASTManagerModule,
                 private editorManager: IEditorManagerModule) {
@@ -170,6 +175,7 @@ class CustomActionsManager implements IDisposableModule {
     }
 
     public launch() {
+        this.disposed = false;
 
         this.onCalculateEditorContextActionsListener = (uri, position?) => {
             return this.calculateEditorActions(uri, position);
@@ -205,6 +211,8 @@ class CustomActionsManager implements IDisposableModule {
     }
 
     public dispose(): void {
+        this.disposed = true;
+
         this.connection.onCalculateEditorContextActions(
             this.onCalculateEditorContextActionsListener, true
         );
@@ -218,6 +226,10 @@ class CustomActionsManager implements IDisposableModule {
         this.connection.onSetServerConfiguration(
             this.onSetServerConfigurationListener, true
         );
+    }
+
+    public isDisposed(): boolean {
+        return this.disposed;
     }
 
     /**

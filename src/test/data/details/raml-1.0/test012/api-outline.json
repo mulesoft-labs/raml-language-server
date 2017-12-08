@@ -47,6 +47,46 @@
           "children": [],
           "valueText": "false",
           "id": "./users./{userIds}.userIds#required"
+        },
+        {
+          "title": "facets",
+          "description": "Insert facets",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./users./{userIds}.userIds#facets#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "example",
+          "description": "Insert example",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./users./{userIds}.userIds#example#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "examples",
+          "description": "Insert examples",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./users./{userIds}.userIds#examples#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "xml",
+          "description": "Insert xml",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./users./{userIds}.userIds#xml#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./users./{userIds}.userIds#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

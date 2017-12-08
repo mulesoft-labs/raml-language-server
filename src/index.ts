@@ -51,4 +51,4 @@ export import textEditProcessor = require("./common/textEditProcessor");
 
 export {
     AbstractClientConnection
-} from "../src/entryPoints/common/client/abstractClient";
+} from "./entryPoints/common/client/abstractClient";

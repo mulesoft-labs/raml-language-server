@@ -23,6 +23,14 @@
           "children": [],
           "valueText": "{\n  \"$schema\": \"http://json-schema.org/draft-03/schema\",\n  \"type\": \"object\" ,\n  \"properties\": {\n    \"type\": {\n      \"type\": \"string\"\n    },\n    \"id\": {\n      \"type\": \"string\"\n    }\n  }\n}\n",
           "id": ".TestSchema#value"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".TestSchema#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

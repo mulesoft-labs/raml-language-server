@@ -27,6 +27,31 @@
       ],
       "valueText": null,
       "id": "Category#Documentation"
+    },
+    {
+      "title": "General",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "headers",
+          "description": "Insert headers",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".collection.get.200#headers#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".collection.get.200#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
+        }
+      ],
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
   "valueText": null,

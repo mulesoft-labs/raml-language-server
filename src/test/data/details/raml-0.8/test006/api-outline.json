@@ -18,6 +18,23 @@
       "children": [],
       "valueText": "description",
       "id": ".#content"
+    },
+    {
+      "title": "General",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
+        }
+      ],
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
   "valueText": null,

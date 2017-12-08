@@ -35,6 +35,39 @@
       ],
       "valueText": null,
       "id": "Category#Documentation"
+    },
+    {
+      "title": "General",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "describedBy",
+          "description": "Insert describedBy",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".basic#describedBy#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "settings",
+          "description": "Insert settings",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".basic#settings#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".basic#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
+        }
+      ],
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
   "valueText": null,

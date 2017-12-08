@@ -73,6 +73,54 @@
           "children": [],
           "valueText": "",
           "id": "./products.get#protocols"
+        },
+        {
+          "title": "queryParameters",
+          "description": "Insert queryParameters",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./products.get#queryParameters#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "headers",
+          "description": "Insert headers",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./products.get#headers#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "queryString",
+          "description": "Insert queryString",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./products.get#queryString#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "responses",
+          "description": "Insert responses",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./products.get#responses#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "body",
+          "description": "Insert body",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./products.get#body#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./products.get#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

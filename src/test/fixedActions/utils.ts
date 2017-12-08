@@ -300,12 +300,12 @@ function callMarkOccurrences(apiPath: string, parseResult: ParseResult,
 
     const connection = getNodeClientConnection();
 
-    connection.setLoggerConfiguration({
-        allowedComponents: [
-            "FixedActionsManager"
-        ],
-        maxMessageLength: 5000
-    });
+    // connection.setLoggerConfiguration({
+    //     allowedComponents: [
+    //         "FixedActionsManager"
+    //     ],
+    //     maxMessageLength: 5000
+    // });
 
     connection.documentOpened({
         uri: apiPath,

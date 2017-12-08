@@ -43,6 +43,31 @@
       "children": [],
       "valueText": "x-custom",
       "id": ".custom_scheme#type"
+    },
+    {
+      "title": "General",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "settings",
+          "description": "Insert settings",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".custom_scheme#settings#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".custom_scheme#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
+        }
+      ],
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
   "valueText": null,

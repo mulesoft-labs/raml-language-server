@@ -65,6 +65,30 @@
           "children": [],
           "valueText": "",
           "id": ".oauth_2_0.describedBy#protocols"
+        },
+        {
+          "title": "body",
+          "description": "Insert body",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".oauth_2_0.describedBy#body#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "baseUriParameters",
+          "description": "Insert baseUriParameters",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".oauth_2_0.describedBy#baseUriParameters#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".oauth_2_0.describedBy#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

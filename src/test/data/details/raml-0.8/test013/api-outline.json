@@ -47,6 +47,14 @@
           "children": [],
           "valueText": "false",
           "id": "./jobs.post.X-Tracker#required"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "./jobs.post.X-Tracker#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

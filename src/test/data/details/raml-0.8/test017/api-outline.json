@@ -35,6 +35,31 @@
       ],
       "valueText": null,
       "id": "Category#Documentation"
+    },
+    {
+      "title": "General",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "describedBy",
+          "description": "Insert describedBy",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".oauth_1_0#describedBy#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".oauth_1_0#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
+        }
+      ],
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
   "valueText": null,

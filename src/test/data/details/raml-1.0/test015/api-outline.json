@@ -56,6 +56,14 @@
           "children": [],
           "valueText": "false",
           "id": ".secured.access_token.example[1]#strict"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".secured.access_token.example[1]#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

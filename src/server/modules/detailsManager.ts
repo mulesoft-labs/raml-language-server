@@ -221,7 +221,7 @@ class DetailsManager implements IDisposableModule {
     }
 
     private addActionsToDetails(root: DetailsItemJSON, uri: string, position: number): Promise<DetailsItemJSON> {
-        if (!this.actionManagerModule) {
+        if (!this.actionManagerModule || this.actionManagerModule.isDisposed()) {
             return Promise.resolve(root);
         }
 

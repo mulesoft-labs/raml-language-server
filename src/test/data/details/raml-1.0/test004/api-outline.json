@@ -81,6 +81,46 @@
           "children": [],
           "valueText": "HTTPS",
           "id": ".base#protocols"
+        },
+        {
+          "title": "headers",
+          "description": "Insert headers",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".base#headers#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "queryString",
+          "description": "Insert queryString",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".base#queryString#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "responses",
+          "description": "Insert responses",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".base#responses#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "body",
+          "description": "Insert body",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".base#body#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".base#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

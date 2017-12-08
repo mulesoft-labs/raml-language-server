@@ -73,6 +73,38 @@
           "children": [],
           "valueText": "",
           "id": ".collection.get#protocols"
+        },
+        {
+          "title": "headers",
+          "description": "Insert headers",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".collection.get#headers#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "queryString",
+          "description": "Insert queryString",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".collection.get#queryString#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "body",
+          "description": "Insert body",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".collection.get#body#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".collection.get#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

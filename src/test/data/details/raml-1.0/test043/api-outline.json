@@ -39,6 +39,54 @@
           "children": [],
           "valueText": "false",
           "id": ".MyResourceType.post.application/xml#isAnnotation"
+        },
+        {
+          "title": "facets",
+          "description": "Insert facets",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".MyResourceType.post.application/xml#facets#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "example",
+          "description": "Insert example",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".MyResourceType.post.application/xml#example#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "examples",
+          "description": "Insert examples",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".MyResourceType.post.application/xml#examples#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "xml",
+          "description": "Insert xml",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".MyResourceType.post.application/xml#xml#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "properties",
+          "description": "Insert properties",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".MyResourceType.post.application/xml#properties#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".MyResourceType.post.application/xml#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

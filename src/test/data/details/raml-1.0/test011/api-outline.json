@@ -47,6 +47,14 @@
           "children": [],
           "valueText": "false",
           "id": ".Person.name[1].xml#wrapped"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".Person.name[1].xml#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

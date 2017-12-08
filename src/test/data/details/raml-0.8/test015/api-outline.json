@@ -47,6 +47,14 @@
           "children": [],
           "valueText": "true",
           "id": ".secured.access_token#required"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".secured.access_token#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

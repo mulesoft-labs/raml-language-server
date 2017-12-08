@@ -39,6 +39,86 @@
           "children": [],
           "valueText": null,
           "id": "#version"
+        },
+        {
+          "title": "uses",
+          "description": "Insert uses",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "#uses#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "schemas",
+          "description": "Insert schemas",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "#schemas#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "types",
+          "description": "Insert types",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "#types#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "traits",
+          "description": "Insert traits",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "#traits#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "resourceTypes",
+          "description": "Insert resourceTypes",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "#resourceTypes#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "annotationTypes",
+          "description": "Insert annotationTypes",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "#annotationTypes#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "securitySchemes",
+          "description": "Insert securitySchemes",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "#securitySchemes#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "baseUriParameters",
+          "description": "Insert baseUriParameters",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "#baseUriParameters#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "documentation",
+          "description": "Insert documentation",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "#documentation#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": "#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

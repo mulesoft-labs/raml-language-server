@@ -65,6 +65,38 @@
           "children": [],
           "valueText": "",
           "id": ".custom_scheme.describedBy#protocols"
+        },
+        {
+          "title": "body",
+          "description": "Insert body",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".custom_scheme.describedBy#body#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "baseUriParameters",
+          "description": "Insert baseUriParameters",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".custom_scheme.describedBy#baseUriParameters#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "queryParameters",
+          "description": "Insert queryParameters",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".custom_scheme.describedBy#queryParameters#",
+          "subType": "INSERT"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".custom_scheme.describedBy#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

@@ -31,6 +31,14 @@
           "children": [],
           "valueText": "HMAC-SHA1, PLAINTEXT",
           "id": ".oauth_1_0.settings#signatures"
+        },
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".oauth_1_0.settings#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
         }
       ],
       "valueText": null,

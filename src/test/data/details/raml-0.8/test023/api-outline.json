@@ -26,6 +26,23 @@
       "children": [],
       "valueText": "https://api.mysampleapi.com/1/oauth/access_token",
       "id": ".oauth_1_0.settings#tokenCredentialsUri"
+    },
+    {
+      "title": "General",
+      "description": "",
+      "type": "CATEGORY",
+      "children": [
+        {
+          "title": "Delete",
+          "description": "",
+          "type": "DETAILS_ACTION",
+          "children": [],
+          "id": ".oauth_1_0.settings#DELETE_DETAILS_ACTION",
+          "subType": "DELETE"
+        }
+      ],
+      "valueText": null,
+      "id": "Category#General"
     }
   ],
   "valueText": null,
