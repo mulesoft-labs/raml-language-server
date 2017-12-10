@@ -184,16 +184,22 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
     public detailsAvailable(report: IDetailsReport) {
         this.extendedConnection.detailsAvailable(report);
     }
+
+    public structureAvailable(report: IStructureReport) {
+        this.extendedConnection.structureAvailable(report);
+    }
     
     public onSetServerConfiguration(listener) {
         this.extendedConnection.onSetServerConfiguration(listener);
     }
 
     public onOpenDocument(listener) {
+        super.onOpenDocument(listener);
         this.extendedConnection.onOpenDocument(listener);
     }
 
     public onChangeDocument(listener) {
+        super.onChangeDocument(listener);
         this.extendedConnection.onChangeDocument(listener);
     }
 
