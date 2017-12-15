@@ -202,6 +202,22 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
         super.onChangeDocument(listener);
         this.extendedConnection.onChangeDocument(listener);
     }
+    
+    public onAllEditorContextActions(listener) {
+        this.extendedConnection.onAllEditorContextActions(listener);
+    }
+
+    public onCalculateEditorContextActions(listener) {
+        this.extendedConnection.onCalculateEditorContextActions(listener);
+    }
+
+    public onExecuteContextAction(listener) {
+        this.extendedConnection.onExecuteContextAction(listener);
+    }
+
+    public displayActionUI(data) {
+        return this.extendedConnection.displayActionUI(data);
+    }
 
     /**
      * Reports latest validation results
