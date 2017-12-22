@@ -3,7 +3,7 @@ export function findSelection(node, position, content): string {
         return null;
     }
     
-    var names = ["name", "type", "is", "securedBy", "schema"];
+    var names = ["name", "type", "is", "securedBy", "schema", "annotations"];
 
     for(var i = 0; i < names.length; i++) {
         var name = names[i];
