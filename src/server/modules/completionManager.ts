@@ -473,6 +473,12 @@ class CompletionManagerModule implements IDisposableModule {
 
                 throw error;
             });
+        }, (rejection) => {
+            if(rejection.message && rejection.message.indexOf("Invalid first line") === 0) {
+                return suggestions.suggest(editorProvider, fsProvider);
+            }
+            
+            return Promise.reject(rejection);
         });
 
     }
