@@ -422,10 +422,18 @@ export class ProxyServerConnection extends AbstractServerConnection implements I
 
                     text = this.removeCompletionPreviousLineIndentation(text);
 
-                    result.push({
-                        label: text,
-                        kind: CompletionItemKind.Text
-                    });
+                    if(suggestion.extra && suggestion.displayText) {
+                        result.push({
+                            label: suggestion.displayText,
+                            insertText: suggestion.extra + text,
+                            kind: CompletionItemKind.Text
+                        });
+                    } else {
+                        result.push({
+                            label: text,
+                            kind: CompletionItemKind.Text
+                        });
+                    }
                 }
             }
 
