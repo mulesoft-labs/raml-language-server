@@ -302,7 +302,7 @@ describe("Suggestion tests", function() {
     });
 
     it("Resource node 'type:'", function (done) {
-        testCompletionByEntryEnd('basic/test27.raml', done, '\n  t', 'type');
+        testCompletionByEntryEnd('basic/test27.raml', done, '\n  t', 'type, trace');
     });
 
     it("Resource nodes 'description, displayName, delete'", function (done) {
@@ -596,7 +596,7 @@ describe("Suggestion tests", function() {
     });
 
     it("test61", function (done) {
-        testCompletionByEntryStart('basic/test61.raml', done, '#marker', 'is, type, description, securedBy, uriParameters, displayName, get, put, post, delete, options, head, patch');
+        testCompletionByEntryStart('basic/test61.raml', done, '#marker', 'is, type, description, securedBy, uriParameters, displayName, get, put, post, delete, options, head, patch, trace, connect');
     });
 });
 
