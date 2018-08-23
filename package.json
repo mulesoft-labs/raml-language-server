@@ -39,7 +39,7 @@
     "vscode-languageserver": "^3.2.0",
     "promise-polyfill": "6.0.2",
     "urijs": "1.19.0",
-    "underscore": "^1.8.3"
+    "underscore": "1.9.1"
   },
   "devDependencies": {
     "@types/node": "8.0.47",
@@ -47,7 +47,7 @@
     "@types/chai": "4.0.4",
     "@types/es6-promise": "0.0.33",
     "@types/underscore": "1.8.3",
-    "typescript": "2.8.4",
+    "typescript": "3.0.1",
     "dev-env-installer": "0.0.14",
     "rimraf": "2.6.2",
     "chai": "4.1.2",
