@@ -137,7 +137,7 @@ class ASTModifier implements ramlActions.IASTModifier {
     constructor(private uri: string,
                 private changeExecutor: CollectingDocumentChangeExecutor) {}
 
-    public deleteNode(node: hl.IParseResult) {
+    public deleteNode(node: hl.IParseResult):void {
 
         const parent = node.parent();
         if (parent) {
@@ -146,7 +146,7 @@ class ASTModifier implements ramlActions.IASTModifier {
         }
     }
 
-    public updateText(node: lowLevel.ILowLevelASTNode) {
+    public updateText(node: lowLevel.ILowLevelASTNode):void {
         const newText = node.unit().contents();
 
         this.changeExecutor.changeDocument({
