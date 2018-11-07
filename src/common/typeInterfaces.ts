@@ -210,7 +210,9 @@ export enum StructureCategories {
     ResourcesCategory = "Resources" as any,
     SchemasAndTypesCategory = "Schemas & Types" as any,
     ResourceTypesAndTraitsCategory = "Resource Types & Traits" as any,
-    OtherCategory = "Other" as any
+    OtherCategory = "Other" as any,
+    DeclaresCategory = "Declares" as any,
+    EncodesCategory = "Encodes" as any
 }
 
 // TODO rename from currently used atom icons to something more meaningful/universal
